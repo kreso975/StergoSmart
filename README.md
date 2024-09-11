@@ -8,10 +8,10 @@ Smart Home IOT - Weather and Switches with GUI
   
 [![Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/kreso975)
 
-ESP-8266-01S , minimum 1M
+**ESP-8266-01S , minimum 1M**
 
 > [!IMPORTANT]
-> Works with SPIFF  
+> **Works with SPIFF**  
 > Works only in old Arduino IDE 1.8  
 > SPIFF UPLOAD ( ESP8266 Scatch Data Upload )  
 >	Download https://github.com/esp8266/arduino-esp8266fs-plugin/releases - ESP8266FS  
@@ -28,8 +28,8 @@ ESP-8266-01S , minimum 1M
 > PubSubClient by Nick O'Leary **v2.7**  
 > Time by Michael Margolis **v1.6.1**
 
-> [!INFO]
-> Compile setup:  
+> [!NOTE]
+> **Compile setup: ** 
 > ESP8266 : TOOLS >>  
 >	Board: Generic ESP8266 Module  
 >	Biolt in LED: 2  
