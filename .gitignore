@@ -2,6 +2,9 @@
 build
 *.bin
 
+# Git ignore
+.git
+
 # Ignore HTML folder and files - only .gz is OK
 index.html/
 *.html
