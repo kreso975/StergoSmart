@@ -67,7 +67,7 @@ void checkSwitchState()
 
 
 
-
+  // Sonoff S26 && Sonoff T4EU1C
   #if ( STERGO_PLUG == 2 || STERGO_PLUG == 3 )                  //===============================================
 
   // called when button is kept pressed for less than 2 seconds
