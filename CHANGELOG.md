@@ -111,4 +111,5 @@
 - added releaseLog file as part of Project - trace changes in code  
                     
          
-0.5.32 - SSDP.setModelURL("Test"); TEMP fixed wrong generation of url
+**0.5.32**  
+- SSDP.setModelURL("Test"); TEMP fixed wrong generation of url  
