@@ -1,0 +1,20 @@
+# Ignore compiled code
+build
+*.bin
+
+# Ignore HTML folder and files - only .gz is OK
+index.html/
+*.html
+*.htm
+
+# ------------- Defaults ------------- #
+
+# Logs
+logs
+*.log
+
+# Device directories
+data-configs/
+
+# Webstorm
+.idea
