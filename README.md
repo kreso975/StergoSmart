@@ -25,7 +25,7 @@ Smart Home IOT - Weather and Switches with GUI
 > Adafruit Unified Sensor by Adafruit **v1.1.14**  
 > Adafruit BusIO by Adafruit **v1.16.1**  
 > Arduinojson by Benoit Blanchon **v5.13.5**  
-> PubSubClient by Nick O'Leary **v2.7**  
+> PubSubClient by Nick O'Leary **v2.8**  
 > Time by Michael Margolis **v1.6.1**
 
 > [!NOTE]

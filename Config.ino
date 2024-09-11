@@ -172,6 +172,7 @@ bool writeToConfig( String* message )
 	//configMain.printTo(Serial);
 	//return true;
 
+	// Let's check if we have change request for MQTT state (start/stop)
 	if ( server.hasArg("stateOn") ) // Check if MQTT was started or Stopped
 	{
 		if ( server.arg("stateOn") == "1" )
