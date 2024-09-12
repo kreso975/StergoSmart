@@ -131,8 +131,22 @@ bool sendMQTT ()
     
       return true;
     }
-  #endif                                      //===============================================
-  
+  #endif                                                           //===============================================
+  #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )               //===============================================
+    if ( client.connected() )
+    {
+      // Prep publish for PowerState change
+      // Let's try to publish Temperature
+      if ( client.publish( mqtt_switch, (char*) String(relay01State).c_str() ) )
+      {
+        //writeLogFile( F("Publish Temperature: ok"), 1 );
+      }
+      else
+      {
+        //writeLogFile( F("Publish Temperature: failed"), 1 );
+      } 
+    }
+  #endif                                                           //===============================================
   return false;
 }
 

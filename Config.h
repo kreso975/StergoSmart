@@ -1,7 +1,7 @@
 //
 // "StergoWeather" = 1, "PowerSwitch" = 0, "ticTacToe" = 2, StergoWeather+PowerSwitch = 3, "EXCLUDED CODE" = 9 );
 //
-#define STERGO_PROGRAM 1
+#define STERGO_PROGRAM 0
 
 /*
  * Different models used for Plug / Switch
@@ -11,7 +11,7 @@
  * Sonoff T4EU1C      = 3   //Light Switch
  */
 #if (STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3)  // DON'T TOUCH
-#define STERGO_PLUG 3                             // CHANGE THIS
+#define STERGO_PLUG 1                             // CHANGE THIS
 #endif
 
 

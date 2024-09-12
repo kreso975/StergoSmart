@@ -21,6 +21,10 @@ void turnSwitchState( int state )
     digitalWrite( RELAY, HIGH );
 
     relay01State = true;
+    if (mqtt_start == 1)
+    {
+      sendMQTT ();
+    }
     server.sendHeader( "Access-Control-Allow-Origin", "*" );
     server.send( 200, "application/json", POWERON );
   }  
@@ -29,6 +33,10 @@ void turnSwitchState( int state )
     digitalWrite( RELAY, LOW );
 
     relay01State = false;
+    if (mqtt_start == 1)
+    {
+      sendMQTT ();
+    }
     server.sendHeader( "Access-Control-Allow-Origin", "*" );
     server.send( 200, "application/json", POWEROFF );
   }

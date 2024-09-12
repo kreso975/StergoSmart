@@ -47,8 +47,8 @@
 #if ( STERGO_PROGRAM != 3 )            //===============================================
   bool detectModule = true;            // Was detectBME280 use True if moduledetection not needed
   
-  int mqtt_interval = 0;
-  int webLoc_interval = 0;
+  //int mqtt_interval = 0;
+  //int webLoc_interval = 0;
 
   long lastMsg = 0;
   char msg[50];

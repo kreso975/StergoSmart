@@ -79,7 +79,7 @@ bool initConfig( String* message )
 		strcpy(mqtt_bme280Pressure, configMain["mqtt_bme280Pressure"]);
 	#endif                                                  //===============================================
 
-  #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )      //=============== Power Switch ==============
+    #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )      //=============== Power Switch ==============
 		strcpy(mqtt_switch, configMain["mqtt_switch"]);
 		strcpy(mqtt_switch2, configMain["mqtt_switch2"]);
 	#endif                                                  //===============================================
@@ -149,7 +149,15 @@ bool writeToConfig( String* message )
 
 		for ( byte i = 0; i < NAMES_IN_USE_4; i++ )
 			if ( server.hasArg(intArray_2[i]) )  configMain[intArray_2[i]] = server.arg(intArray_2[i]).toInt();
-	#endif 
+	#endif
+
+	#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )      				//=============== Weather Station ==============
+		String stringArray_3[] = {"mqtt_switch", "mqtt_switch2"};
+		const byte NAMES_IN_USE_5 = 2;
+		
+		for ( byte i = 0; i < NAMES_IN_USE_5; i++ )
+			if ( server.hasArg(stringArray_3[i]) )  configMain[stringArray_3[i]] = server.arg(stringArray_3[i]);
+	#endif  
   
 	
 	File file = SPIFFS.open( configFile, "w" );
