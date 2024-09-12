@@ -151,7 +151,7 @@ bool writeToConfig( String* message )
 			if ( server.hasArg(intArray_2[i]) )  configMain[intArray_2[i]] = server.arg(intArray_2[i]).toInt();
 	#endif
 
-	#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )      				//=============== Weather Station ==============
+	#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )      				//=============== Power Switch ==============
 		String stringArray_3[] = {"mqtt_switch", "mqtt_switch2"};
 		const byte NAMES_IN_USE_5 = 2;
 		

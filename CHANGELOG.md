@@ -7,7 +7,10 @@
  
  <br><br>
  
-## **CHANGES:**  
+## **CHANGES:** 
+**000.05.099**  
+- Added Switch MQTT basic On/Off only for 1 switch, fix and modifications on index.html. No IP harcoded any more. 
+
 **000.05.098**  
 - Added Switch MQTT Topics save in config, fix mqtt time interval used from config.json  
 
