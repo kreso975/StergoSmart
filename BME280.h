@@ -26,44 +26,15 @@ bool detectModule = false;                // Was detectBME280 use True if module
  * pl_adj   : value of adjustment
  * t = Temperature, h = Humidity, p = Pressure, dp = dewPoint, P0 = Adjusted Pressure to Location Altitude
  * t_measure : 0 = Meter | 1 = Feet;  p_measure : 0 = hPa | 1 = inhg;
- */
-/*
-struct Config {
-  	byte deviceID						  =	1;
-	byte deviceType						  =	1;
-	char deviceName[16]					=	"";
-	char moduleName[20]					=	"Weather Station - WS001V01";
-	byte t_measure						  =	0;
-	byte p_measure						  =	0;
-	byte p_adjust						    =	1;
-	byte pa_unit						    =	0;
-	int pl_adj							    =	122;
-	byte wifi_runAS						  =	1;
-	byte wifi_hideAP					  =	0;
-	char softAP_ssid[20]				=	"StergoSmart_ap";            //This value shows only if SPIFFS not loaded
-	char softAP_pass[20]				=	"987654321";                 //
-	char wifi_hostname[20]			=	"StergoSmart";
-	byte wifi_static					  =	0;
-	char wifi_StaticIP[16]			=	"";
-	char wifi_ssid[20]					=	"GoAway"; // SSID in app / web
- 	char wifi_password[20]			=	"wireless01";
-	char wifi_gateway[16]				=	"";
-	char wifi_subnet[16] 				=	"";
-	char wifi_DNS[16]					  =	"";
-	byte mqtt_start						  =	0;
-	int mqtt_interval					  =	60;
-	byte webLoc_start					  =	0;
-	int webLoc_interval					=	60;
-	char mqtt_server[20]				=	"192.168.1.101";
-	int mqtt_port						    =	"21883";
-	char mqtt_clientName[23] 			    =	"Garaza_1521214361";
-	char mqtt_clientUsername[50]		  =	"8b16e04c-cd07-45c1-9525-d7831574da47";
-	char mqtt_clientPassword[50]		  =	"r:feed36bdad2010009cfc0230efa46652";
-	char mqtt_myTopic[120]				    =	"/home/ESP8266-1/state";
-	char mqtt_bme280Humidity[120]		  =	"qiot/things/admin/Garaza/GarazaHumidity";
-	char mqtt_bme280Temperature[120]	=	"qiot/things/admin/Garaza/GarazaTemperature";
-	char mqtt_bme280Pressure[120]     =	"qiot/things/admin/Garaza/GarazaPressure";
-};
+ *
+ * struct Config {
+ *	  byte t_measure						  =	0;
+ *	  byte p_measure						  =	0;
+ *	  byte p_adjust						      =	1;
+ *	  byte pa_unit						      =	0;
+ *	  int pl_adj							  =	122;
+ * };
+ *
 */
 
 byte pa_unit, t_measure, p_measure, p_adjust;

@@ -12,9 +12,11 @@ bool setupMQTT( String* message, int what )
     if ( !client.connected() )
     {
   		client.setServer( mqtt_server, mqtt_port );
-  		#if ( STERGO_PROGRAM == 0  || STERGO_PROGRAM == 3 )     //===============================================
-    	client.setCallback(callbackMQTT);                       // Only Switch need listening
-  		#endif                                                  //===============================================
+
+  		#if ( STERGO_PROGRAM == 0  || STERGO_PROGRAM == 3 )     //====================================================
+    	client.setCallback(callbackMQTT);                       // Only Switch needs listening, Weather just publishes
+  		#endif                                                  //====================================================
+      
   		if ( !client.connected() )
   		{
     		if ( MQTTreconnect() )
