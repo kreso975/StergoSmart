@@ -102,7 +102,7 @@ bool sendMQTT ()
       //String pres = "";pres += P0;pres += "";
 
       // Let's try to publish Temperature
-      if ( client.publish( mqtt_bme280Temperature, (char*) String(t).c_str() ) )
+      if ( client.publish( mqtt_bme280Temperature, (char*) String(t).c_str(), true ) )
       {
         //writeLogFile( F("Publish Temperature: ok"), 1 );
       }
@@ -112,7 +112,7 @@ bool sendMQTT ()
       }
       
       // Let's try to publish Humidity
-      if ( client.publish( mqtt_bme280Humidity, humidityString ) )
+      if ( client.publish( mqtt_bme280Humidity, humidityString, true ) )
       {
         //writeLogFile( F("Publish Humidity: ok"), 1 );
       }
@@ -122,7 +122,7 @@ bool sendMQTT ()
       }
     
       // Let's try to publish Pressure
-      if ( client.publish( mqtt_bme280Pressure, pressureString ) )
+      if ( client.publish( mqtt_bme280Pressure, pressureString, true ) )
       {
         //writeLogFile( F("Publish Pressure: ok"), 1 );
       }
@@ -140,7 +140,7 @@ bool sendMQTT ()
     {
       // Prep publish for PowerState change
       // Let's try to publish Temperature
-      if ( client.publish( mqtt_switch, (char*) String(relay01State).c_str() ) )
+      if ( client.publish( mqtt_switch, (char*) String(relay01State).c_str(), true ) )
       {
         //writeLogFile( F("MQTT Switch: ok"), 1 );
       }

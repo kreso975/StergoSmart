@@ -8,6 +8,9 @@
  <br><br>
  
 ## **CHANGES:** 
+**000.05.100**  
+- Added 'retain: **true**' in MQTT publish
+
 **000.05.099**  
 - Added Switch MQTT basic On/Off only for 1 switch, fix and modifications on index.html. No IP harcoded any more. 
 
