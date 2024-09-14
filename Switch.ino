@@ -2,9 +2,9 @@
 
 bool setupSwitch()
 {
-  pinMode( RELAY, OUTPUT );
   digitalWrite( RELAY, LOW );
-
+  pinMode( RELAY, OUTPUT );
+  
   #if ( STERGO_PLUG == 2 || STERGO_PLUG == 3 )
     pinMode( LED, OUTPUT );
     pinMode( BUTTON01, INPUT );

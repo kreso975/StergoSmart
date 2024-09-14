@@ -28,7 +28,7 @@
 #include <FS.h>
 #include <TimeLib.h>
 #include <NTPClient.h>
-#include "ArduinoJson.h"  //v5
+#include "ArduinoJson.h"  //v5.13.5
 #include <WiFiUdp.h>
 #include <PubSubClient.h>
 #include <ESP8266SSDP.h>

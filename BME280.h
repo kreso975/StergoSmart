@@ -6,7 +6,7 @@
   #define MODEL_NAME "WS002"
 #endif
 
-// 			MODEL_NUMBER "v01" ( ESP8266 default 01S)
+// 		MODEL_NUMBER "v01" ( ESP8266 default 01S)
 //      MODEL_NUMBER "v02" ( LOLIN D1 mini)
 #define MODEL_NUMBER "v01"
 

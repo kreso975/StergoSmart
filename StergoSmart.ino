@@ -125,15 +125,15 @@ void loop()
       #if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )   //===============================================
         if ( millis() - mqtt_previousMillis > mqtt_intervalHist )
         {
-          mqtt_previousMillis = millis();
-          sendMQTT();
+        	mqtt_previousMillis = millis();
+        	sendMQTT();
         }
       #endif                                               //===============================================
       
-          if (!client.connected())
-            MQTTreconnect();
+        if (!client.connected())
+        	MQTTreconnect();
 
-          client.loop();
+        	client.loop();
       }
 
 
