@@ -8,8 +8,18 @@ Smart Home IOT - Weather and Switches with GUI
   
 [![Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/kreso975)
 
-**ESP-8266-01S , minimum 1M**
+**ESP-8266-01S , minimum 1M**  
+tested with Sonoff S26, T4EU1C
 
+- Bootstrap 3.4
+- jQuery
+- GUI Interface: Dashboard, Configuration
+- Google Charts
+- Captive portal for initial Setup
+- OTA update
+- MQTT, HTTP, Publish to web location
+- WiFi manager
+  
 > [!IMPORTANT]
 > **Works with SPIFF**  
 > Works only in old Arduino IDE 1.8  
