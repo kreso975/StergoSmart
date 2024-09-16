@@ -87,6 +87,6 @@ tested with Sonoff S26, T4EU1C
 
 **Settings**  
 
-![Settings](./ScreenShots/StergoSmart-Publish.png?raw=true "Settings")  
+![Settings](./ScreenShots/StergoSmart-Settings.png?raw=true "Settings")  
 
   
