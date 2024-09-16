@@ -63,6 +63,30 @@ tested with Sonoff S26, T4EU1C
 >	SSL Support: Basic SSL ciphers (lower ROM use)  
 
 
-Screenshots of GUI  
+## Screenshots of GUI  
+  
+**Dashboard**  
 
-![DashBoard](/ScreenShots/StergoSmart-DashBoard.png?raw=true Dashboard")  
+![DashBoard](./ScreenShots/StergoSmart-DashBoard.png?raw=true "Dashboard")  
+
+
+**Info**  
+
+![Info](./ScreenShots/StergoSmart-Info.png?raw=true "Info")  
+
+
+**Publish**  
+
+![Publish](./ScreenShots/StergoSmart-Publish.png?raw=true "Publish")  
+
+
+**WiFi**  
+
+![WiFi](./ScreenShots/StergoSmart-Publish.png?raw=true "WiFi")  
+  
+
+**Settings**  
+
+![Settings](./ScreenShots/StergoSmart-Publish.png?raw=true "Settings")  
+
+  
