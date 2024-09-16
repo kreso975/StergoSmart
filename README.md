@@ -82,7 +82,7 @@ tested with Sonoff S26, T4EU1C
 
 **WiFi**  
 
-![WiFi](./ScreenShots/StergoSmart-Publish.png?raw=true "WiFi")  
+![WiFi](./ScreenShots/StergoSmart-WiFi.png?raw=true "WiFi")  
   
 
 **Settings**  
