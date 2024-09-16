@@ -52,6 +52,7 @@ bool MQTTreconnect()
   // Loop until we're reconnected || return false
   while ( !client.connected() )
   {
+    writeLogFile( F("MQTT Reconnecting"), 1 );
     //Serial.println( String(mqtt_clientName) + "  -  " + String(mqtt_clientUsername) + "  -  " + String(mqtt_clientPassword) );
     if ( client.connect( mqtt_clientName, mqtt_clientUsername, mqtt_clientPassword ) )
     {
@@ -135,6 +136,12 @@ bool sendMQTT ()
     
       return true;
     }
+    else
+    {
+      // We are not connected, Write it in Log
+      writeLogFile( F("MQTT Pub No Connect"), 1 );
+    }
+    
   #endif                                                           //===============================================
 
   #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )               //===============================================

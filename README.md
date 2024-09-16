@@ -63,3 +63,6 @@ tested with Sonoff S26, T4EU1C
 >	SSL Support: Basic SSL ciphers (lower ROM use)  
 
 
+Screenshots of GUI  
+
+![DashBoard](/ScreenShots/StergoSmart-DashBoard.png?raw=true Dashboard")  
