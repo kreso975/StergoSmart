@@ -9,6 +9,7 @@ Smart Home IOT - Weather and Switches with GUI
 [![Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/kreso975)
 
 **ESP-8266-01S , minimum 1M**  
+**BME280**  
 tested with Sonoff S26, T4EU1C
 
 - Bootstrap 3.4
