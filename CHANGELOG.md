@@ -10,6 +10,7 @@
 ## **CHANGES:** 
 **000.05.101**  
 - CleanUp code. Moved SSDP from WiFi.ino to SSDP.ino
+- Remove some duplicated code in Configs
 
 **000.05.100**  
 - Added 'retain: **true**' in MQTT publish

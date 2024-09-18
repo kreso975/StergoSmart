@@ -75,7 +75,7 @@ void checkSwitchState()
 }
 
 
-
+#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )
 // Sonoff S26 && Sonoff T4EU1C
 #if ( STERGO_PLUG == 2 || STERGO_PLUG == 3 )                  //===============================================
 
@@ -123,3 +123,5 @@ void keyRelease()
     shortKeyPress();
 }
 #endif                                                    //===============================================
+
+#endif

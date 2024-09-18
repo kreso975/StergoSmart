@@ -1,14 +1,14 @@
 #define HISTORY_FILE "/history.json"
 
+// 		MODEL_NUMBER "v01" ( ESP8266 default 01S)
+//    MODEL_NUMBER "v02" ( LOLIN D1 mini)
 #if ( STERGO_PROGRAM == 1 )
   #define MODEL_NAME "WS001"
+  #define MODEL_NUMBER "v01"
 #elif ( STERGO_PROGRAM == 3 )
   #define MODEL_NAME "WS002"
+  #define MODEL_NUMBER "v01"
 #endif
-
-// 		MODEL_NUMBER "v01" ( ESP8266 default 01S)
-//      MODEL_NUMBER "v02" ( LOLIN D1 mini)
-#define MODEL_NUMBER "v01"
 
 #define sizeHist 100                      // History size = nr of records (24h x 4pts)
 
@@ -16,8 +16,10 @@
 #define GPIO_SDA 2
 #define GPIO_SCL 0
 #define BMEaddr 0x76 //BME280 address not all running on same address
-  
+
+#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )    
 bool detectModule = false;                // Was detectBME280 use True if moduledetection not needed
+#endif
 
 //*************************************************************************************************************
 /*
@@ -30,9 +32,9 @@ bool detectModule = false;                // Was detectBME280 use True if module
  * struct Config {
  *	  byte t_measure						  =	0;
  *	  byte p_measure						  =	0;
- *	  byte p_adjust						      =	1;
- *	  byte pa_unit						      =	0;
- *	  int pl_adj							  =	122;
+ *	  byte p_adjust						    =	1;
+ *	  byte pa_unit						    =	0;
+ *	  int pl_adj							    =	122;
  * };
  *
 */

@@ -104,23 +104,28 @@ void loop()
 	server.handleClient();
 
 	// IN AP MODE we don't have Date & Time so we don't do anything except setup Device
-	// And if Module (like BME280 present
-	if ( WiFi.getMode() == 1 && detectModule )
+	if ( WiFi.getMode() == 1 )
 	{
+		// If BME280 is detected
+		#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )   //===============================================
+		if ( detectModule )
+		{
+			
+    		if ( ( millis() - lastMeasureInterval > measureInterval ) || measureFirstRun )
+    		{
+				lastMeasureInterval = millis();
+				measureFirstRun = false;
 
-    	#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )   //===============================================
-    	if ( ( millis() - lastMeasureInterval > measureInterval ) || measureFirstRun )
-    	{
-			lastMeasureInterval = millis();
-			measureFirstRun = false;
+				if ( detectModule )
+					getWeather();
 
-			if ( detectModule )
-				getWeather();
-
-			// This should go in detectModule
-			MainSensorConstruct();
+				// This should go in detectModule
+				MainSensorConstruct();
+			}
 		}
-		#endif                          					//=================================================
+		#endif   											//=================================================
+
+    	                       					
 
     	if ( mqtt_start )
     	{

@@ -1,7 +1,13 @@
-//
-// "StergoWeather" = 1, "PowerSwitch" = 0, "ticTacToe" = 2, StergoWeather+PowerSwitch = 3, "EXCLUDED CODE" = 9 );
-//
-#define STERGO_PROGRAM 0
+/*
+ * For What Device We need to Compile
+ * 
+ * PowerSwitch                  = 0
+ * StergoWeather                = 1
+ * ticTacToe                    = 2
+ * StergoWeather+PowerSwitch    = 3
+ * EXCLUDED CODE                = 9
+ */
+#define STERGO_PROGRAM 1
 
 /*
  * Different models used for Plug / Switch
@@ -10,15 +16,17 @@
  * Sonoff S26         = 2
  * Sonoff T4EU1C      = 3   //Light Switch
  */
-#if (STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3)  // DON'T TOUCH
-#define STERGO_PLUG 1                             // CHANGE THIS
-#endif
-
+#define STERGO_PLUG 1   
 
 // Firmware Version always part of this file
 #define FW_VERSION "000.05.101"  // Check releaseLog for details
 #define MODEL_FRENDLY_NAME "Stergo Smart"
 #define COMPANY_URL "http://www.stergo.hr"
+
+
+
+//=================================================================
+
 
 #include <ESP8266WiFi.h>
 #include "ESP8266WebServer.h"
@@ -34,11 +42,13 @@
 #include <ESP8266SSDP.h>    // SSDP (Simple Service Discovery Protocol) service
 
 #if (STERGO_PROGRAM == 0)  // Power Plug | Switch
+#include <Adafruit_BME280.h>
 #include "Switch.h"
 #include "TicTacToe.h"
 #elif (STERGO_PROGRAM == 1)  // Weather Station
 #include <Adafruit_BME280.h>
 #include "BME280.h"
+#include "Switch.h"
 #elif (STERGO_PROGRAM == 2)  // TicTacToe
 #include "TicTacToe.h"
 #elif (STERGO_PROGRAM == 3)
