@@ -1,4 +1,28 @@
 /* ======================================================================
+Function: setupSSDP
+Purpose : Initialize SSDP Service
+Input   : 
+Output  : 
+Comments: -
+====================================================================== */
+void setupSSDP()
+{
+  SSDP.setSchemaURL("description.xml");
+  SSDP.setHTTPPort(80);
+  SSDP.setName( String(deviceName) );
+  SSDP.setDeviceType("urn:schemas-upnp-org:device:StergoSmart:1");  //In case: put after SSDP.begin
+  SSDP.setSerialNumber(SERIAL_NUMBER);                              //This must be adjusted to chipID
+  SSDP.setURL("index.html");
+  SSDP.setModelName(MODEL_NAME);
+  SSDP.setModelNumber(MODEL_NUMBER);                                // This must be SET in main config 
+  SSDP.setModelURL( String(COMPANY_URL) + "/" + PRODUCT );          // Product is Model_name + Model_number
+  SSDP.setManufacturer( "Stergo" );
+  SSDP.setManufacturerURL( COMPANY_URL );
+  SSDP.begin();
+  writeLogFile( F("SSDP Started"), 1 );
+}
+
+/* ======================================================================
 Function: parseSSDP
 Purpose : 
 Input   : str, found, what (deleteBeforeDelimiter = 1, deleteBeforeDelimiterTo = 2,  selectToMarkerLast = 3, selectToMarker = 4)

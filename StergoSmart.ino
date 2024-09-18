@@ -11,13 +11,13 @@
 void setup()
 {
 	Serial.begin ( SERIAL_BAUDRATE );
-  delay(1000);
-  //Serial.setDebugOutput(true);
+	delay(1000);
+	//Serial.setDebugOutput(true);
   
-  if ( !setupFS() )
-  {
+	if ( !setupFS() )
+	{
 		//Serial.println( F("No Filesystem") );
-		//writeLogFile( F("No Filesystem"), 1 );
+		writeLogFile( F("No Filesystem"), 1 );
 	}
 
 	String message;
@@ -55,6 +55,10 @@ void setup()
 		//timeClient.setTimeOffset(timeClient.adjustDstEurope());
 		timeClient.update();
 
+		setupHttpServer();
+		// If we are connected to WLAN we cen start SSDP (Simple Service Discovery Protocol) service
+    	setupSSDP();
+
 		#if ( STERGO_PROGRAM == 9 )      //===============================================
     	// test for SSL
     	/*
@@ -66,8 +70,12 @@ void setup()
     	*/
     	#endif                            //===============================================
 	}
+	else
+	{
+		setupHttpServer();
+	}
 
-	setupHttpServer();
+	
 
   /*
     String statusMessage = "Year is: " + String(timeClient.getYear()) + "\n" + "Month is: " + String(timeClient.getMonth()) + "\n" + "Day is: " + String(timeClient.getDay());
@@ -103,40 +111,43 @@ void loop()
 	{
 
     	#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )   //===============================================
-    		if ( ( millis() - lastMeasureInterval > measureInterval ) || measureFirstRun )
-    		{
-				lastMeasureInterval = millis();
-				measureFirstRun = false;
+    	if ( ( millis() - lastMeasureInterval > measureInterval ) || measureFirstRun )
+    	{
+			lastMeasureInterval = millis();
+			measureFirstRun = false;
 
-				if ( detectModule )
-					getWeather();
+			if ( detectModule )
+				getWeather();
 
-				// This should go in detectModule
-				MainSensorConstruct();
-			}
+			// This should go in detectModule
+			MainSensorConstruct();
+		}
 		#endif                          					//=================================================
 
-    if ( mqtt_start )
-    {
-      //mqtt_interval = atoi(_mqttInterval);
-      //Serial.println("MQTT Inerval is: " + String(mqtt_interval));
-      //delay(100);
+    	if ( mqtt_start )
+    	{
+      		//mqtt_interval = atoi(_mqttInterval);
+      		//Serial.println("MQTT Inerval is: " + String(mqtt_interval));
+      		//delay(100);
       
-      #if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )   //===============================================
-        if ( millis() - mqtt_previousMillis > mqtt_intervalHist )
-        {
-        	mqtt_previousMillis = millis();
-        	sendMQTT();
-        }
-      #endif                                               //===============================================
+      		#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )   //===============================================
+    		if ( millis() - mqtt_previousMillis > mqtt_intervalHist )
+        	{
+        		mqtt_previousMillis = millis();
+        		sendMQTT();
+        	}
+      		#endif                                               //===============================================
       
-        if (!client.connected())
-        	MQTTreconnect();
+        	if (!client.connected())
+        		MQTTreconnect();
 
         	client.loop();
-      }
+      	}
 
 
+      
+      	#if ( STERGO_PROGRAM == 9 )   //=============================================== Exckude SSDP
+		// Search for Devices in LAN
     	if ( ( millis() - previousSSDP > intervalSSDP ) || measureSSDPFirstRun )
 		{
 			previousSSDP = millis();
@@ -145,25 +156,28 @@ void loop()
 			requestSSDP(2, 0); // This request should be done periodicaly / every 10min
     	}
 
+		// Init M-SEARCH over UDP , SSDP Discovery
 		handleSSDP(); //WE DON'T NEED SSDP in WiFi AP mode
+	  	#endif
+
 	}
 
 	#if ( ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 ) && ( STERGO_PLUG == 2 || STERGO_PLUG == 3 ) )  //===============================================
-		// Button Handling - We have it Both in AP and STA
-		if ( millis() - keyPrevMillis >=  keySampleIntervalMs )
-		{
-			keyPrevMillis = millis();
+	// Button Handling - We have it Both in AP and STA
+	if ( millis() - keyPrevMillis >=  keySampleIntervalMs )
+	{
+		keyPrevMillis = millis();
 
-			byte currKeyState = digitalRead( BUTTON01 );
+		byte currKeyState = digitalRead( BUTTON01 );
         
-			if ( prevKeyState == HIGH && currKeyState == LOW )
-				keyPress();
-			else if ( prevKeyState == LOW && currKeyState == HIGH )
-				keyRelease();
-			else if ( currKeyState == LOW )
-				longKeyPressCount++;
+		if ( prevKeyState == HIGH && currKeyState == LOW )
+			keyPress();
+		else if ( prevKeyState == LOW && currKeyState == HIGH )
+			keyRelease();
+		else if ( currKeyState == LOW )
+			longKeyPressCount++;
 
-			prevKeyState = currKeyState;
-		}
+		prevKeyState = currKeyState;
+	}
 	#endif                                                                   //===============================================
 }

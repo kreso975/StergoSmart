@@ -31,7 +31,7 @@
 #include "ArduinoJson.h"  //v5.13.5
 #include <WiFiUdp.h>
 #include <PubSubClient.h>
-#include <ESP8266SSDP.h>
+#include <ESP8266SSDP.h>    // SSDP (Simple Service Discovery Protocol) service
 
 #if (STERGO_PROGRAM == 0)  // Power Plug | Switch
 #include "Switch.h"

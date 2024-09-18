@@ -39,10 +39,13 @@ bool setupMQTT( String* message, int what )
 		if ( client.connected() )
 			client.disconnect();
 
-		return true;
+    *message = F("Success MQTT Stop");
+    writeLogFile( *message, 1 );
+		
+    return true;
 	}
   
-  	*message = F("Error MQTT service");
+  *message = F("Error MQTT service");
 	return false; 
 	
 }
@@ -76,6 +79,8 @@ bool MQTTreconnect()
       {
         //No success
         mqtt_start = 0;
+        
+        writeLogFile( F("MQTT No Reconnect"), 1 );
         // here I must find a way to send back to web page an ERROR (descriptive) - if it was started from web page
         return false;
       }
@@ -157,6 +162,11 @@ bool sendMQTT ()
       {
         //writeLogFile( F("MQTT Switch: failed"), 1 );
       } 
+    }
+    else
+    {
+      // We are not connected, Write it in Log
+      writeLogFile( F("MQTT Pub No Connect"), 1 );
     }
   #endif                                                           //===============================================
 

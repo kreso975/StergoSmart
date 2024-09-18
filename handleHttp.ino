@@ -1,20 +1,10 @@
-void setupSSDP()
-{
-  SSDP.setSchemaURL("description.xml");
-  SSDP.setHTTPPort(80);
-  SSDP.setName( String(deviceName) );
-  SSDP.setDeviceType("urn:schemas-upnp-org:device:StergoSmart:1");  //In case: put after SSDP.begin
-  SSDP.setSerialNumber(SERIAL_NUMBER);                              //This must be adjusted to chipID
-  SSDP.setURL("index.html");
-  SSDP.setModelName(MODEL_NAME);
-  SSDP.setModelNumber(MODEL_NUMBER);                                // This must be SET in main config 
-  SSDP.setModelURL( String(COMPANY_URL) + "/" + PRODUCT );          // Product is Model_name + Model_number
-  SSDP.setManufacturer( "Stergo" );
-  SSDP.setManufacturerURL( COMPANY_URL );
-  SSDP.begin();
-  writeLogFile( F("SSDP Started"), 1 );
-}
-
+/* ======================================================================
+Function: setupHttpServer
+Purpose : Setup and Initialize HTTP Server
+Input   : 
+Output  : 
+Comments: -
+====================================================================== */
 void setupHttpServer()
 {
   if ( WiFi.getMode() == 1 )
@@ -88,8 +78,6 @@ void setupHttpServer()
   server.begin();
   writeLogFile( F("HTTP server started"), 1 );
 
-  if ( WiFi.getMode() == 1 )
-    setupSSDP();
 }
 
 /**********************************************************/
