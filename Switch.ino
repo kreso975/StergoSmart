@@ -1,5 +1,10 @@
-#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )
-
+/* ======================================================================
+Function: setupSwitch
+Purpose : Initialize Switch
+Input   : 
+Output  : 
+Comments: -
+====================================================================== */
 bool setupSwitch()
 {
   digitalWrite( RELAY, HIGH );
@@ -71,57 +76,50 @@ void checkSwitchState()
 
 
 
+// Sonoff S26 && Sonoff T4EU1C
+#if ( STERGO_PLUG == 2 || STERGO_PLUG == 3 )                  //===============================================
+
+// called when button is kept pressed for less than 2 seconds
+void shortKeyPress()
+{
+  if ( relay01State )
+    turnSwitchState( 0 );
+  else
+    turnSwitchState( 1 );
+}
 
 
-
-
-  // Sonoff S26 && Sonoff T4EU1C
-  #if ( STERGO_PLUG == 2 || STERGO_PLUG == 3 )                  //===============================================
-
-  // called when button is kept pressed for less than 2 seconds
-  void shortKeyPress()
+// called when button is kept pressed for more than 2 seconds
+void longKeyPress()
+{
+  if ( ledStatus )
   {
-    if ( relay01State )
-      turnSwitchState( 0 );
-    else
-      turnSwitchState( 1 );
+    digitalWrite( LED, HIGH );
+    ledStatus = false;
   }
-
-
-  // called when button is kept pressed for more than 2 seconds
-  void longKeyPress()
+  else
   {
-    if ( ledStatus )
-    {
-      digitalWrite( LED, HIGH );
-      ledStatus = false;
-    }
-    else
-    {
-      digitalWrite( LED, LOW );
-      ledStatus = true;
-    }
-    //writeLogFile( F("longKeyPress"), 1 );
+    digitalWrite( LED, LOW );
+    ledStatus = true;
   }
+  //writeLogFile( F("longKeyPress"), 1 );
+}
 
-  // called when key goes from not pressed to pressed
-  void keyPress()
-  {
-    //Serial.println("key press");
-    longKeyPressCount = 0;
-  }
+// called when key goes from not pressed to pressed
+void keyPress()
+{
+  //Serial.println("key press");
+  longKeyPressCount = 0;
+}
 
-  // called when key goes from pressed to not pressed
-  void keyRelease()
-  {
-    //Serial.println("key release");
+// called when key goes from pressed to not pressed
+void keyRelease()
+{
+  //Serial.println("key release");
     
-    if ( longKeyPressCount >= longKeyPressCountMax )
-      longKeyPress();
-    else
-      shortKeyPress();
-  }
-
-  #endif                                                    //===============================================
-
-#endif
+  if ( longKeyPressCount >= longKeyPressCountMax )
+    longKeyPress();
+  else
+    shortKeyPress();
+}
+#endif                                                    //===============================================

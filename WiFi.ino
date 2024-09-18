@@ -185,19 +185,19 @@ void firmwareOnlineUpdate()
   t_httpUpdate_return ret = ESPhttpUpdate.update( espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", FIRMWARE );
 
   switch( ret ) {
-            case HTTP_UPDATE_FAILED:
-                Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
-                writeLogFile( F("HTTP_UPDATE_FAIL"), 1 );
-                break;
+    case HTTP_UPDATE_FAILED:
+      Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+      writeLogFile( F("HTTP_UPDATE_FAIL"), 1 );
+      break;
 
-            case HTTP_UPDATE_NO_UPDATES:
-                writeLogFile( F("Firmware Up2Date"), 1 );
-                break;
+    case HTTP_UPDATE_NO_UPDATES:
+      writeLogFile( F("Firmware Up2Date"), 1 );
+      break;
 
-            case HTTP_UPDATE_OK:
-                writeLogFile( F("HTTP_UPDATE_OK"), 1 );
-                break;
-        }  
+    case HTTP_UPDATE_OK:
+      writeLogFile( F("HTTP_UPDATE_OK"), 1 );
+      break;
+  }  
 }
 
 /*
