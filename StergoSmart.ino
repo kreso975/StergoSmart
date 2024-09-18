@@ -110,16 +110,12 @@ void loop()
 		#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )   //===============================================
 		if ( detectModule )
 		{
-			
     		if ( ( millis() - lastMeasureInterval > measureInterval ) || measureFirstRun )
     		{
 				lastMeasureInterval = millis();
 				measureFirstRun = false;
 
-				if ( detectModule )
-					getWeather();
-
-				// This should go in detectModule
+				getWeather();
 				MainSensorConstruct();
 			}
 		}

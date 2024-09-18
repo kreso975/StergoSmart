@@ -120,12 +120,16 @@ bool updateHistory( int z = 0 )
 
 	// Clear/Delete history
 	if ( z == 1 )
+	{
 		json = "{\"sensor\":[]}"; // length = 13
+		writeLogFile( F("Delete History"), 1 );
+	}
+		
 
 	file.print( json );
   	file.close();
 
-    //writeLogFile( F("Delete History"), 1 );
+    //writeLogFile( F("Update History"), 1 );
     return true;
 }
 
@@ -155,7 +159,7 @@ void sendMeasures()
 Function: MainSensorConstruct
 Purpose : brain of load / save data logic
 Input   : -
-Output  : -
+Output  : - history.json
 Comments: -
 ====================================================================== */
 bool MainSensorConstruct()

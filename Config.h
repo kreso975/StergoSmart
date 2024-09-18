@@ -9,16 +9,16 @@
  * StergoWeather+PowerSwitch    = 3
  * EXCLUDED CODE                = 9
  */
-#define STERGO_PROGRAM 1
+#define STERGO_PROGRAM 0
 
 /*
  * Different models used for Plug / Switch
  * 
  * STERGO_PLUG :
- *
- * Native Board relay = 1
- * Sonoff S26         = 2
- * Sonoff T4EU1C      = 3   //Light Switch
+ * 
+ * Native Board relay = 1   // Relay Switch - RS
+ * Sonoff S26         = 2   // Plug Switch  - PS
+ * Sonoff T4EU1C      = 3   // Light Switch - LS
  */
 #define STERGO_PLUG 1   
 
@@ -46,19 +46,16 @@
 #include <ESP8266SSDP.h>    // SSDP (Simple Service Discovery Protocol) service
 
 #if (STERGO_PROGRAM == 0)  // Power Plug | Switch
-#include <Adafruit_BME280.h>
+//#include <Adafruit_BME280.h>
+//#include "BME280.h"
 #include "Switch.h"
 #include "TicTacToe.h"
-#elif (STERGO_PROGRAM == 1)  // Weather Station
+#elif (STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3)  // Weather Station
 #include <Adafruit_BME280.h>
 #include "BME280.h"
-#include "Switch.h"
+#include "Switch.h"     // Since nothing is used PROGRAM == 1 it will not Generate bigger code
 #elif (STERGO_PROGRAM == 2)  // TicTacToe
 #include "TicTacToe.h"
-#elif (STERGO_PROGRAM == 3)
-#include <Adafruit_BME280.h>
-#include "BME280.h"
-#include "Switch.h"
 #elif (STERGO_PROGRAM == 9)  // EXCLUDED CODE
 #include <WiFiClientSecure.h>
 #endif

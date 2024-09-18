@@ -47,12 +47,8 @@
 #define POWERON "{\"POWER\":\"ON\"}"
 #define POWEROFF "{\"POWER\":\"OFF\"}"
     
-//int mqtt_interval = 0;
-//int webLoc_interval = 0;
-
 long lastMsg = 0;
 char msg[50];
 int value = 0;
-
 
 bool relay01State = false;
