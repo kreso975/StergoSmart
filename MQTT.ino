@@ -149,6 +149,7 @@ bool sendMQTT ()
     
   #endif                                                           //===============================================
 
+  // We are sending Switch state on change
   #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )               //===============================================
     if ( client.connected() )
     {
@@ -173,7 +174,7 @@ bool sendMQTT ()
   return false;
 }
 
-                                                                   // Only for Switches
+// Only for Switches
 #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )                 //===============================================
 void callbackMQTT( char* topic, byte* payload, unsigned int length )
 {

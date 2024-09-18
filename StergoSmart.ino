@@ -124,10 +124,6 @@ void loop()
 
     	if ( mqtt_start )
     	{
-      		//mqtt_interval = atoi(_mqttInterval);
-      		//Serial.println("MQTT Inerval is: " + String(mqtt_interval));
-      		//delay(100);
-      
       		#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )   //===============================================
     		if ( millis() - mqtt_previousMillis > mqtt_intervalHist )
         	{
