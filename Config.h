@@ -1,6 +1,8 @@
 /*
  * For What Device We need to Compile
  * 
+ * STERGO_PROGRAM :
+ *
  * PowerSwitch                  = 0
  * StergoWeather                = 1
  * ticTacToe                    = 2
@@ -12,6 +14,8 @@
 /*
  * Different models used for Plug / Switch
  * 
+ * STERGO_PLUG :
+ *
  * Native Board relay = 1
  * Sonoff S26         = 2
  * Sonoff T4EU1C      = 3   //Light Switch

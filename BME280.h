@@ -4,10 +4,10 @@
 //    MODEL_NUMBER "v02" ( LOLIN D1 mini)
 #if ( STERGO_PROGRAM == 1 )
   #define MODEL_NAME "WS001"
-  #define MODEL_NUMBER "v01"
+  #define MODEL_NUMBER "v02"
 #elif ( STERGO_PROGRAM == 3 )
   #define MODEL_NAME "WS002"
-  #define MODEL_NUMBER "v01"
+  #define MODEL_NUMBER "v02"
 #endif
 
 #define sizeHist 100                      // History size = nr of records (24h x 4pts)
