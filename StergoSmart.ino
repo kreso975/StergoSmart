@@ -1,10 +1,18 @@
 /*
-   ESP8266 + BME280 + BOOTSTRAP + SPIFFS + GOOGLE CHARTS + MQTT
-   + CAPTIVE PORTAL + SSDP + OTA
-   Copyright (C) 2018 Kreso
+ * StergoSmart
+ * 
+ * Smart Home IOT - Weather and Switches with GUI - ESP8266
+ *
+ *
+ * ESP8266 + BME280 + BOOTSTRAP + SPIFFS + GOOGLE CHARTS + MQTT
+ * + CAPTIVE PORTAL + SSDP + OTA
+ *
+ *
+ * Copyright (C) 2018 Kresimir Kokanovic - https://github.com/kreso975/StergoSmart
+ *
+ * Apache-2.0 license - https://github.com/kreso975/StergoSmart#Apache-2.0-1-ov-file
+ */
 
-   MIT
-*/
 
 #include "Config.h"
   
@@ -26,11 +34,6 @@ void setup()
 	initConfig( &message );
   
 	deviceType = atoi(_deviceType);
-
-  /*Serial.println();
-    Serial.println("Module ID: " + String(deviceType) + "\nModule Name: " + String(moduleName) + "\nTemp unit: " + String(temperature_unit));
-    Serial.println("Hum unit: " + String(humidity_unit) + "\nPres unit: " + String(pressure_unit) + "\nPres adj: " + String(pressure_adjust));
-    Serial.println("Pres alt h: " + String(pressure_location_adj));*/
 
 	#if ( STERGO_PROGRAM == 1 )       //===============================================
 		if ( setupBME280() )
