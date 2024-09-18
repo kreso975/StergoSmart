@@ -55,6 +55,12 @@ void setup()
 		//timeClient.setTimeOffset(timeClient.adjustDstEurope());
 		timeClient.update();
 
+		/*
+    	String statusMessage = "Year is: " + String(timeClient.getYear()) + "\n" + "Month is: " + String(timeClient.getMonth()) + "\n" + "Day is: " + String(timeClient.getDay());
+    	Serial.println( statusMessage );
+    	Serial.println(timeClient.getFormattedTime());
+  		*/
+
 		setupHttpServer();
 		// If we are connected to WLAN we cen start SSDP (Simple Service Discovery Protocol) service
     	setupSSDP();
@@ -75,24 +81,13 @@ void setup()
 		setupHttpServer();
 	}
 
-	
-
-  /*
-    String statusMessage = "Year is: " + String(timeClient.getYear()) + "\n" + "Month is: " + String(timeClient.getMonth()) + "\n" + "Day is: " + String(timeClient.getDay());
-    Serial.println( statusMessage );
-    Serial.println(timeClient.getFormattedTime());
-  */
 
 	if ( mqtt_start )
 		setupMQTT( &message, 1 );
   
-
-	ntpUDP.begin( LOCAL_UDP_PORT );
-
-  /*Serial.println();
-    Serial.println("MQTT Server: " + String(mqtt_server) + "\nMQTT PORT: " + String(mqtt_port) + "\nMQTT cNAme: " + String(mqtt_clientName));
-    Serial.println("MQTT cUserN: " + String(mqtt_clientUsername) + "\nMQTT cPass: " + String(mqtt_clientPassword) + "\nMQTT myTopic: " + String(mqtt_myTopic));
-    Serial.println("MQTT UM: " + String(mqtt_bme280Humidity) + "\nMQTT Temp: " + String(mqtt_bme280Temperature) + "\nMQTT Pres: " + String(mqtt_bme280Pressure));*/
+	// Start ntpUDP
+	// We need it for M-SEARCH over UDP - SSDP discovery
+	//ntpUDP.begin( LOCAL_UDP_PORT );
 
 }
 
@@ -146,7 +141,7 @@ void loop()
 
 
       
-      	#if ( STERGO_PROGRAM == 9 )   //=============================================== Exckude SSDP
+      	#if ( STERGO_PROGRAM == 9 )   //=============================================== Exclude M-SEARCH over UDP 
 		// Search for Devices in LAN
     	if ( ( millis() - previousSSDP > intervalSSDP ) || measureSSDPFirstRun )
 		{
