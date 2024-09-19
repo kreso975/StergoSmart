@@ -1,6 +1,6 @@
 /* ======================================================================
 Function: setupSSDP
-Purpose : Initialize SSDP Service
+Purpose : Initialize SSDP (Simple Service Discovery Protocol) Service
 Input   : 
 Output  : 
 Comments: -
@@ -25,7 +25,11 @@ void setupSSDP()
 /* ======================================================================
 Function: parseSSDP
 Purpose : 
-Input   : str, found, what (deleteBeforeDelimiter = 1, deleteBeforeDelimiterTo = 2,  selectToMarkerLast = 3, selectToMarker = 4)
+Input   : str, found, 
+        : what :  deleteBeforeDelimiter = 1,
+                  deleteBeforeDelimiterTo = 2,
+                  selectToMarkerLast = 3,
+                  selectToMarker = 4
 Output  : String
 Comments: -
 ====================================================================== */
@@ -56,7 +60,8 @@ String parseSSDP( String str, String found, int what )
 /* ======================================================================
 Function: requestSSDP
 Purpose : UDP packets send
-Input   : what = 1 (M-SEARCH devisec upnp), what = 2 (Send string for communication with Stergo device)
+Input   : what = 1 (M-SEARCH devisec upnp)
+          what = 2 (Send string for communication with Stergo device)
 Output  : M-SEARCH & 
 Comments: -
 ====================================================================== */
@@ -86,8 +91,8 @@ void requestSSDP( int what, int move )
 /* ======================================================================
 Function: handleSSDP
 Purpose : UDP packets receive
-Input   : what = 1 (M-SEARCH devisec upnp), what = 2 (Send string for communication with Stergo device)
-Output  : M-SEARCH & 
+Input   : 
+Output  : 
 TODO    : Add save to file , check for duplicate entry / JSON format
           fields: Device name(name from settings), modelName, modelNumber, IP
           Load existing list and check if servers responds - something simple
@@ -184,6 +189,32 @@ void handleSSDP()
         ntpUDP.endPacket();
       }
       #endif
+    }
+  }
+}
+
+/* ==========================================================================================
+Function: isSSDPfoundBefore
+Purpose : Search trough Array of Found SSDP devices and if new IP is found add it to the list
+Input   : ssdpDeviceName = IPAddress we are going to search in foundSSDPdevices Array
+Output  : no output.
+Comments: 
+TODO    : 
+============================================================================================= */
+void isSSDPfoundBefore( IPAddress ssdpDeviceName )
+{ 
+  for ( int x = 0; x < NUMBER_OF_FOUND_SSDP; x++ )
+  {
+    if ( foundSSDPdevices[x] != IPAddress(0,0,0,0) )
+    {
+      if ( foundSSDPdevices[x] == ssdpDeviceName )
+        return;                                     // Device SSDP Already in my list
+    }
+    else
+    {
+      actualSSDPdevices = x+1;
+      foundSSDPdevices[x] = ssdpDeviceName;         // ADD Device to my list
+      return;
     }
   }
 }

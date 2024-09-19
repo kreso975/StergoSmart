@@ -140,7 +140,13 @@ void updateConfig()
   //Serial.println( F"Config updated") );
 }
 
-
+/* ======================================================================
+Function: sendDeviceInfo
+Purpose : Return JSON in HTTP server - All Device Data
+Input   : 
+Output  : HTTP JSON 
+Comments: -
+====================================================================== */
 void sendDeviceInfo()
 {
   upTime = now();
@@ -169,6 +175,7 @@ void handleIndex()
   if ( !handleFileRead("/index.html") )                   // send it if it exists
   server.send(404, "text/plain", "404: Not Found");     // otherwise, respond with a 404 (Not Found) error
 }
+
 /** Handle root or redirect to captive portal */
 void handleRoot()
 {
@@ -179,8 +186,14 @@ void handleRoot()
       server.send(404, "text/plain", "404: Not Found");    // otherwise, respond with a 404 (Not Found) error
 }
 
-/** Redirect to captive portal if we got a request for another domain.
- ** Return true in that case so the page handler do not try to handle the request again. */
+/* ======================================================================
+Function: captivePortal
+Purpose : Redirect to captive portal if we got a request for another domain.
+          Return true in that case so the page handler do not try to handle the request again.
+Input   : 
+Output  :  
+Comments: -
+====================================================================== */
 bool captivePortal()
 {  
   IPAddress ip;

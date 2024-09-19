@@ -72,29 +72,3 @@ String showDuration( uint32_t duration )
 
   return S;
 }
-
- /* ==========================================================================================
-Function: isSSDPfoundBefore
-Purpose : Search trough Array of Found SSDP devices and if new IP is found add it to the list
-Input   : ssdpDeviceName = IPAddress we are going to search in foundSSDPdevices Array
-Output  : no output.
-Comments: 
-TODO    : 
-============================================================================================= */
-void isSSDPfoundBefore( IPAddress ssdpDeviceName )
-{ 
-  for ( int x = 0; x < NUMBER_OF_FOUND_SSDP; x++ )
-  {
-    if ( foundSSDPdevices[x] != IPAddress(0,0,0,0) )
-    {
-      if ( foundSSDPdevices[x] == ssdpDeviceName )
-        return;                                     // Device SSDP Already in my list
-    }
-    else
-    {
-      actualSSDPdevices = x+1;
-      foundSSDPdevices[x] = ssdpDeviceName;         // ADD Device to my list
-      return;
-    }
-  }
-}

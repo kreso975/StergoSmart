@@ -9,7 +9,7 @@
  * StergoWeather+PowerSwitch    = 3
  * EXCLUDED CODE                = 9
  */
-#define STERGO_PROGRAM 3
+#define STERGO_PROGRAM 0
 
 /*
  * Different models used for Plug / Switch

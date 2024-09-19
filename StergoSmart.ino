@@ -88,10 +88,11 @@ void setup()
 	if ( mqtt_start )
 		setupMQTT( &message, 1 );
   
+  	#if ( STERGO_PROGRAM == 0 )   //=============================================== Exclude M-SEARCH over UDP 
 	// Start ntpUDP
 	// We need it for M-SEARCH over UDP - SSDP discovery
-	//ntpUDP.begin( LOCAL_UDP_PORT );
-
+	ntpUDP.begin( LOCAL_UDP_PORT );
+	#endif
 }
 
 
@@ -141,7 +142,7 @@ void loop()
 
 
       
-      	#if ( STERGO_PROGRAM == 9 )   //=============================================== Exclude M-SEARCH over UDP 
+      	#if ( STERGO_PROGRAM == 0 )   //=============================================== Exclude M-SEARCH over UDP 
 		// Search for Devices in LAN
     	if ( ( millis() - previousSSDP > intervalSSDP ) || measureSSDPFirstRun )
 		{

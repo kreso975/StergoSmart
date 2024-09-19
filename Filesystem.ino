@@ -17,10 +17,17 @@ String GetMeFSinfo()
   return MyOut;
 }
 
+/* ======================================================================
+Function: setupFS
+Purpose : Setup SPIFFS Filesystem
+Input   : 
+Output  : 
+TODO    : Implement fail over if SPIFFS get corrupted - copy content 
+          from web loc or Upload or
+          https://github.com/spacehuhn/esp8266_deauther/blob/master/esp8266_deauther/webfiles.h
+====================================================================== */
 bool setupFS()
-{ // Setup SPIFFS Filesystem
-  // TODO: Implement fail over if SPIFFS get corrupted - copy content from web loc or Upload or 
-  // https://github.com/spacehuhn/esp8266_deauther/blob/master/esp8266_deauther/webfiles.h
+{
   if ( SPIFFS.begin() )
     return true;
   else

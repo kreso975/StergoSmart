@@ -15,6 +15,7 @@ WiFi.waitForConnectResult();
 * WL_DISCONNECTED if module is not configured in station mode
 */
 
+// Disconects STA 
 bool disconnectSTA()
 { 
   WiFi.disconnect(true);
@@ -223,7 +224,7 @@ void update_error(int err) {
 Function: wifiScanJSON
 Purpose : scan Wifi Access Point and return JSON code
 Input   : -
-Output  : -
+Output  : HTTP JSON
 Comments: -
 ====================================================================== */
 void wifiScanJSON()

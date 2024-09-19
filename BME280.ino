@@ -1,5 +1,12 @@
 #if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )
 
+/* ======================================================================
+Function: setupBME280
+Purpose : Initialize BME280
+Input   : 
+Output  : 
+Comments: -
+====================================================================== */
 bool setupBME280()
 {
 	Wire.begin( GPIO_SDA, GPIO_SCL ); // 0, 2  
@@ -27,6 +34,13 @@ float Kelvin( float celsius ) { return celsius + 273.15; }
 //hPascals to inhg conversion
 float iNHg( float hpa ) { return hpa * 0.02952998; }
 
+/* ======================================================================
+Function: getWeather
+Purpose : Read Sensor data
+Input   : 
+Output  : 
+Comments: - It's hardcoded to BME280, need to add support for other
+====================================================================== */
 void getWeather()
 {
 	float h_tmp, t_tmp;
@@ -137,7 +151,7 @@ bool updateHistory( int z = 0 )
 Function: sendMeasures
 Purpose : 
 Input   : -
-Output  : -
+Output  : HTTP JSON
 Comments: -
 ====================================================================== */
 void sendMeasures()
