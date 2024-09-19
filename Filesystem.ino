@@ -99,12 +99,12 @@ void handleFileUpload()
       fsUploadFile.close();                               // Close the file again
       
       //writeLogFile( "handleFileUpload Size: " + upload.totalSize, 1 );
-      writeLogFile( "Success file upload: " + filename, 1 );
+      writeLogFile( F("Success file upload: ") + filename , 1 );
       server.send(200, "application/json", "{\"success\":\"Success file upload\"}");
     }
     else
     {
-      writeLogFile( "Error file upload: " + filename, 1 );
+      writeLogFile( F("Error file upload: ") + filename, 1 );
       server.send(200, "application/json", "{\"Error\":\"Error file upload\"}");
     }
   }

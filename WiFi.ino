@@ -64,8 +64,8 @@ bool startSTA( int STAmode = 0 )
   }
   
   writeLogFile( F("STA connected"), 1, 3 );
-  writeLogFile( "WiFi Mode: " + String(WiFi.getMode()), 1, 3 );
-  writeLogFile( "IP: " + WiFi.localIP().toString(), 1, 3 );
+  writeLogFile( F("WiFi Mode: ") + String(WiFi.getMode()), 1, 3 );
+  writeLogFile( F("IP: ") + WiFi.localIP().toString(), 1, 3 );
   
   return true;
 }
@@ -80,8 +80,8 @@ bool startAP()
   delay(500);                                                             // Without delay I've seen the IP address blank
 
   writeLogFile( F("AP connected"), 1, 3 );
-  writeLogFile( "WiFi Mode: " + String(WiFi.getMode()), 1, 3 );
-  writeLogFile( "IP: " + WiFi.softAPIP().toString(), 1, 3 );
+  writeLogFile( F("WiFi Mode: ") + String(WiFi.getMode()), 1, 3 );
+  writeLogFile( F("IP: ") + WiFi.softAPIP().toString(), 1, 3 );
   
   return true;
 }
