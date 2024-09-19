@@ -161,6 +161,8 @@ Purpose : brain of load / save data logic
 Input   : -
 Output  : - history.json
 Comments: -
+ToDo	: - Add Params so other Sensors can be included, now is just
+			BME280
 ====================================================================== */
 bool MainSensorConstruct()
 {

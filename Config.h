@@ -9,7 +9,7 @@
  * StergoWeather+PowerSwitch    = 3
  * EXCLUDED CODE                = 9
  */
-#define STERGO_PROGRAM 0
+#define STERGO_PROGRAM 3
 
 /*
  * Different models used for Plug / Switch
@@ -46,8 +46,6 @@
 #include <ESP8266SSDP.h>    // SSDP (Simple Service Discovery Protocol) service
 
 #if (STERGO_PROGRAM == 0)  // Power Plug | Switch
-//#include <Adafruit_BME280.h>
-//#include "BME280.h"
 #include "Switch.h"
 #include "TicTacToe.h"
 #elif (STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3)  // Weather Station

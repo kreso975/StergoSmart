@@ -34,7 +34,7 @@
 
 
 // Button press timings
-#if ( STERGO_PLUG != 1 && STERGO_PROGRAM == 0 )
+#if ( STERGO_PLUG != 1 && ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 ) )
   unsigned long keyPrevMillis = 0;
   const unsigned long keySampleIntervalMs = 25;
   byte longKeyPressCountMax = 80;    // 80 * 25 = 2000 ms
