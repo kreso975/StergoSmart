@@ -58,13 +58,14 @@ bool startSTA( int STAmode = 0 )
       return false;
       
     delay(500);
-    Serial.print('.');
+    //Serial.print('.');
+    writeLogFile( ".", 0, 1 );
     cnt ++;
   }
   
-  writeLogFile( F("STA connected"), 1 );
-  writeLogFile( "WiFi Mode: " + String(WiFi.getMode()), 1 );
-  writeLogFile( "IP: " + WiFi.localIP().toString(), 1 );
+  writeLogFile( F("STA connected"), 1, 3 );
+  writeLogFile( "WiFi Mode: " + String(WiFi.getMode()), 1, 3 );
+  writeLogFile( "IP: " + WiFi.localIP().toString(), 1, 3 );
   
   return true;
 }
@@ -78,9 +79,9 @@ bool startAP()
   WiFi.softAP( tmp.c_str(), softAP_pass );
   delay(500);                                                             // Without delay I've seen the IP address blank
 
-  writeLogFile( F("AP connected"), 1 );
-  writeLogFile( "WiFi Mode: " + String(WiFi.getMode()), 1 );
-  writeLogFile( "IP: " + WiFi.softAPIP().toString(), 1 );
+  writeLogFile( F("AP connected"), 1, 3 );
+  writeLogFile( "WiFi Mode: " + String(WiFi.getMode()), 1, 3 );
+  writeLogFile( "IP: " + WiFi.softAPIP().toString(), 1, 3 );
   
   return true;
 }
@@ -116,15 +117,15 @@ void WiFiManager()
       {
         if ( startSTA( 1 ) ) // Connecting with static IP
         {
-          writeLogFile( F("Succes connect with Static IP"), 1 );
+          writeLogFile( F("Succes connect with Static IP"), 1, 3 );
         }
         else // PROBLEM
         {
-          writeLogFile( F("Problem connect with Static IP"), 1 ); // decide what to do 
+          writeLogFile( F("Problem connect with Static IP"), 1, 3 ); // decide what to do 
           if ( startSTA() ) { }                                      // We Can try again with dynamic IP
           else                                                       // and if that does not work - go to AP
           {
-            writeLogFile( F("Problem connect to STA"), 1 );
+            writeLogFile( F("Problem connect to STA"), 1, 3 );
  
             // We Need to Bring up AP
             disconnectSTA();
@@ -188,15 +189,15 @@ void firmwareOnlineUpdate()
   switch( ret ) {
     case HTTP_UPDATE_FAILED:
       Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
-      writeLogFile( F("HTTP_UPDATE_FAIL"), 1 );
+      writeLogFile( F("HTTP_UPDATE_FAIL"), 1, 3 );
       break;
 
     case HTTP_UPDATE_NO_UPDATES:
-      writeLogFile( F("Firmware Up2Date"), 1 );
+      writeLogFile( F("Firmware Up2Date"), 1, 3 );
       break;
 
     case HTTP_UPDATE_OK:
-      writeLogFile( F("HTTP_UPDATE_OK"), 1 );
+      writeLogFile( F("HTTP_UPDATE_OK"), 1, 3 );
       break;
   }  
 }

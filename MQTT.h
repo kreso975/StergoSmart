@@ -27,3 +27,8 @@ char mqtt_myTopic[120];
   char mqtt_bme280Temperature[120];
   char mqtt_bme280Pressure[120];
 #endif
+
+// Time Interval for sending MQTT data
+int mqtt_interval = 120;
+unsigned long mqtt_intervalHist;
+unsigned long mqtt_previousMillis;     // time of last point added

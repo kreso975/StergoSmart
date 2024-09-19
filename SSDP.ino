@@ -19,7 +19,7 @@ void setupSSDP()
   SSDP.setManufacturer( "Stergo" );
   SSDP.setManufacturerURL( COMPANY_URL );
   SSDP.begin();
-  writeLogFile( F("SSDP Started"), 1 );
+  writeLogFile( F("SSDP Started"), 1, 3 );
 }
 
 /* ======================================================================
@@ -141,11 +141,11 @@ void handleSSDP()
         {
           if ( foundSSDPdevices[iS] != IPAddress(0,0,0,0) )
           {
-            writeLogFile( F("Found Device: ") + foundSSDPdevices[iS].toString(), 1, 3 );
+            writeLogFile( F("Found Device: ") + foundSSDPdevices[iS].toString(), 1, 1 );
           }
         }
         
-        writeLogFile( F("Actual Devices: ") + String(actualSSDPdevices), 1, 3 );
+        writeLogFile( F("Actual Devices: ") + String(actualSSDPdevices), 1, 1 );
       }
       else if ( a > 0 )
       {

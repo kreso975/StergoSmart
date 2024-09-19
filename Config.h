@@ -9,7 +9,7 @@
  * StergoWeather+PowerSwitch    = 3
  * EXCLUDED CODE                = 9
  */
-#define STERGO_PROGRAM 2
+#define STERGO_PROGRAM 1
 
 /*
  * Different models used for Plug / Switch
@@ -50,12 +50,14 @@
 #if (STERGO_PROGRAM == 0)  // Power Plug | Switch
 #include "Switch.h"
 #include "TicTacToe.h"
+#include "SSDP.h"
 #elif (STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3)  // Weather Station
 #include <Adafruit_BME280.h>
 #include "BME280.h"
 #include "Switch.h"     // Since nothing is used PROGRAM == 1 it will not Generate bigger code
 #elif (STERGO_PROGRAM == 2)  // TicTacToe
 #include "TicTacToe.h"
+#include "SSDP.h"
 #elif (STERGO_PROGRAM == 9)  // EXCLUDED CODE
 #include <WiFiClientSecure.h>
 #endif
@@ -159,17 +161,6 @@ char wifi_DNS[16] = "";
  ******************************************************************************************************/
 // UpTime - Device
 time_t upTime;
-
-// Time interval for udp SSDP M-SEARCH
-bool measureSSDPFirstRun = true;
-const long intervalSSDP = 1000 * 60 * 10;   // 1000 * 60 * 10 - 10min
-unsigned long previousSSDP = intervalSSDP;  // time of last point added
-
-// Time Interval for sending MQTT data
-int mqtt_interval = 120;
-unsigned long mqtt_intervalHist;
-unsigned long mqtt_previousMillis;     // time of last point added
-
 
 // Time Interval for sending Wb Location data / targeting scripts to send data via HTTP POST method
 int webLoc_interval = 60;
