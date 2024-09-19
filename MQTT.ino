@@ -22,7 +22,7 @@ bool setupMQTT( String* message, int what )
     		if ( MQTTreconnect() )
     		{
     			*message = F("Success MQTT Start");
-    			writeLogFile( *message, 1 );
+    			writeLogFile( *message, 1, 3 );
       			return true;
     		}
   		}
@@ -30,7 +30,7 @@ bool setupMQTT( String* message, int what )
     else
     {
       *message = F("Success MQTT already running");
-      writeLogFile( *message, 1 );
+      writeLogFile( *message, 1, 3 );
       return true;
     }
 	}
@@ -40,7 +40,7 @@ bool setupMQTT( String* message, int what )
 			client.disconnect();
 
     *message = F("Success MQTT Stop");
-    writeLogFile( *message, 1 );
+    writeLogFile( *message, 1, 3 );
 		
     return true;
 	}
@@ -55,7 +55,7 @@ bool MQTTreconnect()
   // Loop until we're reconnected || return false
   while ( !client.connected() )
   {
-    writeLogFile( F("MQTT Reconnecting"), 1 );
+    writeLogFile( F("MQTT Reconnecting"), 1, 3 );
     //Serial.println( String(mqtt_clientName) + "  -  " + String(mqtt_clientUsername) + "  -  " + String(mqtt_clientPassword) );
     if ( client.connect( mqtt_clientName, mqtt_clientUsername, mqtt_clientPassword ) )
     {
@@ -80,7 +80,7 @@ bool MQTTreconnect()
         //No success
         mqtt_start = 0;
         
-        writeLogFile( F("MQTT No Reconnect"), 1 );
+        writeLogFile( F("MQTT No Reconnect"), 1, 3 );
         // here I must find a way to send back to web page an ERROR (descriptive) - if it was started from web page
         return false;
       }
@@ -144,7 +144,7 @@ bool sendMQTT ()
     else
     {
       // We are not connected, Write it in Log
-      writeLogFile( F("MQTT Pub No Connect"), 1 );
+      writeLogFile( F("MQTT Pub No Connect"), 1, 3 );
     }
     
   #endif                                                           //===============================================
@@ -167,7 +167,7 @@ bool sendMQTT ()
     else
     {
       // We are not connected, Write it in Log
-      writeLogFile( F("MQTT Pub No Connect"), 1 );
+      writeLogFile( F("MQTT Pub No Connect"), 1, 3 );
     }
   #endif                                                           //===============================================
 

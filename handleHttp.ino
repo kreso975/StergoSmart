@@ -76,7 +76,7 @@ void setupHttpServer()
   );                                                    // Receive and save the file
 
   server.begin();
-  writeLogFile( F("HTTP server started"), 1 );
+  writeLogFile( F("HTTP server started"), 1, 3 );
 
 }
 
@@ -100,7 +100,7 @@ void updateConfig()
   else if ( what == "updateFirmware" )
   {
     // should return if successs
-    writeLogFile( F("updateing Firmware"), 1 );
+    writeLogFile( F("updateing Firmware"), 1, 3 );
     firmwareOnlineUpdate();
     // should return if successs
   }
@@ -108,7 +108,7 @@ void updateConfig()
   else if ( what == "initBME280" )
   {
     // should return if successs
-    writeLogFile( F("init BME280"), 1 );
+    writeLogFile( F("init BME280"), 1, 3 );
     if ( setupBME280() )
       server.send(200, "application/json", "{\"success\":\"Success init BME280\"}");
     else

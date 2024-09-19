@@ -15,10 +15,10 @@ bool setupBME280()
 	// Init BME280
 	if ( !bme.begin( BMEaddr ) )
 	{
-		writeLogFile( F("No BME280 sensor, check wiring!"), 1 );
+		writeLogFile( F("No BME280 sensor, check wiring!"), 1, 3 );
 		return false;
 	}
-	writeLogFile( F("BME280 OK"), 1 );
+	writeLogFile( F("BME280 OK"), 1, 3 );
 	return true;
 }
 
@@ -52,7 +52,7 @@ void getWeather()
 	// If we start getting totaly wrong readings
 	if ( ( t_tmp == 0 && h_tmp == 0 ) || isnan(h_tmp) || isnan(t_tmp) || t_tmp > 100 || t_tmp < -60 )
 	{
-		writeLogFile( F("Fail read BME280!"), 1 );
+		writeLogFile( F("Fail read BME280!"), 1, 3 );
 		return;
 	}
 	else
@@ -136,7 +136,7 @@ bool updateHistory( int z = 0 )
 	if ( z == 1 )
 	{
 		json = "{\"sensor\":[]}"; // length = 13
-		writeLogFile( F("Delete History"), 1 );
+		writeLogFile( F("Delete History"), 1, 3 );
 	}
 		
 
@@ -191,7 +191,7 @@ bool MainSensorConstruct()
 	{
 		//writeLogFile( fOpen + HISTORY_FILE, 1 );
 		if ( updateHistory( 1 ) ) // Create proper initial History File
-			writeLogFile( F("Delete History 1"), 1 );
+			writeLogFile( F("Delete History 1"), 1, 3 );
 	}
 	else
 	{
@@ -199,7 +199,7 @@ bool MainSensorConstruct()
 		if ( size < 4 )
 		{
 			if ( updateHistory( 1 ) ) // Create proper initial History File
-				writeLogFile( F("Delete History 2"), 1 );
+				writeLogFile( F("Delete History 2"), 1, 3 );
 		}
         else
         {

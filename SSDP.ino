@@ -141,11 +141,11 @@ void handleSSDP()
         {
           if ( foundSSDPdevices[iS] != IPAddress(0,0,0,0) )
           {
-            Serial.println(foundSSDPdevices[iS].toString());
+            writeLogFile( F("Found Device: ") + foundSSDPdevices[iS].toString(), 1, 3 );
           }
         }
         
-        Serial.println("Actual Devices: " + String(actualSSDPdevices));
+        writeLogFile( F("Actual Devices: ") + String(actualSSDPdevices), 1, 3 );
       }
       else if ( a > 0 )
       {

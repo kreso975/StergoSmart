@@ -9,7 +9,7 @@
  * StergoWeather+PowerSwitch    = 3
  * EXCLUDED CODE                = 9
  */
-#define STERGO_PROGRAM 0
+#define STERGO_PROGRAM 2
 
 /*
  * Different models used for Plug / Switch
@@ -45,6 +45,8 @@
 #include <PubSubClient.h>
 #include <ESP8266SSDP.h>    // SSDP (Simple Service Discovery Protocol) service
 
+#include "Filesystem.h"     // 
+
 #if (STERGO_PROGRAM == 0)  // Power Plug | Switch
 #include "Switch.h"
 #include "TicTacToe.h"
@@ -61,6 +63,7 @@
 extern "C" {
 #include "user_interface.h"
 }
+
 
 /*********************************************************************************************************/
 /* MQTT Server address
@@ -198,6 +201,6 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, NTPSERVER, 0, 60000);
 
 ESP8266WebServer server(WEBSERVER_PORT);
-
+ 
 // Buffer for ArduinoJson
 //String jsonLogBuffer = "{\"log\":[]}";                      // JSON log export buffer

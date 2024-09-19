@@ -15,7 +15,7 @@
 
 
 #include "Config.h"
-  
+
 void setup()
 {
 	Serial.begin ( SERIAL_BAUDRATE );
@@ -25,7 +25,7 @@ void setup()
 	if ( !setupFS() )
 	{
 		//Serial.println( F("No Filesystem") );
-		writeLogFile( F("No Filesystem"), 1 );
+		writeLogFile( F("No Filesystem"), 1, 3 );
 	}
 
 	String message;
@@ -88,11 +88,13 @@ void setup()
 	if ( mqtt_start )
 		setupMQTT( &message, 1 );
   
-  	#if ( STERGO_PROGRAM == 0 )   //=============================================== Exclude M-SEARCH over UDP 
+  	#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 2 )   //=============================================== Exclude M-SEARCH over UDP 
 	// Start ntpUDP
 	// We need it for M-SEARCH over UDP - SSDP discovery
 	ntpUDP.begin( LOCAL_UDP_PORT );
 	#endif
+
+	
 }
 
 
@@ -142,7 +144,7 @@ void loop()
 
 
       
-      	#if ( STERGO_PROGRAM == 0 )   //=============================================== Exclude M-SEARCH over UDP 
+      	#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 2 )   //=============================================== Exclude M-SEARCH over UDP 
 		// Search for Devices in LAN
     	if ( ( millis() - previousSSDP > intervalSSDP ) || measureSSDPFirstRun )
 		{

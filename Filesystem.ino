@@ -137,92 +137,99 @@ bool saveLogFile( int z = 0 )
  /* ======================================================================
 Function: writeLogFile
 Purpose : Print to Serial && Write SPIFF json LOG
-Input   : message, newLine = for Serial.print (with or without NEW LINE)
+Input   : message, newLine = for Serial.print (with or without NEW LINE), 
+          output: default is 2 if not set. ( 1 only serial, 2 only LOG, 3 both )
 Output  : true / false
 Comments: date:hour, type (warning, info), message
 TODO    : FIX time issue ( no timestamp before NTP ), START using TYPE clasification 
 ====================================================================== */
-bool writeLogFile( String message, int newLine )
+bool writeLogFile( String message, int newLine, int output )
 {
-	/*
-	if ( logOutput == 0 )
-	{
-		if ( newLine == 0 )
-			Serial.print( message );
-		else
-			Serial.println( message );
-	}
-	*/
-  
-	DynamicJsonBuffer jsonBuffer(6000);
+  // Write to Serial
+	if ( output == 1 || output == 3 )
+  {
+    if ( logOutput == 0 )
+	  {
+		  if ( newLine == 0 )
+			  Serial.print( message );
+		  else
+			  Serial.println( message );
+	  }
+  }
+	
+	// Write to Log
+  if ( output == 2 || output == 3 )
+  {
+    DynamicJsonBuffer jsonBuffer(6000);
 
-	File file = SPIFFS.open( LOG_FILE, "r" );
-	if (!file)
-	{
-		writeLogFile( fOpen + LOG_FILE, 1 );
-		if ( saveLogFile( 1 ) ) // Create proper initial Log File
-			writeLogFile( nLOG, 1 );
-	}
-	else
-	{
-		size_t size = file.size();
-		if ( size < 10 )
-		{
-			if ( saveLogFile( 1 ) ) // Create proper initial Log File
-				writeLogFile( nLOG, 1 );
-		}
-		else
-		{
-			std::unique_ptr<char[]> buf (new char[size]);
-			file.readBytes(buf.get(), size);
-			file.close();
+	  File file = SPIFFS.open( LOG_FILE, "r" );
+	  if (!file)
+	  {
+		  writeLogFile( fOpen + LOG_FILE, 1 );
+		  if ( saveLogFile( 1 ) ) // Create proper initial Log File
+			  writeLogFile( nLOG, 1 );
+	    }
+	    else
+	    {
+		    size_t size = file.size();
+		    if ( size < 10 )
+		    {
+			    if ( saveLogFile( 1 ) ) // Create proper initial Log File
+				    writeLogFile( nLOG, 1 );
+		    }
+		    else
+		    {
+			    std::unique_ptr<char[]> buf (new char[size]);
+			    file.readBytes(buf.get(), size);
+			    file.close();
         
-			JsonObject& rootLog = jsonBuffer.parseObject(buf.get());
+			    JsonObject& rootLog = jsonBuffer.parseObject(buf.get());
        
-			if ( !rootLog.success() )
-			{
-				writeLogFile( faParse + String(LOG_FILE), 1 );
-				return false;
-			}
-			else
-			{
-				JsonArray& logData = rootLog["log"];
-				JsonObject& LogWritedata = logData.createNestedObject();
+			    if ( !rootLog.success() )
+			    {
+				    writeLogFile( faParse + String(LOG_FILE), 1 );
+				    return false;
+			    }
+			    else
+			    {
+				    JsonArray& logData = rootLog["log"];
+				    JsonObject& LogWritedata = logData.createNestedObject();
 
-				long int tps = timeClient.getEpochTime();
-				//NEEDS TO BE EXTENDED IN ENTIRE CORE TO PROPERLY SETUP WORNING / INFO MESSAGE TYPE
-				int type = 1;
+				    long int tps = timeClient.getEpochTime();
+				    //NEEDS TO BE EXTENDED IN ENTIRE CORE TO PROPERLY SETUP WORNING / INFO MESSAGE TYPE
+				    int type = 1;
 
-				LogWritedata["id"] = tps;       // Timestamp
-				LogWritedata["id2"] = type;     // Message Type
-				LogWritedata["id3"] = message;  // Message
+				    LogWritedata["id"] = tps;       // Timestamp
+				    LogWritedata["id2"] = type;     // Message Type
+				    LogWritedata["id3"] = message;  // Message
   
-				if ( logData.size() > sizeLog )
-					logData.remove(0); 			// - remove first record / oldest
+				    if ( logData.size() > sizeLog )
+					    logData.remove(0); 			// - remove first record / oldest
 
-				//Let's now write Fresh log input
-				File file = SPIFFS.open( LOG_FILE, "w" );
-				if (!file)
-				{
-					writeLogFile( fOpen + LOG_FILE, 1 );
-					if ( saveLogFile( 1 ) ) // Create proper initial Log File
-						writeLogFile( nLOG, 1 );
-				}
-				else
-				{
-					if ( rootLog.prettyPrintTo(file) == 0 )
-					{
-						writeLogFile( fWrite + LOG_FILE, 1 );
-						//*message = fWrite + LOG_FILE;
-						file.close();
-						return false;
-					}
-				}
-			}
-		}
+				    //Let's now write Fresh log input
+				    File file = SPIFFS.open( LOG_FILE, "w" );
+				    if (!file)
+				    {
+					    writeLogFile( fOpen + LOG_FILE, 1 );
+					    if ( saveLogFile( 1 ) ) // Create proper initial Log File
+						    writeLogFile( nLOG, 1 );
+				    }
+				    else
+				    {
+					    if ( rootLog.prettyPrintTo(file) == 0 )
+					    {
+						    writeLogFile( fWrite + LOG_FILE, 1 );
+						    //*message = fWrite + LOG_FILE;
+						    file.close();
+						    return false;
+					    }
+				    }
+			    }
+		    }
    
-		file.close();
-	}
-  
+		  file.close();
+	  }
+  }
+	
 	return true;
 }
