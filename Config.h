@@ -51,10 +51,13 @@
 #include "Switch.h"
 #include "TicTacToe.h"
 #include "SSDP.h"
-#elif (STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3)  // Weather Station
+#elif (STERGO_PROGRAM == 1)  // Weather Station
 #include <Adafruit_BME280.h>
 #include "BME280.h"
-#include "Switch.h"     // Since nothing is used PROGRAM == 1 it will not Generate bigger code
+#elif (STERGO_PROGRAM == 3)  // Weather Station and Switch
+#include <Adafruit_BME280.h>
+#include "BME280.h"
+#include "Switch.h" 
 #elif (STERGO_PROGRAM == 2)  // TicTacToe
 #include "TicTacToe.h"
 #include "SSDP.h"
