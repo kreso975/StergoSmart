@@ -9,7 +9,7 @@
  * StergoWeather+PowerSwitch    = 3
  * EXCLUDED CODE                = 9
  */
-#define STERGO_PROGRAM 1
+#define STERGO_PROGRAM 2
 
 /*
  * Different models used for Plug / Switch
@@ -33,6 +33,7 @@
 
 
 #include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
 #include "ESP8266WebServer.h"
 #include "ESP8266httpUpdate.h"
 #include <DNSServer.h>
@@ -49,18 +50,20 @@
 
 #if (STERGO_PROGRAM == 0)  // Power Plug | Switch
 #include "Switch.h"
-#include "TicTacToe.h"
 #include "SSDP.h"
+#include "TicTacToe.h"
 #elif (STERGO_PROGRAM == 1)  // Weather Station
 #include <Adafruit_BME280.h>
 #include "BME280.h"
+#include "SSDP.h"
 #elif (STERGO_PROGRAM == 3)  // Weather Station and Switch
 #include <Adafruit_BME280.h>
 #include "BME280.h"
+#include "SSDP.h"
 #include "Switch.h" 
 #elif (STERGO_PROGRAM == 2)  // TicTacToe
-#include "TicTacToe.h"
 #include "SSDP.h"
+#include "TicTacToe.h"
 #elif (STERGO_PROGRAM == 9)  // EXCLUDED CODE
 #include <WiFiClientSecure.h>
 #endif
@@ -81,7 +84,7 @@ String PRODUCT = String(MODEL_NAME) + String(MODEL_NUMBER);
 String FIRMWARE = PRODUCT + "-" + String(FW_VERSION);
 String SERIAL_NUMBER = PRODUCT + "-" + String(ESP.getChipId());
 
-#define SERIAL_BAUDRATE 115200
+#define SERIAL_BAUDRATE 9600
 #define WEBSERVER_PORT 80
 #define NTPSERVER "europe.pool.ntp.org"
 #define SSDPPORT 1900
@@ -117,6 +120,7 @@ String fWrite = "Fail to write ";
 #define fsLarge " file size is too large"  //Used to be String
 #define faParse "Fail to parse json "      //Used to be String
 
+
 /******************************************************************************************************
  *  CAPTIVE PORTAL - SETUP
  *
@@ -138,9 +142,11 @@ long lastConnectTry = 0;
 byte status = WL_IDLE_STATUS;
 
 byte mqtt_start, webLoc_start, wifi_runAS, wifi_static, deviceType;
+byte randNumber;
 
 char _deviceType[2] = "1";  // Module device number - like BME280 = 1, Dalas = 2 and similar CHANGED SHOULD SWITCH TO MODEL_NAME + MODEL_NUMBER
-char deviceName[16] = "";
+char deviceName[20] = ""; 
+char _devicename[28] = "";
 
 //htaccess
 char htaccess_username[20];
@@ -165,10 +171,14 @@ char wifi_DNS[16] = "";
 // UpTime - Device
 time_t upTime;
 
+char webLoc_server[120];
 // Time Interval for sending Wb Location data / targeting scripts to send data via HTTP POST method
-int webLoc_interval = 60;
-const long webLoc_intervalHist = 1000 * webLoc_interval;
-unsigned long webLoc_previousMillis = webLoc_intervalHist;  // time of last point added
+int webLoc_interval = 1000 * 60 * 1;
+unsigned long webLoc_intervalHist;
+unsigned long webLoc_previousMillis = webLoc_interval;  // time of last point added
+
+char discord_url[130];
+char discord_avatar[120];
 
 // Module
 char moduleName[20] = "Test";
@@ -176,6 +186,7 @@ char moduleName[20] = "Test";
 
 // create Objects
 WiFiClient espClient;
+HTTPClient http;
 PubSubClient client(espClient);
 
 #if (STERGO_PROGRAM == 9)  //===============================================
@@ -192,6 +203,7 @@ FSInfo fs_info;
 File fsUploadFile;
 
 WiFiUDP ntpUDP;
+
 NTPClient timeClient(ntpUDP, NTPSERVER, 0, 60000);
 
 ESP8266WebServer server(WEBSERVER_PORT);

@@ -31,7 +31,7 @@ Input   : str, found,
                   selectToMarkerLast = 3,
                   selectToMarker = 4
 Output  : String
-Comments: -
+Comments: - NEED TO DESCRIBE BETTER WHAT IS DOING TO INPUT
 ====================================================================== */
 String parseSSDP( String str, String found, int what )
 {
@@ -65,7 +65,7 @@ Input   : what = 1 (M-SEARCH devisec upnp)
 Output  : M-SEARCH & 
 Comments: -
 ====================================================================== */
-void requestSSDP( int what, int move )
+void requestSSDP( int what )
 {
   if ( what == 1 )
   {
@@ -74,17 +74,6 @@ void requestSSDP( int what, int move )
     ntpUDP.beginPacket( IPAddress(SSDPADRESS), SSDPPORT );
     ntpUDP.write( ReplyBuffer );
     ntpUDP.endPacket();
-  }
-  else if ( what == 2 )
-  {
-    // Lets comunicate with one of nodes :)
-    // Sey hello to node
-    IPAddress ssdpAdress(192,168,1,131);
-
-    String replyBuffer = "﻿TICTACTOE: " + String(move);
-    ntpUDP.beginPacket( ssdpAdress, LOCAL_UDP_PORT );
-    ntpUDP.write( replyBuffer.c_str() );
-    ntpUDP.endPacket();     
   }
 }
 
@@ -98,12 +87,13 @@ TODO    : Add save to file , check for duplicate entry / JSON format
           Load existing list and check if servers responds - something simple
 ====================================================================== */
 void handleSSDP()
-{      
+{
   String input = "";
   String modelNumber = "";
   String modelName = "";
+
   char packetBuffer[512];
-  
+
   int packetSize = ntpUDP.parsePacket();
   if ( packetSize )
   {
@@ -160,47 +150,21 @@ void handleSSDP()
         modelNumber = parseSSDP(modelNumber, "/", 3);
         //Serial.println(chipIDremote);
         
-        String replyPacket = "Hi there! " + modelNumber + ", I'm " + String(MODEL_NAME) + String(MODEL_NUMBER);
-        ntpUDP.beginPacket( ntpUDP.remoteIP(), ntpUDP.remotePort() );
-        ntpUDP.write( replyPacket.c_str() );
-        ntpUDP.endPacket();
+        String replyPacket = "Hi there! " + modelNumber + ", I'm " + String(_devicename);
+        sendUDP(replyPacket, ntpUDP.remoteIP());
+
       }
       #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 2 )
       else if ( b > 0 )  // Play TicTacToe
       {
-        int selectPlayer = parseSSDP( input, "Player=", 1).toInt();
-        if ( selectPlayer > 0 )
-        {
-          Serial.println("I'm in selectPlayer: " + String(selectPlayer) );
-          player = selectPlayer;
-          letsPlay();
-        }
-          
-        receivedMove = parseSSDP(input, "Move=", 1).toInt();
-        if ( receivedMove > 0 )
-        {
-          Serial.println("I'm in move: " + String(receivedMove) );
-          letsPlay();  
-        }
-
-        String replyPacket = "﻿SERVER: TicTac  Move=" + String(sentMove);
-        ntpUDP.beginPacket( ntpUDP.remoteIP(), ntpUDP.remotePort() );
-        ntpUDP.write( replyPacket.c_str() );
-        ntpUDP.endPacket();
+        playTicTacToe( input );
       }
       #endif
     }
   }
 }
 
-/* ==========================================================================================
-Function: isSSDPfoundBefore
-Purpose : Search trough Array of Found SSDP devices and if new IP is found add it to the list
-Input   : ssdpDeviceName = IPAddress we are going to search in foundSSDPdevices Array
-Output  : no output.
-Comments: 
-TODO    : 
-============================================================================================= */
+
 void isSSDPfoundBefore( IPAddress ssdpDeviceName )
 { 
   for ( int x = 0; x < NUMBER_OF_FOUND_SSDP; x++ )
@@ -214,7 +178,49 @@ void isSSDPfoundBefore( IPAddress ssdpDeviceName )
     {
       actualSSDPdevices = x+1;
       foundSSDPdevices[x] = ssdpDeviceName;         // ADD Device to my list
+      
       return;
     }
   }
+}
+
+
+/* ==========================================================================================
+Function: sendUDP
+Purpose : send UDP
+Input   : payloadUDP - Prepared message to be sent
+Output  : no output.
+Comments: 
+TODO    : Diffrently handle the IP and Port
+============================================================================================= */
+void sendUDP( String payloadUDP, IPAddress ssdpDeviceIP, int udpPort )
+{
+  #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 2 )                            //===============================================
+  // Instead of remoteIP i will need to specify IP, Port will always be the same
+  if ( didIaskedToPlay )
+    ntpUDP.beginPacket( ssdpDeviceIP, udpPort );
+  else
+    ntpUDP.beginPacket( ntpUDP.remoteIP(), ntpUDP.remotePort() );
+  #endif                                                                        //===============================================
+
+  #if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )                            //===============================================
+  ntpUDP.beginPacket( ntpUDP.remoteIP(), ntpUDP.remotePort() );
+  #endif                                                                        //===============================================
+  
+  
+  ntpUDP.write( payloadUDP.c_str() );
+  ntpUDP.endPacket();
+  return;
+
+  // Lets comunicate with one of nodes :)
+  // Sey hello to node
+  /*
+  IPAddress ssdpAdress(192,168,1,131);
+  ntpUDP.remoteIP() 
+  ntpUDP.remotePort()
+  String replyBuffer = "TICTACTOE: " + payloadUDP;
+  ntpUDP.beginPacket( ssdpAdress, LOCAL_UDP_PORT );
+  ntpUDP.write( replyBuffer.c_str() );
+  ntpUDP.endPacket();
+  */
 }

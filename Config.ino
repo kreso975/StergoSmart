@@ -36,24 +36,39 @@ bool initConfig( String* message )
 	}
 
 	mqtt_start = atoi(configMain["mqtt_start"]);
-
-  // MQTT updates for Void loop to take in account Config interval
+  	// MQTT updates for Void loop to take in account Config interval
 	mqtt_interval = atoi(configMain["mqtt_interval"]);
 	mqtt_intervalHist = 1000 * mqtt_interval;
 	mqtt_previousMillis = mqtt_intervalHist;     // time of last point added
-  //---
-  
-	webLoc_start = atoi(configMain["webLoc_start"]);
-	webLoc_interval = atoi(configMain["webLoc_interval"]);
+
 	mqtt_port = atoi(configMain["mqtt_port"]);
 	strcpy(mqtt_server, configMain["mqtt_server"]);
 	strcpy(mqtt_clientName, configMain["mqtt_clientName"]);
 	strcpy(mqtt_clientUsername, configMain["mqtt_clientUsername"]);
 	strcpy(mqtt_clientPassword, configMain["mqtt_clientPassword"]);
 	strcpy(mqtt_myTopic, configMain["mqtt_myTopic"]);
-
+ 	 //---
+	webLoc_start = atoi(configMain["webLoc_start"]);
+	strcpy(webLoc_server, configMain["webLoc_server"]);
+	// WebHook updates for Void loop to take in account Config interval
+	webLoc_interval = atoi(configMain["webLoc_interval"]);
+	webLoc_intervalHist = 1000 * webLoc_interval;
+	webLoc_previousMillis = webLoc_intervalHist;     // time of last point added
+ 	//---
+	// Discord
+	strcpy(discord_url, configMain["discord_url"]);
+	strcpy(discord_avatar, configMain["discord_avatar"]);
+	//---
 	strcpy(_deviceType,  configMain["deviceType"]);
+	
 	strcpy(deviceName,  configMain["deviceName"]);
+	String _tmp = deviceName;
+	_tmp.replace(' ', '-');
+	_tmp += "-";
+	_tmp += ESP.getChipId();
+	_tmp.toCharArray(_devicename, sizeof(_devicename));
+
+	
 	strcpy(moduleName, configMain["moduleName"]);
 
 	wifi_runAS = atoi(configMain["wifi_runAS"]);
@@ -125,7 +140,7 @@ bool writeToConfig( String* message )
 
 	String stringArray[] = { "deviceType", "deviceName", "deviceID", "moduleName", "wifi_password", "wifi_StaticIP", "wifi_gateway", "wifi_subnet", "wifi_DNS",
   					"softAP_ssid", "softAP_pass", "wifi_SSID", "wifi_hostname", "mqtt_server", "mqtt_port", "mqtt_clientName", "mqtt_clientUsername", 
-  					"mqtt_clientPassword", "mqtt_myTopic", "webLoc_server" };
+  					"mqtt_clientPassword", "mqtt_myTopic", "webLoc_server", "discord_url", "discord_avatar" };
 	const byte NAMES_IN_USE_1 = 20;
 	
 	String intArray[] = { "wifi_runAS", "wifi_static", "mqtt_start", "mqtt_interval", "webLoc_start", "webLoc_interval" };
@@ -181,9 +196,9 @@ bool writeToConfig( String* message )
 	//return true;
 
 	// Let's check if we have change request for MQTT state (start/stop)
-	if ( server.hasArg("stateOn") ) // Check if MQTT was started or Stopped
+	if ( server.hasArg("MQTTstateOn") ) // Check if MQTT was started or Stopped
 	{
-		if ( server.arg("stateOn") == "1" )
+		if ( server.arg("MQTTstateOn") == "1" )
 		{
 			// HERE WE MUST TELL THAT WE WILL START MQTT SERVICES
 			if ( !initConfig( message ) )
@@ -204,13 +219,44 @@ bool writeToConfig( String* message )
 				return false;
 			}
 		}
-		else if ( server.arg("stateOn") == "0" )
+		else if ( server.arg("MQTTstateOn") == "0" )
 		{
 			mqtt_start = 0;
 			setupMQTT( message, 0 );
 
 			*message = F("Success MQTT stop");
 		}
+	}
+
+	// Let's check if we have change request for MWebHookQTT state (start/stop)
+	if ( server.hasArg("WhookStateOn") ) // Check if WebHook was started or Stopped
+	{
+		if ( server.arg("WhookStateOn") == "1" )
+		{
+			// HERE WE MUST TELL THAT WE WILL START WebHook SERVICES
+			if ( !initConfig( message ) )
+			{
+				// Should check what was response in message
+				*message = F("Error init WebHook");
+				return false;
+			}
+			webLoc_start = 1;
+			*message = F("Success WebHook Start");
+			return true;
+		}
+		else if ( server.arg("WhookStateOn") == "0" )
+		{
+			webLoc_start = 0;
+			*message = F("Success WebHook Stop");
+		}
+	}
+
+	// After every save of config Let's load it again
+	if ( !initConfig( message ) )
+	{
+		// Should check what was response in message
+		*message = F("Error init config.json");
+		return false;
 	}
 
 	return true;

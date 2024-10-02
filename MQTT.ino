@@ -95,83 +95,73 @@ bool MQTTreconnect()
 // Need fix to start using TimeInterval from config
 bool sendMQTT ()
 {
+  bool checkStat = true;
   #if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )               //===============================================
-    char humidityString[6];
-    char pressureString[7];
+  char humidityString[6];
+  char pressureString[7];
 
-    if ( client.connected() )
+  if ( client.connected() )
+  {
+    dtostrf(h, 5, 1, humidityString);
+    dtostrf(P0, 6, 1, pressureString);
+
+    //writeLogFile( F("Sending payload: "), 1 );
+    //String temp = "";temp += t;temp += "";
+    //String hum = "";hum += humidityString;hum += "";
+    //String pres = "";pres += P0;pres += "";
+
+    // Let's try to publish Temperature
+    if ( !client.publish( mqtt_bme280Temperature, (char*) String(t).c_str(), true ) )
     {
-      dtostrf(h, 5, 1, humidityString);
-      dtostrf(P0, 6, 1, pressureString);
-
-      //writeLogFile( F("Sending payload: "), 1 );
-      //String temp = "";temp += t;temp += "";
-      //String hum = "";hum += humidityString;hum += "";
-      //String pres = "";pres += P0;pres += "";
-
-      // Let's try to publish Temperature
-      if ( client.publish( mqtt_bme280Temperature, (char*) String(t).c_str(), true ) )
-      {
-        //writeLogFile( F("Publish Temperature: ok"), 1 );
-      }
-      else
-      {
-        //writeLogFile( F("Publish Temperature: failed"), 1 );
-      }
+      //writeLogFile( F("Publish Temperature: failed"), 1 );
+      checkStat = false;
+    }
       
-      // Let's try to publish Humidity
-      if ( client.publish( mqtt_bme280Humidity, humidityString, true ) )
-      {
-        //writeLogFile( F("Publish Humidity: ok"), 1 );
-      }
-      else
-      {
-        //writeLogFile( F("Publish Humidity: failed"), 1 );
-      }
-    
-      // Let's try to publish Pressure
-      if ( client.publish( mqtt_bme280Pressure, pressureString, true ) )
-      {
-        //writeLogFile( F("Publish Pressure: ok"), 1 );
-      }
-      else
-      {
-        //writeLogFile( F("Publish Pressure: failed"), 1 );
-      }
-    
-      return true;
-    }
-    else
+    // Let's try to publish Humidity
+    if ( !client.publish( mqtt_bme280Humidity, humidityString, true ) )
     {
-      // We are not connected, Write it in Log
-      writeLogFile( F("MQTT Pub No Connect"), 1, 3 );
+      //writeLogFile( F("Publish Humidity: failed"), 1 );
+      checkStat = false;
     }
     
+    // Let's try to publish Pressure
+    if ( !client.publish( mqtt_bme280Pressure, pressureString, true ) )
+    {
+      //writeLogFile( F("Publish Pressure: failed"), 1 );
+      checkStat = false;
+    }
+    
+    return checkStat;
+  }
+  else
+  {
+    // We are not connected, Write it in Log
+    writeLogFile( F("MQTT Pub No Connect"), 1, 3 );
+    return false;
+  }  
   #endif                                                           //===============================================
 
   // We are sending Switch state on change
   #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )               //===============================================
-    if ( client.connected() )
+  if ( client.connected() )
+  {
+    // Prep publish for PowerState change
+    // Let's try to publish Temperature
+    if ( !client.publish( mqtt_switch, (char*) String(relay01State).c_str(), true ) )
     {
-      // Prep publish for PowerState change
-      // Let's try to publish Temperature
-      if ( client.publish( mqtt_switch, (char*) String(relay01State).c_str(), true ) )
-      {
-        //writeLogFile( F("MQTT Switch: ok"), 1 );
-      }
-      else
-      {
-        //writeLogFile( F("MQTT Switch: failed"), 1 );
-      } 
+      //writeLogFile( F("MQTT Switch: failed"), 1 );
+      checkStat = false;
     }
-    else
-    {
-      // We are not connected, Write it in Log
-      writeLogFile( F("MQTT Pub No Connect"), 1, 3 );
-    }
+  }
+  else
+  {
+    // We are not connected, Write it in Log
+    writeLogFile( F("MQTT Pub No Connect"), 1, 3 );
+    checkStat = false;
+  }
   #endif                                                           //===============================================
 
-  return false;
+  return checkStat;
 }
 
 // Only for Switches

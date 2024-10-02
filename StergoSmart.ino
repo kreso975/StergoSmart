@@ -4,7 +4,7 @@
  * Smart Home IOT - Weather and Switches with GUI - ESP8266
  *
  *
- * ESP8266 + BME280 + BOOTSTRAP + SPIFFS + GOOGLE CHARTS + MQTT
+ * ESP8266 + BME280 + BOOTSTRAP + SPIFFS + GOOGLE CHARTS + MQTT + WebHooks
  * + CAPTIVE PORTAL + SSDP + OTA
  *
  *
@@ -68,6 +68,9 @@ void setup()
 		// If we are connected to WLAN we cen start SSDP (Simple Service Discovery Protocol) service
     	setupSSDP();
 
+		// Seed for generating Random number
+		randomSeed(analogRead(0));
+
 		#if ( STERGO_PROGRAM == 9 )      //===============================================
     	// test for SSL
     	/*
@@ -85,7 +88,7 @@ void setup()
 	}
 
 
-	if ( mqtt_start )
+	if ( mqtt_start == 1 )
 		setupMQTT( &message, 1 );
   
   	#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 2 )   //=============================================== Exclude M-SEARCH over UDP 
@@ -121,18 +124,32 @@ void loop()
 				getWeather();
 				MainSensorConstruct();
 			}
+
+			if ( webLoc_start == 1 )
+    		{
+    			if ( millis() - webLoc_previousMillis > webLoc_intervalHist )
+        		{
+					Serial.println("Inside true webLoc loop");
+        			webLoc_previousMillis = millis();
+        			sendWebhook( 1 );
+        		}
+      		}
 		}
 		#endif   											//=================================================
 
     	                       					
-
-    	if ( mqtt_start )
+    	if ( mqtt_start == 1 )
     	{
       		#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )   //===============================================
+			String message;
     		if ( millis() - mqtt_previousMillis > mqtt_intervalHist )
         	{
         		mqtt_previousMillis = millis();
-        		sendMQTT();
+        		if ( !sendMQTT() )
+				{
+					setupMQTT( &message, 1 );
+					sendMQTT();
+				}	
         	}
       		#endif                                               //===============================================
       
@@ -141,8 +158,6 @@ void loop()
 
         	client.loop();
       	}
-
-
       
       	#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 2 )   //=============================================== Exclude M-SEARCH over UDP 
 		// Search for Devices in LAN
@@ -150,11 +165,32 @@ void loop()
 		{
 			previousSSDP = millis();
 			measureSSDPFirstRun = false;
-			requestSSDP(1, 0); // This request should be done periodicaly / every 10min
-			requestSSDP(2, 0); // This request should be done periodicaly / every 10min
+			requestSSDP(1); // This request should be done periodicaly / every 10min
     	}
 
-		// Init M-SEARCH over UDP , SSDP Discovery
+
+		// Time interval to ask net devices to play tic tac toe
+		if ( ( millis() - ticCallLMInterval > ticTacCallInterval ) || ticCallFirstRun )
+		{
+			ticCallLMInterval = millis();
+			ticCallFirstRun = false;
+			// Init Game
+			inviteDeviceTicTacToe();
+    	}
+		// Time interval to check on inactivity of the game, auto reset
+		if ( ( millis() - ticTacLastPlayed > ticTacLastPlayedInterval ) && gameStarted == 1 && turn > 0 )
+		{
+			Serial.println("Inside LastPlayedTicTac measure and gameStarted == 1 and turn > 0");
+			resetTicTacToe();
+    	}
+		if ( ( millis() - ticTacLastPlayed > ticTacLastPlayedInterval ) && didIaskedToPlay )
+		{
+			Serial.println("Inside LastPlayedTicTac measure and didIaskedToPlay == true");
+			resetTicTacToe();
+    	}
+		
+
+		// Init M-SEARCH over UDP , SSDP Discovery Listen for TicTacToe
 		handleSSDP(); //WE DON'T NEED SSDP in WiFi AP mode
 	  	#endif
 

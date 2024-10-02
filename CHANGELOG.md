@@ -11,6 +11,9 @@
 **000.05.101**  
 - CleanUp code. Moved SSDP from WiFi.ino to SSDP.ino
 - Remove some duplicated code in Configs
+- Finished Tic Tac Toe auto play for some devices | Switch or Tic Tac Toe single
+- Implemented WebHook for Sensors
+- MQTT cleanup
 
 **000.05.100**  
 - Added 'retain: **true**' in MQTT publish

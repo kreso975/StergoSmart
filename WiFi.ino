@@ -171,7 +171,7 @@ Comments: - Firmware Update Version Check done server side
           FIRMWARE is a construct MODEL_NAME + MODEL_NUMBER + FW_VERSION
 ====================================================================== */
 
-void firmwareOnlineUpdate()
+void firmwareOnlineUpdate( int what )
 {
   /* CODE NEEDS TO BE CHECKED - Based on theese callback We can return Value to Browser whether Success or Error | on success
    *  we can start reload browser process, on Error show in Info bar Error
@@ -180,12 +180,22 @@ void firmwareOnlineUpdate()
   ESPhttpUpdate.onProgress(update_progress);
   ESPhttpUpdate.onError(update_error);
   */
-  
+  t_httpUpdate_return ret;
   //This WORKS!!! YEAH
-  //t_httpUpdate_return ret = ESPhttpUpdate.updateSpiffs( espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", SERIAL_NUMBER );
+  if ( what == 1 )
+  {
+    t_httpUpdate_return ret = ESPhttpUpdate.updateFS( espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", SERIAL_NUMBER );
+  }
+  else if ( what == 2 )
+  {
+    t_httpUpdate_return ret = ESPhttpUpdate.update( espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", FIRMWARE );
+  }
+  else
+  {
+    return;
+  }
 
-  t_httpUpdate_return ret = ESPhttpUpdate.update( espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", FIRMWARE );
-
+  //t_httpUpdate_return ret = ESPhttpUpdate.update( espClient, "http://192.168.1.101/StergoWeather/firmware/temp/StergoSmart.ino.bin", FIRMWARE );
   switch( ret ) {
     case HTTP_UPDATE_FAILED:
       Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
