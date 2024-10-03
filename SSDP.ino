@@ -22,39 +22,42 @@ void setupSSDP()
   writeLogFile( F("SSDP Started"), 1, 3 );
 }
 
-/* ======================================================================
-Function: parseSSDP
-Purpose : 
-Input   : str, found, 
-        : what :  deleteBeforeDelimiter = 1,
-                  deleteBeforeDelimiterTo = 2,
-                  selectToMarkerLast = 3,
-                  selectToMarker = 4
-Output  : String
-Comments: - NEED TO DESCRIBE BETTER WHAT IS DOING TO INPUT
-====================================================================== */
-String parseSSDP( String str, String found, int what )
+SSDPcomType getSSDPcomType(String input)
 {
-  if ( what == 2 || what == 4 )
-  {
-    int p = str.indexOf(found);
-    if ( what == 2 )
-      return str.substring(p);
-    else
-      return str.substring(0, p);
-  }
-  else if ( what == 1 )
-  {
-    int p = str.indexOf(found) + found.length();
-    return str.substring(p);
-  }
-  else if ( what == 3 )
-  {
-    int p = str.lastIndexOf(found);
-    return str.substring(p + found.length());
+  // Maybe Shorter
+  int i = input.indexOf("Arduino"); // From M-SEARCH
+  int a = input.indexOf("Stergo");  // From D2D (device2device) communication
+  int b = input.indexOf("TicTac");  // From D2D (device2device) communication
+
+  if ( i > 0 ) return Arduino;
+  if ( a > 0 ) return Stergo;
+  if ( b > 0 ) return TicTac;
+  return NotDeclared;
+}
+
+/* ======================================================================
+String  : parseUDP()
+Purpose : to Optimize code. Easyer to read playTicTacToe
+Input   : input - received raw ASCII from UDP | SERVER: TicTac deviceNAME+chipID Move=8
+          part  - requested element of array to be returned
+Output  : String of input[part]
+TODO    : 
+====================================================================== */
+String parseUDP( String input, int part )
+{
+  char buf[input.length() + 1];
+  input.toCharArray(buf, sizeof(buf));
+  char* values[4];
+  byte i=0;
+  char* token = strtok(buf, " "); // Delimiter is " " , we get 5 Strings
+
+  while (token != NULL)
+  { //Serial.println(token);
+    values[i++] = token;
+    token = strtok(NULL, " ");
   }
 
-  return "";
+  return values[part];
 }
 
 /* ======================================================================
@@ -95,6 +98,7 @@ void handleSSDP()
   char packetBuffer[512];
 
   int packetSize = ntpUDP.parsePacket();
+  // If there is something inside
   if ( packetSize )
   {
     int len = ntpUDP.read(packetBuffer, 512);
@@ -102,31 +106,13 @@ void handleSSDP()
       packetBuffer[len] = 0;
     
     input += packetBuffer;
-    
-    int i = input.indexOf("Arduino"); // From M-SEARCH
-    int a = input.indexOf("Stergo");  // From D2D (device2device) communication
-    int b = input.indexOf("TicTac");  // From D2D (device2device) communication
+    String message;
 
-    if ( i > 0 || a > 0 || b > 0 )
+    switch ( getSSDPcomType(input) )
     {
-      if ( i > 0 )
-      {
-        modelNumber = parseSSDP(input, "Arduino", 1); // Should be changed
-        modelNumber = parseSSDP(modelNumber, "\n", 4);
-        //Serial.println(chipIDremote); // First Row
-
-        modelName = parseSSDP(modelNumber, "Stergo", 2);
-        modelName = parseSSDP(modelName, "/", 4);
-        //Serial.println(ssdpName);
-      
-        modelNumber = parseSSDP(modelNumber, "/", 3);
-        //Serial.println(chipIDremote);
-
-        //writeLogFile( modelNumber + " - " + ntpUDP.remoteIP().toString(), 1 );
-        
+      case Arduino:
         isSSDPfoundBefore( ntpUDP.remoteIP() );
-      
-        
+        // Adding new found devices
         for( int iS = 0; iS < NUMBER_OF_FOUND_SSDP; iS++)
         {
           if ( foundSSDPdevices[iS] != IPAddress(0,0,0,0) )
@@ -136,31 +122,28 @@ void handleSSDP()
         }
         
         writeLogFile( F("Actual Devices: ") + String(actualSSDPdevices), 1, 1 );
-      }
-      else if ( a > 0 )
-      {
-        modelNumber = parseSSDP(input, "Stergo", 1);
-        modelNumber = parseSSDP(modelNumber, "\n", 4);
-        //Serial.println(chipIDremote); // First Row
-
-        modelName = parseSSDP(modelNumber, "Stergo", 2);
-        modelName = parseSSDP(modelName, "/", 4);
-        //Serial.println(ssdpName);
+        break;
       
-        modelNumber = parseSSDP(modelNumber, "/", 3);
-        //Serial.println(chipIDremote);
-        
-        String replyPacket = "Hi there! " + modelNumber + ", I'm " + String(_devicename);
-        sendUDP(replyPacket, ntpUDP.remoteIP());
+      case Stergo:
+        modelName = parseUDP( input, 2 );
 
-      }
-      #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 2 )
-      else if ( b > 0 )  // Play TicTacToe
-      {
+        message = F("Hi there! ");
+        message += modelName;
+        message += F(", I'm ");
+        message += String(_devicename);
+        sendUDP(message, ntpUDP.remoteIP());
+        break;
+
+      case TicTac:
+        #ifdef MODULE_TICTACTOE
         playTicTacToe( input );
-      }
-      #endif
+        #endif
+        break;
+     
+      case NotDeclared:
+        break;
     }
+  
   }
 }
 
@@ -211,16 +194,4 @@ void sendUDP( String payloadUDP, IPAddress ssdpDeviceIP, int udpPort )
   ntpUDP.write( payloadUDP.c_str() );
   ntpUDP.endPacket();
   return;
-
-  // Lets comunicate with one of nodes :)
-  // Sey hello to node
-  /*
-  IPAddress ssdpAdress(192,168,1,131);
-  ntpUDP.remoteIP() 
-  ntpUDP.remotePort()
-  String replyBuffer = "TICTACTOE: " + payloadUDP;
-  ntpUDP.beginPacket( ssdpAdress, LOCAL_UDP_PORT );
-  ntpUDP.write( replyBuffer.c_str() );
-  ntpUDP.endPacket();
-  */
 }

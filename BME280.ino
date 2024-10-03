@@ -1,4 +1,4 @@
-#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )
+#ifdef MODUL_BME280
 
 /* ======================================================================
 Function: setupBME280

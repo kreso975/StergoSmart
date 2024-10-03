@@ -24,7 +24,7 @@ unsigned long ticTacLastPlayed = ticTacLastPlayedInterval;
 
 // Interval timer for sending Invitations
 bool ticCallFirstRun = true;
-const long ticTacCallInterval = 1000 * 60 * 2;                   // 1000 * 60 * 5 - 5min
+const long ticTacCallInterval = 1000 * 60 * 10;                   // 1000 * 60 * 10 - 10min
 unsigned long ticCallLMInterval = ticTacCallInterval;
 
 byte nrInvitationTry = 0; 

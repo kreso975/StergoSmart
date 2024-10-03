@@ -8,7 +8,7 @@
  * + CAPTIVE PORTAL + SSDP + OTA
  *
  *
- * Copyright (C) 2018 Kresimir Kokanovic - https://github.com/kreso975/StergoSmart
+ * Copyright (C) 2018-2024 Kresimir Kokanovic - https://github.com/kreso975/StergoSmart
  *
  * Apache-2.0 license - https://github.com/kreso975/StergoSmart#Apache-2.0-1-ov-file
  */
@@ -35,17 +35,14 @@ void setup()
   
 	deviceType = atoi(_deviceType);
 
-	#if ( STERGO_PROGRAM == 1 )       //===============================================
-		if ( setupBME280() )
-			detectModule = true;
-	#elif ( STERGO_PROGRAM == 0 )     //===============================================
-		setupSwitch();
-	#elif ( STERGO_PROGRAM == 3 )
-		if ( setupBME280() )
-			detectModule = true;
+	#ifdef MODUL_BME280
+	if ( setupBME280() )
+		detectModule = true;
+	#endif
 
-		setupSwitch();
-	#endif                            //===============================================
+	#ifdef MODULE_SWITCH
+	setupSwitch();
+	#endif
 
 	WiFiManager();
 
@@ -71,7 +68,11 @@ void setup()
 		// Seed for generating Random number
 		randomSeed(analogRead(0));
 
-		#if ( STERGO_PROGRAM == 9 )      //===============================================
+		if ( mqtt_start == 1 )
+			setupMQTT( &message, 1 );
+
+
+		#if ( EXCLUDED_CODE == 9 )      //===============================================
     	// test for SSL
     	/*
       	for ( int i = 1; i<=5; i++ )
@@ -80,7 +81,7 @@ void setup()
       	delay(2000);
       	}
     	*/
-    	#endif                            //===============================================
+    	#endif                           //===============================================
 	}
 	else
 	{
@@ -88,10 +89,9 @@ void setup()
 	}
 
 
-	if ( mqtt_start == 1 )
-		setupMQTT( &message, 1 );
+	
   
-  	#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 2 )   //=============================================== Exclude M-SEARCH over UDP 
+  	#ifdef MODULE_TICTACTOE   			//=============================================== Exclude M-SEARCH over UDP 
 	// Start ntpUDP
 	// We need it for M-SEARCH over UDP - SSDP discovery
 	ntpUDP.begin( LOCAL_UDP_PORT );
@@ -108,12 +108,12 @@ void loop()
 		dnsServer.processNextRequest();
 
 	server.handleClient();
-
+	
 	// IN AP MODE we don't have Date & Time so we don't do anything except setup Device
 	if ( WiFi.getMode() == 1 )
 	{
 		// If BME280 is detected
-		#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )   //===============================================
+		#ifdef MODUL_BME280   								//===============================================
 		if ( detectModule )
 		{
     		if ( ( millis() - lastMeasureInterval > measureInterval ) || measureFirstRun )
@@ -159,7 +159,7 @@ void loop()
         	client.loop();
       	}
       
-      	#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 2 )   //=============================================== Exclude M-SEARCH over UDP 
+      	#ifdef MODULE_TICTACTOE									//=============================================== Exclude M-SEARCH over UDP 
 		// Search for Devices in LAN
     	if ( ( millis() - previousSSDP > intervalSSDP ) || measureSSDPFirstRun )
 		{

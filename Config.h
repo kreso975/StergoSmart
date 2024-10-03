@@ -7,9 +7,18 @@
  * StergoWeather                = 1
  * ticTacToe                    = 2
  * StergoWeather+PowerSwitch    = 3
- * EXCLUDED CODE                = 9
  */
-#define STERGO_PROGRAM 2
+#define STERGO_PROGRAM 0
+
+/*
+ * Different models used for Weather
+ * 
+ * STERGO_WEATHER :
+ * 
+ * ESP8266 default 01S = 1   // WS001
+ * LOLIN D1 mini       = 2   // WS002
+ */
+#define STERGO_WEATHER 1
 
 /*
  * Different models used for Plug / Switch
@@ -22,12 +31,18 @@
  */
 #define STERGO_PLUG 1   
 
+
 // Firmware Version always part of this file
 #define FW_VERSION "000.05.101"  // Check releaseLog for details
 #define MODEL_FRENDLY_NAME "Stergo Smart"
 #define COMPANY_URL "http://www.stergo.hr"
 
+// Exluded Code tu be included
+// 0 = None to be included
+#define EXCLUDED_CODE 0
 
+// 1 true | 0 false
+#define DEBUG 1
 
 //=================================================================
 
@@ -41,27 +56,34 @@
 #include <FS.h>
 #include <TimeLib.h>
 #include <NTPClient.h>
-#include "ArduinoJson.h"  //v5.13.5
+#include "ArduinoJson.h"    //v5.13.5
 #include <WiFiUdp.h>
 #include <PubSubClient.h>
 #include <ESP8266SSDP.h>    // SSDP (Simple Service Discovery Protocol) service
-
 #include "Filesystem.h"     // 
 
 #if (STERGO_PROGRAM == 0)  // Power Plug | Switch
+#define MODULE_SWITCH
+#define MODULE_TICTACTOE
 #include "Switch.h"
 #include "SSDP.h"
 #include "TicTacToe.h"
 #elif (STERGO_PROGRAM == 1)  // Weather Station
+#define MODUL_BME280
+#define MODULE_TICTACTOE
 #include <Adafruit_BME280.h>
 #include "BME280.h"
 #include "SSDP.h"
+#include "TicTacToe.h"
 #elif (STERGO_PROGRAM == 3)  // Weather Station and Switch
+#define MODUL_BME280
+#define MODULE_SWITCH
 #include <Adafruit_BME280.h>
 #include "BME280.h"
 #include "SSDP.h"
 #include "Switch.h" 
 #elif (STERGO_PROGRAM == 2)  // TicTacToe
+#define MODULE_TICTACTOE
 #include "SSDP.h"
 #include "TicTacToe.h"
 #elif (STERGO_PROGRAM == 9)  // EXCLUDED CODE
@@ -95,9 +117,6 @@ String SERIAL_NUMBER = PRODUCT + "-" + String(ESP.getChipId());
 #define NUMBER_OF_FOUND_SSDP 6
 IPAddress foundSSDPdevices[NUMBER_OF_FOUND_SSDP];
 int actualSSDPdevices = 0;
-
-//String toStringIp( IPAddress ip );
-//bool checkPing( IPAddress remote_ip );
 
 #define configFile "/config.json"
 #define LOG_FILE "/log.json"
@@ -137,9 +156,9 @@ char softAP_pass[20] = "123456789";       //
 /** Should I connect to W LAN asap? */
 bool connect;
 /** Last time I tried to connect to WLAN */
-long lastConnectTry = 0;
+//long lastConnectTry = 0;
 /** Current WLAN status */
-byte status = WL_IDLE_STATUS;
+//byte status = WL_IDLE_STATUS;  // nowhere in the code used. WiFi.status is more readable
 
 byte mqtt_start, webLoc_start, wifi_runAS, wifi_static, deviceType;
 byte randNumber;
@@ -148,9 +167,9 @@ char _deviceType[2] = "1";  // Module device number - like BME280 = 1, Dalas = 2
 char deviceName[20] = ""; 
 char _devicename[28] = "";
 
-//htaccess
-char htaccess_username[20];
-char htaccess_password[20];
+//htaccess - Not used anywhere in the code
+//char htaccess_username[20];
+//char htaccess_password[20];
 
 // Wifi Connection
 char wifi_hostname[20] = "StergoSmart";
@@ -189,7 +208,7 @@ WiFiClient espClient;
 HTTPClient http;
 PubSubClient client(espClient);
 
-#if (STERGO_PROGRAM == 9)  //===============================================
+#if ( EXCLUDED_CODE == 9 )  //===============================================
 // TEST WITH SSL
 #define host "nas.local"
 #define httpsPort 8081

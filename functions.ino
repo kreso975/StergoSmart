@@ -72,3 +72,38 @@ String showDuration( uint32_t duration )
 
   return S;
 }
+
+/* ======================================================================
+Function: parseString
+Purpose : 
+Input   : str, found, 
+        : what :  deleteBeforeDelimiter = 1,
+                  deleteBeforeDelimiterTo = 2,
+                  selectToMarkerLast = 3,
+                  selectToMarker = 4
+Output  : String
+Comments: - NEED TO DESCRIBE BETTER WHAT IS DOING TO INPUT
+====================================================================== */
+String parseString( String str, String found, int what )
+{
+  if ( what == 2 || what == 4 )
+  {
+    int p = str.indexOf(found);
+    if ( what == 2 )
+      return str.substring(p);
+    else
+      return str.substring(0, p);
+  }
+  else if ( what == 1 )
+  {
+    int p = str.indexOf(found) + found.length();
+    return str.substring(p);
+  }
+  else if ( what == 3 )
+  {
+    int p = str.lastIndexOf(found);
+    return str.substring(p + found.length());
+  }
+
+  return "";
+}

@@ -1,4 +1,4 @@
-#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 2 )
+#ifdef MODULE_TICTACTOE
 /*
  *  IDEAS:  - 1st request includes: DO YOU WANT TO PLAY + CHOOSE PLAY 1st or 2nd
  *          - at the END of the game, Looser sends: Congratulations + Do you want to play + Choose play 1st or 2nd
@@ -27,7 +27,11 @@ void startGameValues( String playerName )
   // RND am i playing first or second. and then send Proper message
   gameStarted = 1; // game Is In Play
   difficulty = random(3, 9); // AI difficulty
-  Serial.println("Difficulty set to: " + String(difficulty));
+  
+  #if ( DEBUG == 1 )
+  writeLogFile("Difficulty set to: " + String(difficulty),1,1);
+  #endif
+
   playerName.toCharArray(opponentName, 28); // Add Player Name
   opponentIP = ntpUDP.remoteIP(); // Let's fetch his IP and save it to later use
   opponentUDPport = ntpUDP.remotePort(); // Let's fetch his Port and save it to later use
@@ -81,22 +85,34 @@ char displayChar( int c )
 // Just Draw Grid
 void drawNumberedBoard()
 {
-  Serial.println("Grid number layout:");
-  Serial.println(" 0 | 1 | 2 ");
-  Serial.println("---+---+---");
-  Serial.println(" 3 | 4 | 5 ");
-  Serial.println("---+---+---");
-  Serial.println(" 6 | 7 | 8 ");
+  #if ( DEBUG == 1 )
+  //writeLogFile("Grid number layout:",1,1);
+  //writeLogFile(" 0 | 1 | 2 ",1,1);
+  //writeLogFile("---+---+---",1,1);
+  //writeLogFile(" 3 | 4 | 5 ",1,1);
+  //writeLogFile("---+---+---",1,1);
+  //writeLogFile(" 6 | 7 | 8 ",1,1);
+  #endif
 }
 
-// Display in Seral played moves after every move
+// Display in Serial played moves after every move
 void draw( int board[9] )
 {
-  Serial.print("\n "); Serial.print(displayChar(board[0])); Serial.print(" | "); Serial.print(displayChar(board[1])); Serial.print(" | "); Serial.print(displayChar(board[2])); Serial.println(" ");
-  Serial.println("---+---+---");
-  Serial.print(" "); Serial.print(displayChar(board[3])); Serial.print(" | "); Serial.print(displayChar(board[4])); Serial.print(" | "); Serial.print(displayChar(board[5])); Serial.println(" ");
-  Serial.println("---+---+---");
-  Serial.print(" "); Serial.print(displayChar(board[6])); Serial.print(" | "); Serial.print(displayChar(board[7])); Serial.print(" | "); Serial.print(displayChar(board[8])); Serial.println(" ");
+  #if ( DEBUG == 1 )
+  byte vn;
+  String bm = "\n ";
+  for ( vn = 0; vn < 9; ++vn )
+  {
+    bm += String(displayChar(board[vn]));
+    if ( vn == 2 || vn == 5 )
+      bm += "\n---+---+---\n ";
+    else if ( vn == 8 )
+      bm += " ";
+    else
+      bm += " | ";
+  }
+  writeLogFile( bm, 1, 1);
+  #endif
 }
 
 int win( const int board[9] )
@@ -161,7 +177,11 @@ void computerMove( int board[9] )
       {
         board[i] = 1;
         int tempScore = -minimax(board, -1, 0);
+
+        #if ( DEBUG == 1 )
         Serial.println("Temp Score: " + String(tempScore));
+        #endif
+
         board[i] = 0;
         if ( tempScore > score )
         {
@@ -174,7 +194,7 @@ void computerMove( int board[9] )
   else
   {
     // First move is going to be RANDOM otherwhise it's always draw
-    // 0 is included, till 9, 9 not included
+    // 0 is included, up 9, 9 not included
     move = random(0, 9);
   }
   
@@ -200,13 +220,18 @@ bool playerMove( int board[9], byte moveKeypadNum )
   else
     move = 255; //Set 'move' to 255 which will be picked up later as an invalid move
   
+  #if ( DEBUG == 1 )
   Serial.println("Opponent played move: " + move);
-  
+  #endif
+
   // Here we check validity of selected Player move
   // This should be modiffied Proper respond when we includ Real player moves not AI
   if ( (move > 8 || move < 0) || board[move] != 0 )
   {
+    #if ( DEBUG == 1 )
     Serial.println("Invalid move"); //Say if the player's move was invalid
+    #endif
+
     return false;
   }
   else
@@ -332,41 +357,41 @@ TODO    :
 ====================================================================== */
 void playTicTacToe( String input )
 {
-  playerName = parseValues(input , 2);     // Parsing Input from UDP
-  // NameSpaces 
-  gamephase = getGamePhase(input);
-  switch (gamephase)
+  playerName = parseUDP(input , 2);     // Parsing Input from UDP
+
+  switch (getGamePhase(input))
   {
     case WePlay:
-      wantToPlay = parseSSDP(input, "WePlay=", 1).toInt();
+      wantToPlay = parseString(input, "WePlay=", 1).toInt();
       if ( wantToPlay == 0 )
       {
         // Remote don't want to play
+        #if ( DEBUG == 1 )
         Serial.print(F(REPLAYER));
         Serial.print(playerName);
         Serial.println(F(" do not want to play"));
         printLogInPhase( "WePlay" );
+        #endif
         
         break;
-        // Trigger Proces for Looking someone else to play
-        // If we are the one Initiating GameStart
-       
       } 
       else if ( wantToPlay == 1 && gameStarted == 1 )
       {
         // We cannot play because we are already playing
         // Here we can check if we are playing with the same player already
         // But i think simultanious games with the same Player are not OK
+        #if ( DEBUG == 1 )
         Serial.print(REPLAYER + playerName);
         Serial.println(F(" ask to play but we are already playing"));
-        
-        
         printLogInPhase( "WePlay" );
+        #endif
         
         String replyPacket = SERTIC + String(_devicename) + " WePlay=0";
         sendUDP(replyPacket, ntpUDP.remoteIP());
        
+        #if ( DEBUG == 1 )
         Serial.println(F("Reseting game"));
+        #endif
         resetTicTacToe();
        
         break;
@@ -383,7 +408,9 @@ void playTicTacToe( String input )
           // We will randomly choose To ask Opponent to choose Player 1 || 2 , or we will Choose 1 || 2
           // 0 = Ask, 1 = Play 1st, 2 = Play 2nd
           randNumber = random(0, 3);
-          Serial.println("In sending Player decision: " + String(randNumber));
+          #if ( DEBUG == 1 )
+          writeLogFile( "In sending Player decision: " + String(randNumber), 1, 1 );
+          #endif
           if ( randNumber == 2 )
             player = 1;
           if ( randNumber == 1 )
@@ -410,13 +437,15 @@ void playTicTacToe( String input )
       if ( gameStarted == 0 )
       {
         // I didnt sent Play Invitation so i just reply Yes I want to play
+        #if ( DEBUG == 1 )
         Serial.println(F("Somebody Skipped directly to Player"));
+        #endif
         String replyPacket = SERTIC + String(_devicename) + " WePlay=0";
         sendUDP(replyPacket, ntpUDP.remoteIP());
         break;
       }
 
-      selectPlayer = parseSSDP( input, "Player=", 1).toInt();
+      selectPlayer = parseString( input, "Player=", 1).toInt();
       if ( selectPlayer == 0 )
       {
         // We need to make a decision Player 1 || 2
@@ -432,7 +461,9 @@ void playTicTacToe( String input )
       }
       else if ( ( selectPlayer == 1 || selectPlayer == 2) && gameStarted == 0 )
       {
-        Serial.println( selectPlayer + " Selected to play as Player: " + String(selectPlayer) );
+        #if ( DEBUG == 1 )
+        writeLogFile( selectPlayer + " Selected to play as Player: " + String(selectPlayer), 1, 1 );
+        #endif
         player = selectPlayer;
         printLogInPhase( "Player" );
 
@@ -461,8 +492,10 @@ void playTicTacToe( String input )
 
     case Move:
       // Getting Move response from Remote Player
-      receivedMove = parseSSDP(input, "Move=", 1).toInt();
-      Serial.println("Game is in Turn: " + String(turn));
+      receivedMove = parseString(input, "Move=", 1).toInt();
+      #if ( DEBUG == 1 )
+      writeLogFile( "Game is in Turn: " + String(turn), 1, 1 );
+      #endif
       // MyTurn to play but no Turn Played
       if ( receivedMove == -1 && turn == 0 )
       {
@@ -475,18 +508,22 @@ void playTicTacToe( String input )
         if ( String(opponentName) == playerName )
         {
           // We have our oponent lets continue
+          #if ( DEBUG == 1 )
           Serial.print(REPLAYER + playerName);
           Serial.print(F(" played move: "));
           Serial.println( String(receivedMove) );
+          #endif
           
           letsPlay( 2, playerName );
         }
         else
         {
           // Somebody else sent us move
+          #if ( DEBUG == 1 )
           Serial.println( "Opponent Name: " + String(opponentName) + " - PlayeName: " + playerName );
           Serial.print(F("We are not playing With "));
           Serial.println(REPLAYER + playerName);
+          #endif
         }   
       }
       break;
@@ -517,7 +554,9 @@ void inviteDeviceTicTacToe()
     // We also do the hack to auto unlock us using Stale game
     ticTacLastPlayed = millis();
 
-    Serial.println("Sending Invitation to IP: " + foundSSDPdevices[randNumber].toString());
+    #if ( DEBUG == 1 )
+    writeLogFile( "Sending Invitation to IP: " + foundSSDPdevices[randNumber].toString(), 1, 1 );
+    #endif
 
     String replyPacket = SERTIC + String(_devicename) + " WePlay=1";
     ntpUDP.beginPacket( IPAddress(foundSSDPdevices[randNumber]), 4210 );
@@ -526,39 +565,13 @@ void inviteDeviceTicTacToe()
   }
 }
 
-
-/* ======================================================================
-String  : parseValues()
-Purpose : to Optimize code. Easyer to read playTicTacToe
-Input   : input - received raw ASCII from UDP | SERVER: TicTac deviceNAME+chipID Move=8
-          part  - requested element of array to be returned
-Output  : String of input[part]
-TODO    : 
-====================================================================== */
-String parseValues( String input, int part )
-{
-  char buf[input.length() + 1];
-  input.toCharArray(buf, sizeof(buf));
-  char* values[4];
-  byte i=0;
-  char* token = strtok(buf, " "); // Delimiter is " " , we get 5 Strings
-
-  while (token != NULL)
-  { //Serial.println(token);
-    values[i++] = token;
-    token = strtok(NULL, " ");
-  }
-
-  return values[part];
-}
-
 // to Optimize code.
 void printLogInPhase( String where )
 {
-  /*
-  Serial.println("in " + where + ", gameStarted: " + String(gameStarted));
-  Serial.println("in " + where + ", player: " + String(player));
-  Serial.println("in " + where + ", turn: " + String(turn));
-  */
+  #if ( DEBUG == 1 )
+  writeLogFile( "in " + where + ", gameStarted: " + String(gameStarted), 1, 1 );
+  writeLogFile( "in " + where + ", player: " + String(player), 1, 1 );
+  writeLogFile( "in " + where + ", turn: " + String(turn), 1, 1 );
+  #endif
 }
 #endif

@@ -256,9 +256,9 @@ void sendWebhook( byte selection )
   
   if ( selection == 2 )
   { // Tic Tac Toe
-    #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 2 )                            //===============================================
+    #ifdef MODULE_TICTACTOE                                                       //===============================================
   
-    localURL = discord_url;
+    localURL = webLoc_server;
     String discordUsername = _devicename;
     String discordAvatar = discord_avatar;
 

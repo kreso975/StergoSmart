@@ -1,4 +1,4 @@
-#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )
+#ifdef MODULE_SWITCH
 
 /* ======================================================================
 Function: setupSwitch

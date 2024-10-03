@@ -4,10 +4,16 @@
 //    MODEL_NUMBER "v02" ( LOLIN D1 mini)
 #if ( STERGO_PROGRAM == 1 )
   #define MODEL_NAME "WS001"
+#endif
+#if ( STERGO_WEATHER == 1 )
+  #define MODEL_NUMBER "v01"
+#elif ( STERGO_WEATHER == 2 )
   #define MODEL_NUMBER "v02"
-#elif ( STERGO_PROGRAM == 3 )
+#endif
+
+#if ( STERGO_PROGRAM == 3 )
   #define MODEL_NAME "WS002"
-  #define MODEL_NUMBER "v02"
+  #define MODEL_NUMBER "v01"
 #endif
 
 #define sizeHist 100                      // History size = nr of records (24h x 4pts)
@@ -15,11 +21,10 @@
 // BME280 GPIOs 2 (SDA),0 (SCL) are used for BME280
 #define GPIO_SDA 2
 #define GPIO_SCL 0
-#define BMEaddr 0x76 //BME280 address not all running on same address
-
-#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )    
+#define BMEaddr 0x76 //BME280 address not all running on same address 0x76 || 0x77
+  
 bool detectModule = false;                // Was detectBME280 use True if moduledetection not needed
-#endif
+
 
 //*************************************************************************************************************
 /*
