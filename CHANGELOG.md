@@ -10,7 +10,7 @@
 ## **CHANGES:**
 **000.05.102**
 - SSDP cleanUp code
-- midified Config.h, new #definitions
+- modified Config.h, new #definitions
 - enable Weather module to play TicTacToe over UDP with other devices found in local network
 
 **000.05.101**  
