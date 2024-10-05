@@ -1,6 +1,4 @@
 ## **TODO:**
-  - MQTT config + Config load should be automated. Every device different. Setup/config must be placed inside device Script/config
-    This way, code is going to be cleaner specialy in Script: Config.ino
   - Filesystem/setupFS() - Implement fail over if SPIFFS get corrupted - copy content from web loc or Upload or 
     https://github.com/spacehuhn/esp8266_deauther/blob/master/esp8266_deauther/webfiles.h or start updateOTA for SPIFFS
   - Firmware update OTA, with more info - Your firmware is up to date, Firmware XXX available etc
@@ -8,10 +6,17 @@
  <br><br>
  
 ## **CHANGES:**
-**000.05.102**
+**000.05.102** - in development
 - SSDP cleanUp code
 - modified Config.h, new #definitions
 - enable Weather module to play TicTacToe over UDP with other devices found in local network
+- Switches added #define STERGO_PLUG_BOARD, cleanUp Switch.h
+- CleanUp MQTT from switch old code
+- MQTT cleanUP sendMQTT, payload moved to Modules
+- Main lopp cleanUP MQTT time intervals to check in Modules not in MQTT.ino
+- Discord Webhook URL should point to script that actualy sends Discord Webhook - we just send payload
+- BME280 cleanUP code
+
 
 **000.05.101**  
 - CleanUp code. Moved SSDP from WiFi.ino to SSDP.ino

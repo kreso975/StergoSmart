@@ -16,9 +16,11 @@ bool setupBME280()
 	if ( !bme.begin( BMEaddr ) )
 	{
 		writeLogFile( F("No BME280 sensor, check wiring!"), 1, 3 );
+		detectModule = false;
 		return false;
 	}
 	writeLogFile( F("BME280 OK"), 1, 3 );
+	detectModule = true;
 	return true;
 }
 
@@ -35,13 +37,13 @@ float Kelvin( float celsius ) { return celsius + 273.15; }
 float iNHg( float hpa ) { return hpa * 0.02952998; }
 
 /* ======================================================================
-Function: getWeather
+Function: getWeatherBME
 Purpose : Read Sensor data
 Input   : 
 Output  : 
-Comments: - It's hardcoded to BME280, need to add support for other
+Comments: 
 ====================================================================== */
-void getWeather()
+void getWeatherBME()
 {
 	float h_tmp, t_tmp;
 	t_tmp = bme.readTemperature();
@@ -167,6 +169,51 @@ void sendMeasures()
 	server.sendHeader( "Access-Control-Allow-Origin", "*" );
 	server.send( 200, "application/json", data );
 	//Serial.println( F("Sent measures") );
+}
+
+bool sendMeasuresMQTT()
+{
+	bool checkStat = true;
+	char humidityString[6];
+	char pressureString[7];
+
+	dtostrf(h, 5, 1, humidityString);
+	dtostrf(P0, 6, 1, pressureString);
+
+	// Let's try to publish Temperature
+	if ( !sendMQTT( mqtt_bme280Temperature, (char*) String(t).c_str(), true ) )
+	{
+    	//writeLogFile( F("Publish Temperature: failed"), 1 );
+    	//checkStat = false;
+  	}
+    // Let's try to publish Humidity
+  	if ( !sendMQTT( mqtt_bme280Humidity, humidityString, true ) )
+  	{
+  		//writeLogFile( F("Publish Humidity: failed"), 1 );
+    	checkStat = false;
+	}
+    // Let's try to publish Pressure
+    if ( !sendMQTT( mqtt_bme280Pressure, pressureString, true ) )
+    {
+    	//writeLogFile( F("Publish Pressure: failed"), 1 );
+    	checkStat = false;
+    }
+    
+    return checkStat;
+}
+
+void sendMeasuresWebhook()
+{
+	char* localURL;
+ 	String data;
+	char data2[40];
+    
+	localURL = webLoc_server;
+    
+	sprintf(data2, "{\"t\":\"%.2f\",\"h\":\"%.2f\",\"p\":\"%.2f\"}",t,h,P0);
+    data = String(data2);
+
+	sendWebhook( localURL, data );
 }
   
 /* ======================================================================

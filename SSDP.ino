@@ -91,9 +91,7 @@ TODO    : Add save to file , check for duplicate entry / JSON format
 ====================================================================== */
 void handleSSDP()
 {
-  String input = "";
-  String modelNumber = "";
-  String modelName = "";
+  String input, modelNumber, modelName, message;
 
   char packetBuffer[512];
 
@@ -105,23 +103,15 @@ void handleSSDP()
     if ( len > 0 )
       packetBuffer[len] = 0;
     
-    input += packetBuffer;
-    String message;
+    input = packetBuffer;
 
     switch ( getSSDPcomType(input) )
     {
       case Arduino:
         isSSDPfoundBefore( ntpUDP.remoteIP() );
-        // Adding new found devices
-        for( int iS = 0; iS < NUMBER_OF_FOUND_SSDP; iS++)
-        {
-          if ( foundSSDPdevices[iS] != IPAddress(0,0,0,0) )
-          {
-            writeLogFile( F("Found Device: ") + foundSSDPdevices[iS].toString(), 1, 1 );
-          }
-        }
-        
+        #if ( DEBUG == 1 )                    // -------------------------------------------
         writeLogFile( F("Actual Devices: ") + String(actualSSDPdevices), 1, 1 );
+        #endif                                // -------------------------------------------
         break;
       
       case Stergo:
@@ -131,13 +121,13 @@ void handleSSDP()
         message += modelName;
         message += F(", I'm ");
         message += String(_devicename);
-        sendUDP(message, ntpUDP.remoteIP());
+        sendUDP( message, ntpUDP.remoteIP(), ntpUDP.remotePort() );
         break;
 
       case TicTac:
-        #ifdef MODULE_TICTACTOE
+        #ifdef MODULE_TICTACTOE             // -------------------------------------------
         playTicTacToe( input );
-        #endif
+        #endif                              // -------------------------------------------
         break;
      
       case NotDeclared:
@@ -147,51 +137,50 @@ void handleSSDP()
   }
 }
 
-
-void isSSDPfoundBefore( IPAddress ssdpDeviceName )
-{ 
-  for ( int x = 0; x < NUMBER_OF_FOUND_SSDP; x++ )
-  {
-    if ( foundSSDPdevices[x] != IPAddress(0,0,0,0) )
-    {
-      if ( foundSSDPdevices[x] == ssdpDeviceName )
-        return;                                     // Device SSDP Already in my list
-    }
-    else
-    {
-      actualSSDPdevices = x+1;
-      foundSSDPdevices[x] = ssdpDeviceName;         // ADD Device to my list
-      
-      return;
-    }
-  }
-}
-
-
 /* ==========================================================================================
 Function: sendUDP
 Purpose : send UDP
 Input   : payloadUDP - Prepared message to be sent
 Output  : no output.
 Comments: 
-TODO    : Diffrently handle the IP and Port
+TODO    : 
 ============================================================================================= */
 void sendUDP( String payloadUDP, IPAddress ssdpDeviceIP, int udpPort )
 {
-  #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 2 )                            //===============================================
-  // Instead of remoteIP i will need to specify IP, Port will always be the same
-  if ( didIaskedToPlay )
-    ntpUDP.beginPacket( ssdpDeviceIP, udpPort );
-  else
-    ntpUDP.beginPacket( ntpUDP.remoteIP(), ntpUDP.remotePort() );
-  #endif                                                                        //===============================================
-
-  #if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )                            //===============================================
-  ntpUDP.beginPacket( ntpUDP.remoteIP(), ntpUDP.remotePort() );
-  #endif                                                                        //===============================================
-  
-  
+  ntpUDP.beginPacket( ssdpDeviceIP, udpPort );
   ntpUDP.write( payloadUDP.c_str() );
   ntpUDP.endPacket();
   return;
+}
+
+
+/* ==========================================================================================
+Function: isSSDPfoundBefore
+Purpose : go through already collected IPs and update the list
+Input   : ssdpDeviceIP
+Output  : no output.
+Comments: 
+TODO    : 
+============================================================================================= */
+void isSSDPfoundBefore( IPAddress ssdpDeviceIP )
+{ 
+  for ( int x = 0; x < NUMBER_OF_FOUND_SSDP; x++ )
+  {
+    if ( foundSSDPdevices[x] != IPAddress(0,0,0,0) )
+    {
+      if ( foundSSDPdevices[x] == ssdpDeviceIP )
+        return;                                     // Device SSDP Already in my list
+    }
+    else
+    {
+      actualSSDPdevices = x+1;
+      foundSSDPdevices[x] = ssdpDeviceIP;         // ADD Device to my list
+      
+      #if ( DEBUG == 1 )                      // -------------------------------------------
+      writeLogFile( F("Found Device: ") + foundSSDPdevices[x].toString(), 1, 1 );
+      #endif                                  // -------------------------------------------
+
+      return;
+    }
+  }
 }

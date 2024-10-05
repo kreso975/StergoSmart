@@ -18,7 +18,7 @@
  * ESP8266 default 01S = 1   // WS001
  * LOLIN D1 mini       = 2   // WS002
  */
-#define STERGO_WEATHER 1
+#define STERGO_WEATHER 2
 
 /*
  * Different models used for Plug / Switch
@@ -29,7 +29,11 @@
  * Sonoff S26         = 2   // Plug Switch  - PS
  * Sonoff T4EU1C      = 3   // Light Switch - LS
  */
-#define STERGO_PLUG 1   
+#define STERGO_PLUG 1
+
+// ESP8266 01S        = 1
+// LOLIN d1 Mini      = 2
+#define STERGO_PLUG_BOARD 1
 
 
 // Firmware Version always part of this file
@@ -41,7 +45,7 @@
 // 0 = None to be included
 #define EXCLUDED_CODE 0
 
-// 1 true | 0 false
+// 1 true | 0 false  / Serial.print 
 #define DEBUG 1
 
 //=================================================================
@@ -69,6 +73,7 @@
 #include "SSDP.h"
 #include "TicTacToe.h"
 #elif (STERGO_PROGRAM == 1)  // Weather Station
+#define MODULE_WEATHER
 #define MODUL_BME280
 #define MODULE_TICTACTOE
 #include <Adafruit_BME280.h>
@@ -76,6 +81,7 @@
 #include "SSDP.h"
 #include "TicTacToe.h"
 #elif (STERGO_PROGRAM == 3)  // Weather Station and Switch
+#define MODULE_WEATHER
 #define MODUL_BME280
 #define MODULE_SWITCH
 #include <Adafruit_BME280.h>

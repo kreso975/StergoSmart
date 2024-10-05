@@ -239,43 +239,18 @@ Input   : int selection : 1 Temperature | 2 Discord TicTac
 Output  :  
 Comments: -
 ====================================================================== */
-void sendWebhook( byte selection )
+void sendWebhook( char* localURL, String data )
 {
-  const char* localURL;
-  String data;
-
-  if ( selection == 1 )
-  { // Weather || Weather Switch
-    #if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )                            //===============================================
-    localURL = webLoc_server;
-    char data2[40];
-	  sprintf(data2, "{\"t\":\"%.2f\",\"h\":\"%.2f\",\"p\":\"%.2f\"}",t,h,P0);
-    data = String(data2);
-    #endif                                                                        //===============================================
-  }
-  
-  if ( selection == 2 )
-  { // Tic Tac Toe
-    #ifdef MODULE_TICTACTOE                                                       //===============================================
-  
-    localURL = webLoc_server;
-    String discordUsername = _devicename;
-    String discordAvatar = discord_avatar;
-
-    String message = "I just won! Looser: "+ playerName + " lost.";
-    data = "{\"username\":\"" + discordUsername + "\",\"avatar_url\":\"" + discordAvatar + "\",\"content\":\"" + message + "\"}";
-
-    #endif                                                                        //===============================================
-  }
-  
   HTTPClient http;
   http.begin(espClient, localURL);
   http.addHeader("Content-Type", "application/json"); // Set request as JSON
 
   // Send POST request
   int httpResponseCode = http.POST(data);
-  Serial.print("HTTP Response code: ");
-  Serial.println(httpResponseCode);
+  #if ( DEBUG == 1 )
+  Serial.print( F("HTTP Response code: "));
+  Serial.println( httpResponseCode );
+  #endif
   http.end();
 
 }

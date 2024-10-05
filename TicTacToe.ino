@@ -264,7 +264,7 @@ void letsPlay( byte what, String who )
       
       // Send message back to play his first move
       String replyPacket = SERTIC + String(_devicename) + " Move=-1";
-      sendUDP(replyPacket, opponentIP);
+      sendUDP ( replyPacket, opponentIP, 4210 );
     }
 
     if ( player == 2 )
@@ -278,7 +278,7 @@ void letsPlay( byte what, String who )
 
       // This is fast response , need to brainstorm before 
       String replyPacket = SERTIC + String(_devicename) + " Played Move=" + String(sentMove);
-      sendUDP(replyPacket, opponentIP);
+      sendUDP ( replyPacket, opponentIP, 4210 );
     }
   }
 
@@ -298,7 +298,7 @@ void letsPlay( byte what, String who )
         draw(board);
 
         String replyPacket = SERTIC + String(_devicename) + " Played Move=" + String(sentMove);
-        sendUDP(replyPacket, opponentIP);
+        sendUDP ( replyPacket, opponentIP, 4210 );
       }
       else
       {
@@ -311,14 +311,14 @@ void letsPlay( byte what, String who )
             draw(board);
 
             String replyPacket = SERTIC + String(_devicename) + " Played Move=" + String(sentMove);
-            sendUDP(replyPacket, opponentIP);
+            sendUDP ( replyPacket, opponentIP, 4210 );
           }
         }
         else
         {
           // -1 Is == Not Registered previous move || not allowed move
           String replyPacket = SERTIC + String(_devicename) + " Move=-1";
-          sendUDP(replyPacket, opponentIP);
+          sendUDP ( replyPacket, opponentIP, 4210 );
         }
       } 
     }
@@ -334,7 +334,7 @@ void letsPlay( byte what, String who )
         case 1:
           draw(board);
           Serial.println("You " + _tmp + " lose. Arduino wins!");
-          sendWebhook( 2 );
+          sendTicTacWebhook();
           break;
         case -1:
           Serial.println("You win!");
@@ -387,7 +387,7 @@ void playTicTacToe( String input )
         #endif
         
         String replyPacket = SERTIC + String(_devicename) + " WePlay=0";
-        sendUDP(replyPacket, ntpUDP.remoteIP());
+        sendUDP ( replyPacket, ntpUDP.remoteIP(), ntpUDP.remotePort() );
        
         #if ( DEBUG == 1 )
         Serial.println(F("Reseting game"));
@@ -418,14 +418,14 @@ void playTicTacToe( String input )
 
           // Here I'm Back with answer and I need to ask oponent is he playin 1st or second
           String replyPacket = SERTIC + String(_devicename) + " Player=" + randNumber;
-          sendUDP(replyPacket, opponentIP);
+          sendUDP ( replyPacket, opponentIP, 4210 );
           break;
         }
         else
         {
           // I didnt sent Play Invitation so i just reply Yes I want to play
           String replyPacket = SERTIC + String(_devicename) + " WePlay=1";
-          sendUDP(replyPacket, opponentIP);
+          sendUDP ( replyPacket, opponentIP, 4210 );
           break;
         }
         
@@ -441,7 +441,7 @@ void playTicTacToe( String input )
         Serial.println(F("Somebody Skipped directly to Player"));
         #endif
         String replyPacket = SERTIC + String(_devicename) + " WePlay=0";
-        sendUDP(replyPacket, ntpUDP.remoteIP());
+        sendUDP ( replyPacket, ntpUDP.remoteIP(), ntpUDP.remotePort() );
         break;
       }
 
@@ -457,7 +457,7 @@ void playTicTacToe( String input )
           player = 1;
 
         String replyPacket = SERTIC + String(_devicename) + " Player=" + randNumber;
-        sendUDP(replyPacket, opponentIP);
+        sendUDP ( replyPacket, opponentIP, 4210 );
       }
       else if ( ( selectPlayer == 1 || selectPlayer == 2) && gameStarted == 0 )
       {
@@ -476,7 +476,7 @@ void playTicTacToe( String input )
         printLogInPhase( "Player" );
 
         String replyPacket = SERTIC + String(_devicename) + " Move=-1";
-        sendUDP(replyPacket, opponentIP);
+        sendUDP  (replyPacket, opponentIP, 4210 );
       }
       else if ( selectPlayer == 2 && gameStarted == 1 && turn == 0 )
       {
@@ -486,7 +486,7 @@ void playTicTacToe( String input )
 
         letsPlay( 2, playerName );
         // replyPacket = SERTIC + String(_devicename) + " Move=-1";
-        //sendUDP(replyPacket, opponentIP);
+        //sendUDP(replyPacket, opponentIP,4210);
       }
       break;
 
@@ -554,15 +554,49 @@ void inviteDeviceTicTacToe()
     // We also do the hack to auto unlock us using Stale game
     ticTacLastPlayed = millis();
 
-    #if ( DEBUG == 1 )
-    writeLogFile( "Sending Invitation to IP: " + foundSSDPdevices[randNumber].toString(), 1, 1 );
-    #endif
+    IPAddress rndAddr = IPAddress(foundSSDPdevices[randNumber]);
+    if ( rndAddr )
+    {
+      #if ( DEBUG == 1 )
+      writeLogFile( "Sending Invitation to IP: " + rndAddr.toString(), 1, 1 );
+      #endif
+      
+      String replyPacket = SERTIC + String(_devicename) + " WePlay=1";
+      sendUDP ( replyPacket, rndAddr, 4210 );
+    }
+    else
+    {
+      #if ( DEBUG == 1 )
+       writeLogFile( F("Empty IPlist for Invite"), 1, 1 );
+      #endif
+      
+      //Allow enter again in sending
+      if ( maxRetryInviteEmptyIP < 50 )
+        ticCallFirstRun = true;
 
-    String replyPacket = SERTIC + String(_devicename) + " WePlay=1";
-    ntpUDP.beginPacket( IPAddress(foundSSDPdevices[randNumber]), 4210 );
-    ntpUDP.write( replyPacket.c_str() );
-    ntpUDP.endPacket();
+      maxRetryInviteEmptyIP++;
+    }
+   
+
+    //ntpUDP.beginPacket( IPAddress(foundSSDPdevices[randNumber]), 4210 );
+    //ntpUDP.write( replyPacket.c_str() );
+    //ntpUDP.endPacket();
   }
+}
+
+void sendTicTacWebhook()
+{
+  char* localURL;
+  String data;
+  
+  localURL = discord_url;
+  String discordUsername = _devicename;
+  String discordAvatar = discord_avatar;
+
+  String message = "I just won! Looser: "+ playerName + " lost.";
+  data = "{\"username\":\"" + discordUsername + "\",\"avatar_url\":\"" + discordAvatar + "\",\"content\":\"" + message + "\"}";
+
+  sendWebhook( localURL, data );
 }
 
 // to Optimize code.

@@ -9,7 +9,7 @@ Comments: -
 ====================================================================== */
 bool setupSwitch()
 {
-  digitalWrite( RELAY, HIGH );
+  digitalWrite( RELAY, LOW );
   pinMode( RELAY, OUTPUT );
   
   #if ( STERGO_PLUG == 2 || STERGO_PLUG == 3 )
@@ -28,9 +28,9 @@ void turnSwitchState( int state )
     digitalWrite( RELAY, HIGH );
 
     relay01State = true;
-    if (mqtt_start == 1)
+    if ( mqtt_start == 1 )
     {
-      sendMQTT ();
+      sendSwitchMQTT();
     }
     server.sendHeader( "Access-Control-Allow-Origin", "*" );
     server.send( 200, "application/json", POWERON );
@@ -42,7 +42,7 @@ void turnSwitchState( int state )
     relay01State = false;
     if (mqtt_start == 1)
     {
-      sendMQTT ();
+      sendSwitchMQTT();
     }
     server.sendHeader( "Access-Control-Allow-Origin", "*" );
     server.send( 200, "application/json", POWEROFF );
@@ -76,9 +76,22 @@ void checkSwitchState()
   }
 }
 
+bool sendSwitchMQTT()
+{
+  bool checkStat = true;
+  // We are sending Switch state on change
+  if ( !sendMQTT( mqtt_switch, (char*) String(relay01State).c_str(), true ) )
+  {
+    #if ( DEBUG == 1 )
+    writeLogFile( F("MQTT Switch: failed"), 1 );
+    #endif
+    checkStat = false;
+  }
+  return checkStat;
+}
+
 // Sonoff S26 && Sonoff T4EU1C
 #if ( STERGO_PLUG == 2 || STERGO_PLUG == 3 )                  //===============================================
-
 // called when button is kept pressed for less than 2 seconds
 void shortKeyPress()
 {

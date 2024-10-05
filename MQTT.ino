@@ -13,7 +13,7 @@ bool setupMQTT( String* message, int what )
     {
   		client.setServer( mqtt_server, mqtt_port );
 
-  		#if ( STERGO_PROGRAM == 0  || STERGO_PROGRAM == 3 )     //====================================================
+  		#ifdef MODULE_SWITCH                                    //====================================================
     	client.setCallback(callbackMQTT);                       // Only Switch needs listening, Weather just publishes
   		#endif                                                  //====================================================
       
@@ -55,13 +55,12 @@ bool MQTTreconnect()
   // Loop until we're reconnected || return false
   while ( !client.connected() )
   {
-    writeLogFile( F("MQTT Reconnecting"), 1, 3 );
-    //Serial.println( String(mqtt_clientName) + "  -  " + String(mqtt_clientUsername) + "  -  " + String(mqtt_clientPassword) );
+    //writeLogFile( F("MQTT Reconnecting"), 1, 3 );
     if ( client.connect( mqtt_clientName, mqtt_clientUsername, mqtt_clientPassword ) )
     {
       //writeLogFile( F("MQTT connected"), 1 );
       client.publish( mqtt_myTopic, "connected" );            // Once connected, publish an announcement...
-      #if ( STERGO_PROGRAM == 0  || STERGO_PROGRAM == 3 )     //===============================================
+      #ifdef MODULE_SWITCH                                    //===============================================
       client.subscribe(mqtt_switch);                          // We will subsribe only if Switch
       #endif                                                  //===============================================
     }
@@ -70,8 +69,6 @@ bool MQTTreconnect()
       if ( mqtt_connectTry > 0 )
       {
         mqtt_connectTry--;
-        
-        //writeLogFile( statusMessage, 1 );
         // Wait 2 seconds before retrying
         delay(2000);
       }
@@ -80,7 +77,7 @@ bool MQTTreconnect()
         //No success
         mqtt_start = 0;
         
-        writeLogFile( F("MQTT No Reconnect"), 1, 3 );
+        writeLogFile( F("MQTT NoT Reconnected"), 1, 3 );
         // here I must find a way to send back to web page an ERROR (descriptive) - if it was started from web page
         return false;
       }
@@ -90,82 +87,42 @@ bool MQTTreconnect()
   return true;
 }
 
-
-// Called from StergoSmart.ino = Triggered regarding time interval.
-// Need fix to start using TimeInterval from config
-bool sendMQTT ()
+/* ==========================================================================================
+Function: sendMQTT
+Purpose : send MQTT payload 
+Input   : Topic, Payload, retain
+Output  : Success = True | Fail = False
+Comments: 
+TODO    : 
+============================================================================================= */
+bool sendMQTT ( char* Topic, char* Payload, bool retain )
 {
   bool checkStat = true;
-  #if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )               //===============================================
-  char humidityString[6];
-  char pressureString[7];
 
   if ( client.connected() )
   {
-    dtostrf(h, 5, 1, humidityString);
-    dtostrf(P0, 6, 1, pressureString);
-
-    //writeLogFile( F("Sending payload: "), 1 );
-    //String temp = "";temp += t;temp += "";
-    //String hum = "";hum += humidityString;hum += "";
-    //String pres = "";pres += P0;pres += "";
-
-    // Let's try to publish Temperature
-    if ( !client.publish( mqtt_bme280Temperature, (char*) String(t).c_str(), true ) )
+    // Let's try to publish
+    if ( !client.publish( Topic, Payload, retain ) )
     {
       //writeLogFile( F("Publish Temperature: failed"), 1 );
       checkStat = false;
     }
-      
-    // Let's try to publish Humidity
-    if ( !client.publish( mqtt_bme280Humidity, humidityString, true ) )
-    {
-      //writeLogFile( F("Publish Humidity: failed"), 1 );
-      checkStat = false;
-    }
-    
-    // Let's try to publish Pressure
-    if ( !client.publish( mqtt_bme280Pressure, pressureString, true ) )
-    {
-      //writeLogFile( F("Publish Pressure: failed"), 1 );
-      checkStat = false;
-    }
-    
+        
     return checkStat;
   }
   else
   {
     // We are not connected, Write it in Log
-    writeLogFile( F("MQTT Pub No Connect"), 1, 3 );
+    #if ( DEBUG == 1 )
+    writeLogFile( F("MQTT Pub Not Connected"), 1, 3 );
+    #endif
     return false;
   }  
-  #endif                                                           //===============================================
-
-  // We are sending Switch state on change
-  #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )               //===============================================
-  if ( client.connected() )
-  {
-    // Prep publish for PowerState change
-    // Let's try to publish Temperature
-    if ( !client.publish( mqtt_switch, (char*) String(relay01State).c_str(), true ) )
-    {
-      //writeLogFile( F("MQTT Switch: failed"), 1 );
-      checkStat = false;
-    }
-  }
-  else
-  {
-    // We are not connected, Write it in Log
-    writeLogFile( F("MQTT Pub No Connect"), 1, 3 );
-    checkStat = false;
-  }
-  #endif                                                           //===============================================
-
   return checkStat;
 }
 
 // Only for Switches
-#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )                 //===============================================
+#ifdef MODULE_SWITCH                                                //===============================================
 void callbackMQTT( char* topic, byte* payload, unsigned int length )
 {
     if ( String(topic) == String(mqtt_switch) )
@@ -181,11 +138,13 @@ void callbackMQTT( char* topic, byte* payload, unsigned int length )
     }
     else if ( String(topic) == String(mqtt_switch2) )
     {
+      // No current purpose Except for ESP8266 01S turning light onboard on/off
+      #ifdef LED2
       if ((char)payload[0] == '1')  // Turn the LED on/off
         digitalWrite( LED2, 0);  
       else
         digitalWrite( LED2, 1);
+      #endif
     }
-     
 }
 #endif                                                                 //===============================================

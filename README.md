@@ -18,8 +18,11 @@ tested with Sonoff S26, T4EU1C
 - Google Charts
 - Captive portal for initial Setup
 - OTA update
-- MQTT, HTTP, Publish to web location
+- MQTT, HTTP, Publish as Webhook
 - WiFi manager
+- SSDP
+- UDP Tic Tac Toe
+- Tic Tac Toe winners Publish as Webhook (Discord channel)
   
 > [!IMPORTANT]
 > **Works with SPIFF**  

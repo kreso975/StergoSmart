@@ -18,26 +18,22 @@
 
 void setup()
 {
+	String message;
+
 	Serial.begin ( SERIAL_BAUDRATE );
 	delay(1000);
 	//Serial.setDebugOutput(true);
   
 	if ( !setupFS() )
-	{
-		//Serial.println( F("No Filesystem") );
 		writeLogFile( F("No Filesystem"), 1, 3 );
-	}
-
-	String message;
 
 	// We will Init config to gather needed data and choose next steps based on that config
-	initConfig( &message );
+	initConfig ( &message );
   
 	deviceType = atoi(_deviceType);
 
 	#ifdef MODUL_BME280
-	if ( setupBME280() )
-		detectModule = true;
+	setupBME280();
 	#endif
 
 	#ifdef MODULE_SWITCH
@@ -88,9 +84,6 @@ void setup()
 		setupHttpServer();
 	}
 
-
-	
-  
   	#ifdef MODULE_TICTACTOE   			//=============================================== Exclude M-SEARCH over UDP 
 	// Start ntpUDP
 	// We need it for M-SEARCH over UDP - SSDP discovery
@@ -121,40 +114,41 @@ void loop()
 				lastMeasureInterval = millis();
 				measureFirstRun = false;
 
-				getWeather();
+				getWeatherBME();
 				MainSensorConstruct();
 			}
 
 			if ( webLoc_start == 1 )
     		{
     			if ( millis() - webLoc_previousMillis > webLoc_intervalHist )
-        		{
-					Serial.println("Inside true webLoc loop");
+        		{	
+					#if ( DEBUG == 1 )                      // -------------------------------------------
+      				writeLogFile(F("Inside true webLoc loop"), 1, 1);
+					#endif
         			webLoc_previousMillis = millis();
-        			sendWebhook( 1 );
+        			sendMeasuresWebhook();
         		}
       		}
 		}
 		#endif   											//=================================================
-
-    	                       					
+                      					
     	if ( mqtt_start == 1 )
     	{
-      		#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )   //===============================================
+			if ( !client.connected() )
+        		MQTTreconnect();
+
+      		#ifdef MODULE_WEATHER   						//===============================================
 			String message;
     		if ( millis() - mqtt_previousMillis > mqtt_intervalHist )
         	{
         		mqtt_previousMillis = millis();
-        		if ( !sendMQTT() )
+        		if ( !sendMeasuresMQTT() )
 				{
 					setupMQTT( &message, 1 );
-					sendMQTT();
+					sendMeasuresMQTT();
 				}	
         	}
       		#endif                                               //===============================================
-      
-        	if (!client.connected())
-        		MQTTreconnect();
 
         	client.loop();
       	}
@@ -168,38 +162,39 @@ void loop()
 			requestSSDP(1); // This request should be done periodicaly / every 10min
     	}
 
+		// Init M-SEARCH over UDP , SSDP Discovery Listen for TicTacToe
+		handleSSDP(); //WE DON'T NEED SSDP in WiFi AP mode
 
 		// Time interval to ask net devices to play tic tac toe
 		if ( ( millis() - ticCallLMInterval > ticTacCallInterval ) || ticCallFirstRun )
 		{
 			ticCallLMInterval = millis();
 			ticCallFirstRun = false;
+			#if ( DEBUG == 1 )
+			Serial.println("Inside TicTac Invite");
+			#endif
 			// Init Game
 			inviteDeviceTicTacToe();
     	}
 		// Time interval to check on inactivity of the game, auto reset
 		if ( ( millis() - ticTacLastPlayed > ticTacLastPlayedInterval ) && gameStarted == 1 && turn > 0 )
 		{
-			Serial.println("Inside LastPlayedTicTac measure and gameStarted == 1 and turn > 0");
+			writeLogFile( F("Inside LastPlayedTicTac measure and gameStarted == 1 and turn > 0"), 1, 1);
 			resetTicTacToe();
     	}
 		if ( ( millis() - ticTacLastPlayed > ticTacLastPlayedInterval ) && didIaskedToPlay )
 		{
-			Serial.println("Inside LastPlayedTicTac measure and didIaskedToPlay == true");
+			writeLogFile( F("Inside LastPlayedTicTac measure and didIaskedToPlay == true"), 1, 1);
 			resetTicTacToe();
     	}
-		
-
-		// Init M-SEARCH over UDP , SSDP Discovery Listen for TicTacToe
-		handleSSDP(); //WE DON'T NEED SSDP in WiFi AP mode
 	  	#endif
 
 	}
 
 	#if ( ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 ) && ( STERGO_PLUG == 2 || STERGO_PLUG == 3 ) )  //===============================================
-	// Button Handling - We have it Both in AP and STA
+	// Button Handling - We have it Both in AP and STA 
 	if ( millis() - keyPrevMillis >=  keySampleIntervalMs )
-	{
+	{	// Move to SWitch.ino
 		keyPrevMillis = millis();
 
 		byte currKeyState = digitalRead( BUTTON01 );

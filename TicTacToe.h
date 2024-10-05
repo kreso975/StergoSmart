@@ -23,9 +23,10 @@ const long ticTacLastPlayedInterval = 1000 * 10;     //30 sec              // 10
 unsigned long ticTacLastPlayed = ticTacLastPlayedInterval;
 
 // Interval timer for sending Invitations
+byte maxRetryInviteEmptyIP = 0;
 bool ticCallFirstRun = true;
 const long ticTacCallInterval = 1000 * 60 * 10;                   // 1000 * 60 * 10 - 10min
-unsigned long ticCallLMInterval = ticTacCallInterval;
+unsigned long ticCallLMInterval;
 
 byte nrInvitationTry = 0; 
 
