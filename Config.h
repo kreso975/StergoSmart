@@ -8,7 +8,7 @@
  * ticTacToe                    = 2
  * StergoWeather+PowerSwitch    = 3
  */
-#define STERGO_PROGRAM 0
+#define STERGO_PROGRAM 2
 
 /*
  * Different models used for Weather

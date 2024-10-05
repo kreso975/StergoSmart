@@ -100,14 +100,14 @@ void updateConfig()
   else if ( what == "updateFirmware" )
   {
     // should return if successs
-    writeLogFile( F("updateing Firmware"), 1, 3 );
+    writeLogFile( F("Updateing Firmware"), 1, 3 );
     firmwareOnlineUpdate(2);
     // should return if successs
   }
   else if ( what == "updateSpiffs" )
   {
     // should return if successs
-    writeLogFile( F("updateing FirmwareSpiffs"), 1, 3 );
+    writeLogFile( F("Updateing FirmwareSpiffs"), 1, 3 );
     firmwareOnlineUpdate(1);
     // should return if successs
   }
@@ -235,9 +235,9 @@ void handleNotFound()
 /* ======================================================================
 Function: sendWebhook
 Purpose : Sending data as HTTP POST to selected URL
-Input   : int selection : 1 Temperature | 2 Discord TicTac
+Input   : localURL = URL where to send | data = JSON payload
 Output  :  
-Comments: -
+Comments: - I have local web server for forwarding Discord Webhook
 ====================================================================== */
 void sendWebhook( char* localURL, String data )
 {
@@ -247,10 +247,11 @@ void sendWebhook( char* localURL, String data )
 
   // Send POST request
   int httpResponseCode = http.POST(data);
+  
   #if ( DEBUG == 1 )
   Serial.print( F("HTTP Response code: "));
   Serial.println( httpResponseCode );
   #endif
+  
   http.end();
-
 }

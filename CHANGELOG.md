@@ -16,6 +16,7 @@
 - Main lopp cleanUP MQTT time intervals to check in Modules not in MQTT.ino
 - Discord Webhook URL should point to script that actualy sends Discord Webhook - we just send payload
 - BME280 cleanUP code
+- SPIFFS OTA UPDATE
 
 
 **000.05.101**  

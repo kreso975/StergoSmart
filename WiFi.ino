@@ -185,6 +185,7 @@ void firmwareOnlineUpdate( int what )
   if ( what == 1 )
   {
     t_httpUpdate_return ret = ESPhttpUpdate.updateFS( espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", SERIAL_NUMBER );
+    //t_httpUpdate_return ret = ESPhttpUpdate.updateFS( espClient, "http://192.168.1.101/StergoWeather/firmware/TT001v01-000.05.102.spiffs.bin" );
   }
   else if ( what == 2 )
   {
