@@ -8,7 +8,7 @@
  * ticTacToe                    = 2
  * StergoWeather+PowerSwitch    = 3
  */
-#define STERGO_PROGRAM 2
+#define STERGO_PROGRAM 0
 
 /*
  * Different models used for Weather
@@ -29,7 +29,7 @@
  * Sonoff S26         = 2   // Plug Switch  - PS
  * Sonoff T4EU1C      = 3   // Light Switch - LS
  */
-#define STERGO_PLUG 1
+#define STERGO_PLUG 3
 
 // ESP8266 01S        = 1
 // LOLIN d1 Mini      = 2

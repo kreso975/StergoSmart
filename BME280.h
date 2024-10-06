@@ -56,5 +56,10 @@ unsigned long lastMeasureInterval = measureInterval;        // time of last poin
 // Time interval for Logging data into history.json
 #define intervalHist 1000 * 60 * 15                         // 4 measures / hours - orig 1000 * 60 * 15 - 15min
 unsigned long previousMillis = intervalHist;                // time of last point added
-  
+
+//MQTT Topics used from config.json
+char mqtt_bme280Humidity[120];
+char mqtt_bme280Temperature[120];
+char mqtt_bme280Pressure[120];
+
 Adafruit_BME280 bme;

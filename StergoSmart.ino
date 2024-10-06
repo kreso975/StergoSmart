@@ -152,6 +152,22 @@ void loop()
 
         	client.loop();
       	}
+		// Check if MQTT is turnued of because of too many tries
+		if ( mqttTempDown == 1 )
+		{
+			// We will wait mqttTempDownInt and try again
+			if ( ( millis() - lastmqttTempDownMillis > mqttTempDownInt ) )
+    		{
+				lastmqttTempDownMillis = millis();
+				
+				// Reset MQTT values
+				mqtt_start = 1;
+        		mqttTempDown = 0;
+				#if ( DEBUG == 1 )
+				writeLogFile( F("Resetting MQTT"), 1, 1);
+				#endif
+			}
+		}
       
       	#ifdef MODULE_TICTACTOE									//=============================================== Exclude M-SEARCH over UDP 
 		// Search for Devices in LAN

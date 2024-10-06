@@ -74,9 +74,9 @@ bool MQTTreconnect()
       }
       else
       {
-        //No success
+        //No success We shut down MQTT - but Need to find a way to retry in an hour, also send Discord if its setup
         mqtt_start = 0;
-        
+        mqttTempDown = 1; // So that we know reconnect issue and we need to try later
         writeLogFile( F("MQTT NoT Reconnected"), 1, 3 );
         // here I must find a way to send back to web page an ERROR (descriptive) - if it was started from web page
         return false;

@@ -54,6 +54,10 @@
   bool ledStatus = false;            // button is connected to pin 2 and GND
 #endif
 
+//MQTT Topics used from config.json
+char mqtt_switch[120];              //"/home/ESP8266-2/switch";
+char mqtt_switch2[120];             //"/home/ESP8266-2/switch2";
+
 #define POWERON "{\"POWER\":\"ON\"}"
 #define POWEROFF "{\"POWER\":\"OFF\"}"
     

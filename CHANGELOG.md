@@ -17,6 +17,8 @@
 - Discord Webhook URL should point to script that actualy sends Discord Webhook - we just send payload
 - BME280 cleanUP code
 - SPIFFS OTA UPDATE
+- MQTT.h topics VARs moved to BME or Switch where they belong
+- MQTT if there is problem connecting to Broker after 3 retries, wait 1h and try again. 
 
 
 **000.05.101**  

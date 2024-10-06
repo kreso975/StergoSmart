@@ -9,7 +9,7 @@ Comments: -
 ====================================================================== */
 bool setupSwitch()
 {
-  digitalWrite( RELAY, LOW );
+  digitalWrite( RELAY, HIGH );
   pinMode( RELAY, OUTPUT );
   
   #if ( STERGO_PLUG == 2 || STERGO_PLUG == 3 )
