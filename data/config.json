@@ -30,7 +30,7 @@
     "tictac_webhook": 0,
     "tictac_discord": 1,
     "discord_url": "http://192.168.1.101/StergoWeather/discordwebhook.php",
-    "discord_avatar": "https://gdprom.com/StergoSmart/img/number76.png",
+    "discord_avatar": "",
     "mqtt_server": "192.168.1.200",
     "mqtt_port": "1883",
     "mqtt_clientName": "LS001-16743849",
