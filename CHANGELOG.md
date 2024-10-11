@@ -19,6 +19,9 @@
 - SPIFFS OTA UPDATE
 - MQTT.h topics VARs moved to BME or Switch where they belong
 - MQTT if there is problem connecting to Broker after 3 retries, wait 1h and try again. 
+- modified and cleanUP in handleHttp.ino
+- Added setting for Tic Tac Toe into config.json
+- UI added Tic Tac Toe Options under Device Tab
 
 
 **000.05.101**  

@@ -4,6 +4,9 @@
 #define MODEL_NUMBER  "v01"
 #endif
 
+// Config.ino
+byte tictac_start, tictac_interval, tictac_webhook, tictac_discord;
+
 // Difficulty defines number of Depth for AI , bigger Depth stronger AI
 byte difficulty = 8;
 int board[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -25,7 +28,7 @@ unsigned long ticTacLastPlayed = ticTacLastPlayedInterval;
 // Interval timer for sending Invitations
 byte maxRetryInviteEmptyIP = 0;
 bool ticCallFirstRun = true;
-const long ticTacCallInterval = 1000 * 60 * 10;                   // 1000 * 60 * 10 - 10min
+unsigned long ticTacCallInterval = 1000 * 60 * 60;                   // 1000 * 60 * 60 - 60min
 unsigned long ticCallLMInterval;
 
 byte nrInvitationTry = 0; 

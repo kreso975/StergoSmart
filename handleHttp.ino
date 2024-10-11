@@ -49,14 +49,12 @@ void setupHttpServer()
   server.serveStatic( "/config.json", SPIFFS, "/config.json" );
   server.serveStatic( "/log.json", SPIFFS, "/log.json" );
 
-  #if ( STERGO_PROGRAM == 1 )                                       //===============================================
+  #ifdef MODULE_WEATHER                                             //===============================================
     server.serveStatic( "/history.json", SPIFFS, "/history.json" );
     server.on( "/mesures.json", sendMeasures );
-  #elif ( STERGO_PROGRAM == 0 )                                     //===============================================
-    server.on( "/POWER", checkSwitchState );
-  #elif ( STERGO_PROGRAM == 3 )                                     //===============================================
-    server.serveStatic( "/history.json", SPIFFS, "/history.json" );
-    server.on( "/mesures.json", sendMeasures );
+  #endif                                                            //===============================================
+  
+  #ifdef MODULE_SWITCH                                              //===============================================
     server.on( "/POWER", checkSwitchState );
   #endif                                                            //===============================================
   

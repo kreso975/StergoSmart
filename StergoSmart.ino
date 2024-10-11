@@ -170,41 +170,44 @@ void loop()
 		}
       
       	#ifdef MODULE_TICTACTOE									//=============================================== Exclude M-SEARCH over UDP 
-		// Search for Devices in LAN
-    	if ( ( millis() - previousSSDP > intervalSSDP ) || measureSSDPFirstRun )
+		// We Have config setting for manualy start/stop Tic Tac Toe
+		if ( tictac_start == 1 )
 		{
-			previousSSDP = millis();
-			measureSSDPFirstRun = false;
-			requestSSDP(1); // This request should be done periodicaly / every 10min
-    	}
+			// Search for Devices in LAN
+    		if ( ( millis() - previousSSDP > intervalSSDP ) || measureSSDPFirstRun )
+			{
+				previousSSDP = millis();
+				measureSSDPFirstRun = false;
+				requestSSDP(1); // This request should be done periodicaly / every 10min
+    		}
 
-		// Init M-SEARCH over UDP , SSDP Discovery Listen for TicTacToe
-		handleSSDP(); //WE DON'T NEED SSDP in WiFi AP mode
+			// Init M-SEARCH over UDP , SSDP Discovery Listen for TicTacToe
+			handleSSDP(); //WE DON'T NEED SSDP in WiFi AP mode
 
-		// Time interval to ask net devices to play tic tac toe
-		if ( ( millis() - ticCallLMInterval > ticTacCallInterval ) || ticCallFirstRun )
-		{
-			ticCallLMInterval = millis();
-			ticCallFirstRun = false;
-			#if ( DEBUG == 1 )
-			Serial.println("Inside TicTac Invite");
-			#endif
-			// Init Game
-			inviteDeviceTicTacToe();
-    	}
-		// Time interval to check on inactivity of the game, auto reset
-		if ( ( millis() - ticTacLastPlayed > ticTacLastPlayedInterval ) && gameStarted == 1 && turn > 0 )
-		{
-			writeLogFile( F("Inside LastPlayedTicTac measure and gameStarted == 1 and turn > 0"), 1, 1);
-			resetTicTacToe();
-    	}
-		if ( ( millis() - ticTacLastPlayed > ticTacLastPlayedInterval ) && didIaskedToPlay )
-		{
-			writeLogFile( F("Inside LastPlayedTicTac measure and didIaskedToPlay == true"), 1, 1);
-			resetTicTacToe();
-    	}
+			// Time interval to ask net devices to play tic tac toe
+			if ( ( millis() - ticCallLMInterval > ticTacCallInterval ) || ticCallFirstRun )
+			{
+				ticCallLMInterval = millis();
+				ticCallFirstRun = false;
+				#if ( DEBUG == 1 )
+				Serial.println("Inside TicTac Invite");
+				#endif
+				// Init Game
+				inviteDeviceTicTacToe();
+    		}
+			// Time interval to check on inactivity of the game, auto reset
+			if ( ( millis() - ticTacLastPlayed > ticTacLastPlayedInterval ) && gameStarted == 1 && turn > 0 )
+			{
+				writeLogFile( F("Inside LastPlayedTicTac measure and gameStarted == 1 and turn > 0"), 1, 1);
+				resetTicTacToe();
+    		}
+			if ( ( millis() - ticTacLastPlayed > ticTacLastPlayedInterval ) && didIaskedToPlay )
+			{
+				writeLogFile( F("Inside LastPlayedTicTac measure and didIaskedToPlay == true"), 1, 1);
+				resetTicTacToe();
+    		}
+		}
 	  	#endif
-
 	}
 
 	#if ( ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 ) && ( STERGO_PLUG == 2 || STERGO_PLUG == 3 ) )  //===============================================

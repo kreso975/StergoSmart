@@ -8,7 +8,7 @@
  * ticTacToe                    = 2
  * StergoWeather+PowerSwitch    = 3
  */
-#define STERGO_PROGRAM 0
+#define STERGO_PROGRAM 1
 
 /*
  * Different models used for Weather
@@ -18,7 +18,7 @@
  * ESP8266 default 01S = 1   // WS001
  * LOLIN D1 mini       = 2   // WS002
  */
-#define STERGO_WEATHER 2
+#define STERGO_WEATHER 1
 
 /*
  * Different models used for Plug / Switch

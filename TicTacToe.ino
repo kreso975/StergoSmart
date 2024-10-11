@@ -330,11 +330,13 @@ void letsPlay( byte what, String who )
       {
         case 0:
           Serial.println("It's a draw.");
+          sendTicTacWebhook(2);
           break;
         case 1:
           draw(board);
           Serial.println("You " + _tmp + " lose. Arduino wins!");
-          sendTicTacWebhook();
+          sendTicTacWebhook(1);
+          sendTicTacWebhook(2);
           break;
         case -1:
           Serial.println("You win!");
@@ -584,19 +586,35 @@ void inviteDeviceTicTacToe()
   }
 }
 
-void sendTicTacWebhook()
+// We should build 2 different calls 1. Discord, 2 Webhook
+void sendTicTacWebhook( byte where )
 {
   char* localURL;
   String data;
   
   localURL = discord_url;
   String discordUsername = _devicename;
-  String discordAvatar = discord_avatar;
+  
+  // We also check if we can publish to Discord
+  if ( where == 1 && tictac_discord == 1 )
+  {
+    String discordAvatar = discord_avatar;
+    String message = "I just won! Looser: "+ playerName + " lost.";
+    data = "{\"username\":\"" + discordUsername + "\",\"avatar_url\":\"" + discordAvatar + "\",\"content\":\"" + message + "\"}";
 
-  String message = "I just won! Looser: "+ playerName + " lost.";
-  data = "{\"username\":\"" + discordUsername + "\",\"avatar_url\":\"" + discordAvatar + "\",\"content\":\"" + message + "\"}";
+    sendWebhook( localURL, data );
+  }
+  
+  // We also check if we can publish to Webhook
+  // For now its just demo
+  if ( where == 1 && tictac_webhook == 1 )
+  {
+    String discordAvatar = discord_avatar;
+    String message = "I just won! Looser: "+ playerName + " lost.";
+    data = "{\"username\":\"" + discordUsername + "\",\"avatar_url\":\"" + discordAvatar + "\",\"content\":\"" + message + "\"}";
+    sendWebhook( localURL, data );
+  }
 
-  sendWebhook( localURL, data );
 }
 
 // to Optimize code.

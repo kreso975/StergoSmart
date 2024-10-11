@@ -55,6 +55,15 @@ bool initConfig( String* message )
 	webLoc_intervalHist = 1000 * webLoc_interval;
 	webLoc_previousMillis = webLoc_intervalHist;     // time of last point added
  	//---
+	// Tic Tac Toe config
+	tictac_start  = atoi(configMain["tictac_start"]);
+	tictac_interval = atoi(configMain["tictac_interval"]);
+	ticTacCallInterval = 1000 * 60 * tictac_interval;	// 1000 * 60 * 60 - 60min
+	ticCallLMInterval = ticTacCallInterval;     // time of last point added
+	tictac_webhook = atoi(configMain["tictac_webhook"]);
+	tictac_discord = atoi(configMain["tictac_discord"]);
+	//---
+
 	// Discord
 	strcpy(discord_url, configMain["discord_url"]);
 	strcpy(discord_avatar, configMain["discord_avatar"]);
@@ -143,8 +152,9 @@ bool writeToConfig( String* message )
   					"mqtt_clientPassword", "mqtt_myTopic", "webLoc_server", "discord_url", "discord_avatar" };
 	const byte NAMES_IN_USE_1 = 22;
 	
-	String intArray[] = { "wifi_runAS", "wifi_static", "mqtt_start", "mqtt_interval", "webLoc_start", "webLoc_interval" };
-	const byte NAMES_IN_USE_2 = 6;
+	String intArray[] = { "wifi_runAS", "wifi_static", "mqtt_start", "mqtt_interval", "webLoc_start", "webLoc_interval", 
+						"tictac_start", "tictac_interval", "tictac_webhook", "tictac_discord" };
+	const byte NAMES_IN_USE_2 = 10;
 
 	for ( byte i = 0; i < NAMES_IN_USE_1; i++ )
 		if ( server.hasArg(stringArray[i]) )  configMain[stringArray[i]] = server.arg(stringArray[i]);
@@ -248,6 +258,29 @@ bool writeToConfig( String* message )
 		{
 			webLoc_start = 0;
 			*message = F("Success WebHook Stop");
+		}
+	}
+
+	// Let's check if we have change request for Tic Tac Toe state (start/stop)
+	if ( server.hasArg("TicTacStateOn") ) // Check if TicTac was started or Stopped
+	{
+		if ( server.arg("TicTacStateOn") == "1" )
+		{
+			// HERE WE MUST TELL THAT WE WILL START TicTacToe SERVICE
+			if ( !initConfig( message ) )
+			{
+				// Should check what was response in message
+				*message = F("Error init TicTac");
+				return false;
+			}
+			tictac_start = 1;
+			*message = F("Success Tic Tac Toe Start");
+			return true;
+		}
+		else if ( server.arg("TicTacStateOn") == "0" )
+		{
+			tictac_start = 0;
+			*message = F("Success Tic Tac Toe Stop");
 		}
 	}
 
