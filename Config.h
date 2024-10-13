@@ -13,12 +13,12 @@
 /*
  * Different models used for Weather
  * 
- * STERGO_WEATHER :
+ * STERGO_PROGRAM_BOARD :
  * 
- * ESP8266 default 01S = 1   // WS001
- * LOLIN D1 mini       = 2   // WS002
+ * ESP8266 default 01S = 1   // v01
+ * LOLIN D1 mini       = 2   // v02
  */
-#define STERGO_WEATHER 1
+#define STERGO_PROGRAM_BOARD 1
 
 /*
  * Different models used for Plug / Switch
@@ -30,10 +30,6 @@
  * Sonoff T4EU1C      = 3   // Light Switch - LS
  */
 #define STERGO_PLUG 3
-
-// ESP8266 01S        = 1
-// LOLIN d1 Mini      = 2
-#define STERGO_PLUG_BOARD 1
 
 
 // Firmware Version always part of this file
