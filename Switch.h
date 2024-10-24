@@ -19,9 +19,9 @@
 
 // ESP8266 01S        = 1
 // LOLIN d1 Mini      = 2
-#if ( STERGO_PROGRAM_BOARD == 1 )                      //===============================================
+#if ( STERGO_PROGRAM_BOARD == 1 )                   //===============================================
   #define MODEL_NUMBER "v01"
-#elif ( STERGO_PROGRAM_BOARD == 2 )                    //===============================================
+#elif ( STERGO_PROGRAM_BOARD == 2 )                 //===============================================
   #define MODEL_NUMBER "v02"
 #endif                                              //===============================================
 

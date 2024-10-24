@@ -6,11 +6,13 @@
  <br><br>
  
 ## **CHANGES:**
-**000.05.102** - in development
+**000.05.103** - in development
+
+**000.05.102**
 - SSDP cleanUp code
-- modified Config.h, new #definitions
+- modified Config.h, new #definitions STERGO_PROGRAM_BOARD
 - enable Weather module to play TicTacToe over UDP with other devices found in local network
-- Switches added #define STERGO_PLUG_BOARD, cleanUp Switch.h
+- Switches added #define STERGO_PROGRAM_BOARD, cleanUp Switch.h
 - CleanUp MQTT from switch old code
 - MQTT cleanUP sendMQTT, payload moved to Modules
 - Main lopp cleanUP MQTT time intervals to check in Modules not in MQTT.ino
