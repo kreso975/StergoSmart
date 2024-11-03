@@ -1,17 +1,10 @@
-#define HISTORY_FILE "/history.json"
-
-//Constants
-#define DHTPIN 2            // what pin we're connected to
-//#define DHTTYPE DHT11     // DHT 11
-#define DHTTYPE DHT22       // DHT 22  (AM2302), AM2321
-//#define DHTTYPE DHT21     // DHT 21 (AM2301)
-
-#define sizeHist 100                                        // History size = nr of records (24h x 4pts)
+// GPIO where the DS18B20 is connected to
+const int oneWireBus = 4;     
 
 bool detectModule = false;                                  // Was detectDS18B20 use True if moduledetection not needed
 
 byte t_measure;
-float h, t, dp;
+float t;
   
 // Time Interval for reading data from Sensor
 bool measureFirstRun = true;
@@ -26,4 +19,9 @@ unsigned long previousMillis = intervalHist;                // time of last poin
 char mqtt_Humidity[120];
 char mqtt_Temperature[120];
 
-DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor
+
+// Setup a oneWire instance to communicate with any OneWire devices
+OneWire oneWire(oneWireBus);
+
+// Pass our oneWire reference to Dallas Temperature sensor 
+DallasTemperature sensors(&oneWire);

@@ -4,8 +4,8 @@
  * Smart Home IOT - Weather and Switches with GUI - ESP8266
  *
  *
- * ESP8266 + BME280 + BOOTSTRAP + SPIFFS + GOOGLE CHARTS + MQTT + WebHooks
- * + CAPTIVE PORTAL + SSDP + OTA
+ * ESP8266 + BME280 + DHT + DS18B20 + BOOTSTRAP + SPIFFS + GOOGLE CHARTS + MQTT + WebHooks
+ * + CAPTIVE PORTAL + SSDP + OTA + TicTacToe
  *
  *
  * Copyright (C) 2018-2024 Kresimir Kokanovic - https://github.com/kreso975/StergoSmart
@@ -37,6 +37,9 @@ void setup()
 	#endif
 	#ifdef MODUL_DHT
 	setupDHT();
+	#endif
+	#ifdef MODUL_DS18B20
+	setupDS18B20();
 	#endif
 	#ifdef MODULE_SWITCH
 	setupSwitch();
@@ -108,7 +111,7 @@ void loop()
 	if ( WiFi.getMode() == 1 )
 	{
 		// If BME280 is detected
-		#ifdef MODUL_BME280   								//===============================================
+		#ifdef MODULE_WEATHER   							//===============================================
 		if ( detectModule )
 		{
     		if ( ( millis() - lastMeasureInterval > measureInterval ) || measureFirstRun )
@@ -116,7 +119,16 @@ void loop()
 				lastMeasureInterval = millis();
 				measureFirstRun = false;
 
+				#ifdef MODUL_BME280
 				getWeatherBME();
+				#endif
+				#ifdef MODUL_DHT
+				getWeatherDHT();
+				#endif
+				#ifdef MODUL_DS18B20
+				getWeatherDS18B20();
+				#endif
+				
 				MainSensorConstruct();
 			}
 

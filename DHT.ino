@@ -2,7 +2,7 @@
 
 /* ======================================================================
 Function: setupDHT
-Purpose : Initialize DHT 11, 22, 21
+Purpose : Initialize DHT 11, 12, 22, 21
 Input   : 
 Output  : 
 Comments: -
@@ -56,104 +56,6 @@ void getWeatherDHT()
 	    float T = Kelvin(t); // Kelvin             
   	}
   
-}
-
-/* ======================================================================
-Function: MainSensorConstruct
-Purpose : brain of load / save data logic
-Input   : -
-Output  : - history.json
-Comments: -
-ToDo	: - Add Params so other Sensors can be included, now is just
-			BME280
-====================================================================== */
-bool MainSensorConstruct()
-{
-    //writeLogFile( F("In MainSensorConstruct"), 0 );
-    //unsigned int Jsonlength = jsonDataBuffer.length();
-    //writeLogFile( "Before load size: " + String(Jsonlength), 1 );
-
-    DynamicJsonBuffer jsonBuffer(12000);
-
-	File file = SPIFFS.open( HISTORY_FILE, "r" );
-	if (!file)
-	{
-		//writeLogFile( fOpen + HISTORY_FILE, 1 );
-		if ( updateHistory( 1 ) ) // Create proper initial History File
-			writeLogFile( F("Delete History 1"), 1, 3 );
-	}
-	else
-	{
-		size_t size = file.size();
-		if ( size < 4 )
-		{
-			if ( updateHistory( 1 ) ) // Create proper initial History File
-				writeLogFile( F("Delete History 2"), 1, 3 );
-		}
-        else
-        {
-			std::unique_ptr<char[]> buf (new char[size]);
-			file.readBytes(buf.get(), size);
-			file.close();
-			
-			JsonObject& root = jsonBuffer.parseObject(buf.get());
-
-			if ( !root.success() )
-			{
-				//writeLogFile( faParse + HISTORY_FILE, 1 );
-				return false;
-			}
-			else
-            {
-				JsonArray& sensor = root["sensor"];
-        		JsonArray& Sensordata = sensor.createNestedArray();	
-				
-				unsigned long currentMillis = millis();
-				// should add on startup to insert record
-				if ( currentMillis - previousMillis > intervalHist )
-				{
-					//writeLogFile( F("In check intervalHist - 1st: "), 0 );
-					long int tps = timeClient.getEpochTime();
-					previousMillis = currentMillis;
-
-					if ( tps > 0 )
-					{
-						Sensordata.add(tps);  // Timestamp
-						Sensordata.add(t);    // Temperature
-						Sensordata.add(h);    // Humidity
-						Sensordata.add(P0);   // Pressure
-
-						if ( sensor.size() > sizeHist )
-						{
-							//writeLogFile( F("tps - Root size greater then sizeHist"), 0 );
-							sensor.remove(0); // - remove first record / oldest
-						}
-
-						File file = SPIFFS.open( HISTORY_FILE, "w" );
-						if (!file)
-						{
-							//writeLogFile( fOpen + HISTORY_FILE, 1 );
-							if ( updateHistory( 1 ) ) // Create proper initial History File
-								writeLogFile( F("Delete History 3"), 1 );
-						}
-						else
-						{
-							if ( root.printTo(file) == 0 )
-							{
-								// Should do something if this happened!!!!
-								writeLogFile( fWrite + HISTORY_FILE, 1 );
-								//*message = fWrite + HISTORY_FILE;
-								file.close();
-								return false;
-							}
-						}
-            		}  // END of tps
-        		}
-			}
-		}
-		file.close();
-    }
-    return true;
 }
 
 #endif

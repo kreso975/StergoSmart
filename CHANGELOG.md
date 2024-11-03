@@ -7,6 +7,8 @@
  
 ## **CHANGES:**
 **000.05.103** - in development
+- added support for DHT sensors DHT11, DHT12, DHT21, DHT22
+- added support for DS18B20 sensor
 
 **000.05.102**
 - SSDP cleanUp code
