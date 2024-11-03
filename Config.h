@@ -4,9 +4,10 @@
  * STERGO_PROGRAM :
  *
  * PowerSwitch                  = 0
- * StergoWeather                = 1
+ * StergoWeather BME280         = 1
  * ticTacToe                    = 2
  * StergoWeather+PowerSwitch    = 3
+ * StergoWeather DHT22          = 4
  */
 #define STERGO_PROGRAM 1
 

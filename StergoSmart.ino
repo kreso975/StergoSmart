@@ -35,7 +35,9 @@ void setup()
 	#ifdef MODUL_BME280
 	setupBME280();
 	#endif
-
+	#ifdef MODUL_DHT
+	setupDHT();
+	#endif
 	#ifdef MODULE_SWITCH
 	setupSwitch();
 	#endif
