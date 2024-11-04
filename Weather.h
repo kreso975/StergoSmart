@@ -13,7 +13,6 @@
   MODEL_NUMBER "v02" ( LOLIN D1 mini)
 
 */
-
 #if ( STERGO_PROGRAM == 1 )
   #define MODEL_NAME "WS001"
   #define MODULE_BME280
@@ -28,6 +27,7 @@
 
 #if ( STERGO_PROGRAM == 3 )
     #define MODEL_NAME "WS002"
+    #define MODULE_BME280
     #include <Adafruit_BME280.h>
     #include "BME280.h"
 #elif ( STERGO_PROGRAM == 4 )

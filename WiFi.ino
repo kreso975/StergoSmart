@@ -91,7 +91,7 @@ void WiFiManager()
   wifi_station_set_hostname( wifi_hostname );         // This line allows access device by it's name - StergoWeather1.local (define in config.json)
   WiFi.hostname( wifi_hostname );                     // DHCP Hostname (useful for finding device for static lease)
 
-  //1st check if wifi_ssid && wifi_password is setup  != ""
+  // 1st check if wifi_ssid && wifi_password is setup  != ""
   // Each attemp must be broken to separate functions - some of them might be called from different steps
   // Should I allow connecting to network without pass? NO
   if ( strcmp( wifi_ssid, "" )  && strcmp( wifi_password, "" ) )

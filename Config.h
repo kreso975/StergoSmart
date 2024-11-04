@@ -78,7 +78,6 @@
     #include "SSDP.h"
 #elif ( STERGO_PROGRAM == 3 )  // Weather Station and Switch BME280
     #define MODULE_WEATHER
-    #define MODULE_BME280
     #include "Weather.h"
     #define MODULE_SWITCH
     #include "SSDP.h"
