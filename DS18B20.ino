@@ -1,4 +1,4 @@
-#ifdef MODUL_DS18B20
+#ifdef MODULE_DS18B20
 
 /* ======================================================================
 Function: setupDS18B20
@@ -9,15 +9,20 @@ Comments: -
 ====================================================================== */
 bool setupDS18B20()
 {
-	// Init DHT
-	if ( !sensors.begin() )
-	{
-		writeLogFile( F("No DS18B20 sensor, check wiring!"), 1, 3 );
-		detectModule = false;
+	// Init DHT - need to find a way to know is it running properly
+	sensors.begin();
+	
+	sensors.requestTemperatures(); // Send the command to get temperatures 
+	if ( !sensors.getDeviceCount() > 0 ) 
+	{ 
+		writeLogFile( F("DS18B20 sensor is not connected!"), 1, 3 );
+		//detectModule = false;
 		return false;
-	}
+	} 
+	
 	writeLogFile( F("DS18B20 OK"), 1, 3 );
 	detectModule = true;
+	delay(2000);
 	return true;
 }
 

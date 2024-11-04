@@ -1,23 +1,3 @@
-#define HISTORY_FILE "/history.json"
-
-// 		MODEL_NUMBER "v01" ( ESP8266 default 01S)
-//    MODEL_NUMBER "v02" ( LOLIN D1 mini)
-#if ( STERGO_PROGRAM == 1 )
-  #define MODEL_NAME "WS001"
-#endif
-#if ( STERGO_PROGRAM_BOARD == 1 )
-  #define MODEL_NUMBER "v01"
-#elif ( STERGO_PROGRAM_BOARD == 2 )
-  #define MODEL_NUMBER "v02"
-#endif
-
-#if ( STERGO_PROGRAM == 3 )
-  #define MODEL_NAME "WS002"
-  #define MODEL_NUMBER "v01"
-#endif
-
-#define sizeHist 100                      // History size = nr of records (24h x 4pts)
-
 // BME280 GPIOs 2 (SDA),0 (SCL) are used for BME280
 #define GPIO_SDA 2
 #define GPIO_SCL 0
@@ -58,8 +38,8 @@ unsigned long lastMeasureInterval = measureInterval;        // time of last poin
 unsigned long previousMillis = intervalHist;                // time of last point added
 
 //MQTT Topics used from config.json
-char mqtt_bme280Humidity[120];
-char mqtt_bme280Temperature[120];
-char mqtt_bme280Pressure[120];
+char mqtt_Humidity[120];
+char mqtt_Temperature[120];
+char mqtt_Pressure[120];
 
 Adafruit_BME280 bme;

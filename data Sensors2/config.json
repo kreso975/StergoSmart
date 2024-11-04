@@ -37,7 +37,7 @@
     "mqtt_clientUsername": "testuser",
     "mqtt_clientPassword": "testuser",
     "mqtt_myTopic": "iot/device/Balcony/Weather72",
-    "mqtt_bme280Humidity": "iot/things/Balcony/Humidity",
-    "mqtt_bme280Temperature": "iot/things/Balcony/Temperature",
-    "mqtt_bme280Pressure": "iot/things/Balcony/Pressure"
+    "mqtt_Humidity": "iot/things/Balcony/Humidity",
+    "mqtt_Temperature": "iot/things/Balcony/Temperature",
+    "mqtt_Pressure": "iot/things/Balcony/Pressure"
 }

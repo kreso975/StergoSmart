@@ -1,12 +1,8 @@
-#define HISTORY_FILE "/history.json"
-
 //Constants
 #define DHTPIN 2            // what pin we're connected to
 //#define DHTTYPE DHT11     // DHT 11
-#define DHTTYPE DHT22       // DHT 22  (AM2302), AM2321
+#define DHTTYPE DHT22       // DHT 22 (AM2302), AM2321
 //#define DHTTYPE DHT21     // DHT 21 (AM2301)
-
-#define sizeHist 100                                        // History size = nr of records (24h x 4pts)
 
 bool detectModule = false;                                  // Was detectDS18B20 use True if moduledetection not needed
 
@@ -23,7 +19,7 @@ unsigned long lastMeasureInterval = measureInterval;        // time of last poin
 unsigned long previousMillis = intervalHist;                // time of last point added
 
 //MQTT Topics used from config.json
-char mqtt_Humidity[120];
 char mqtt_Temperature[120];
+char mqtt_Humidity[120];
 
 DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor

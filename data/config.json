@@ -37,9 +37,9 @@
     "mqtt_clientUsername": "testuser",
     "mqtt_clientPassword": "testuser",
     "mqtt_myTopic": "iot/device/KarloRoom/MainLight",
-    "mqtt_bme280Humidity": "",
-    "mqtt_bme280Temperature": "",
-    "mqtt_bme280Pressure": "",
+    "mqtt_Humidity": "",
+    "mqtt_Temperature": "",
+    "mqtt_Pressure": "",
     "mqtt_switch": "iot/things/KarloRoom/MainLight",
     "mqtt_switch2": ""
 }

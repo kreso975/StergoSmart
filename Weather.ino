@@ -53,30 +53,32 @@ bool updateHistory( int z = 0 )
 bool sendMeasuresMQTT()
 {
 	bool checkStat = true;
-	char humidityString[6];
-	char pressureString[7];
-
-	dtostrf(h, 5, 1, humidityString);
-	dtostrf(P0, 6, 1, pressureString);
-
+	
 	// Let's try to publish Temperature
-	if ( !sendMQTT( mqtt_bme280Temperature, (char*) String(t).c_str(), true ) )
+	if ( !sendMQTT( mqtt_Temperature, (char*) String(t).c_str(), true ) )
 	{
     	//writeLogFile( F("Publish Temperature: failed"), 1 );
     	//checkStat = false;
   	}
 
-    #if defined( MODUL_DHT ) || ( MODUL_BME280 )
-    // Let's try to publish Humidity
-  	if ( !sendMQTT( mqtt_bme280Humidity, humidityString, true ) )
+    #if defined( MODUL_DHT ) || defined( MODUL_BME280 )
+	char humidityString[6];
+	dtostrf(h, 5, 1, humidityString);
+    
+	// Let's try to publish Humidity
+  	if ( !sendMQTT( mqtt_Humidity, humidityString, true ) )
   	{
   		//writeLogFile( F("Publish Humidity: failed"), 1 );
     	checkStat = false;
 	}
     #endif
-    #ifdef MODUL_BME280
-    // Let's try to publish Pressure
-    if ( !sendMQTT( mqtt_bme280Pressure, pressureString, true ) )
+    
+	#ifdef MODUL_BME280
+	char pressureString[7];
+	dtostrf(P0, 6, 1, pressureString);
+    
+	// Let's try to publish Pressure
+    if ( !sendMQTT( mqtt_Pressure, pressureString, true ) )
     {
     	//writeLogFile( F("Publish Pressure: failed"), 1 );
     	checkStat = false;
@@ -202,13 +204,13 @@ bool MainSensorConstruct()
 						Sensordata.add(tps);  // Timestamp
 						Sensordata.add(t);    // Temperature
 
-                        #if defined(MODUL_DHT) || (MODUL_BME280)
+            #if defined( MODUL_DHT ) || defined( MODUL_BME280 )
 						Sensordata.add(h);    // Humidity
-                        #endif
+            #endif
 
-                        #ifdef MODUL_BME280
+            #ifdef MODUL_BME280
 						Sensordata.add(P0);   // Pressure
-                        #endif
+            #endif
 
 						if ( sensor.size() > sizeHist )
 						{

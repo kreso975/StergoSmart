@@ -9,6 +9,8 @@
 **000.05.103** - in development
 - added support for DHT sensors DHT11, DHT12, DHT21, DHT22
 - added support for DS18B20 sensor
+- rename Variables mqtt_bme280Humidity, mqtt_bme280Temperature, mqtt_bme280Pressure into generic mqtt_Humidity, mqtt_Temperature, mqtt_Pressure
+- reorganized Weather structure
 
 **000.05.102**
 - SSDP cleanUp code

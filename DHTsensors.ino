@@ -1,4 +1,4 @@
-#ifdef MODUL_DHT
+#ifdef MODULE_DHT
 
 /* ======================================================================
 Function: setupDHT
@@ -9,14 +9,17 @@ Comments: -
 ====================================================================== */
 bool setupDHT()
 {
-	// Init DHT
-	if ( !dht.begin() )
+	// Init DHT - need to find a way to know is it running properly
+	dht.begin();
+	float t = dht.readTemperature(); // Check if any reads failed and exit early (to try again) 
+	if ( isnan(t) )
 	{
-		writeLogFile( F("No DHT sensor, check wiring!"), 1, 3 );
-		detectModule = false;
+		writeLogFile( F("DHT sensor is not connected!"), 1, 3 );
+		//detectModule = false;
 		return false;
 	}
 	writeLogFile( F("DHT OK"), 1, 3 );
+	delay(2000);
 	detectModule = true;
 	return true;
 }

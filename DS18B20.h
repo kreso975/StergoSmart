@@ -16,7 +16,6 @@ unsigned long lastMeasureInterval = measureInterval;        // time of last poin
 unsigned long previousMillis = intervalHist;                // time of last point added
 
 //MQTT Topics used from config.json
-char mqtt_Humidity[120];
 char mqtt_Temperature[120];
 
 

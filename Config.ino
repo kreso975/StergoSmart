@@ -1,4 +1,4 @@
- /* ======================================================================
+/* ======================================================================
 Function: initConfig
 Purpose : read from SPIFF config.json 
 Input   : message
@@ -55,6 +55,8 @@ bool initConfig( String* message )
 	webLoc_intervalHist = 1000 * webLoc_interval;
 	webLoc_previousMillis = webLoc_intervalHist;     // time of last point added
  	//---
+
+	#ifdef MODULE_TICTACTOE
 	// Tic Tac Toe config
 	tictac_start  = atoi(configMain["tictac_start"]);
 	tictac_interval = atoi(configMain["tictac_interval"]);
@@ -63,7 +65,7 @@ bool initConfig( String* message )
 	tictac_webhook = atoi(configMain["tictac_webhook"]);
 	tictac_discord = atoi(configMain["tictac_discord"]);
 	//---
-
+	#endif
 	// Discord
 	strcpy(discord_url, configMain["discord_url"]);
 	strcpy(discord_avatar, configMain["discord_avatar"]);
@@ -92,15 +94,23 @@ bool initConfig( String* message )
 	strcpy( wifi_subnet, configMain["wifi_subnet"] );
 	strcpy( wifi_DNS, configMain["wifi_DNS"] );
     
-	#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )      //=============== Weather Station ==============
+	#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )      //=============== Weather Station BME ==============
 		t_measure = atoi(configMain["t_measure"]);
 		p_measure = atoi(configMain["p_measure"]);
 		p_adjust = atoi(configMain["p_adjust"]);
 		pa_unit = atoi(configMain["pa_unit"]);
 		pl_adj = atoi(configMain["pl_adj"]);
-		strcpy(mqtt_bme280Humidity, configMain["mqtt_bme280Humidity"]);
-		strcpy(mqtt_bme280Temperature, configMain["mqtt_bme280Temperature"]);
-		strcpy(mqtt_bme280Pressure, configMain["mqtt_bme280Pressure"]);
+		strcpy(mqtt_Humidity, configMain["mqtt_Humidity"]);
+		strcpy(mqtt_Temperature, configMain["mqtt_Temperature"]);
+		strcpy(mqtt_Pressure, configMain["mqtt_Pressure"]);
+	#endif                                                  //===============================================
+	#if ( STERGO_PROGRAM == 4 || STERGO_PROGRAM == 5 )      //=============== Weather Station DHT || DS18B20 ==============
+		t_measure = atoi(configMain["t_measure"]);
+		strcpy(mqtt_Temperature, configMain["mqtt_Temperature"]);
+
+		#ifdef MODULE_DHT
+		strcpy(mqtt_Humidity, configMain["mqtt_Humidity"]);
+		#endif
 	#endif                                                  //===============================================
 
     #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )      //=============== Power Switch ==============
@@ -163,11 +173,29 @@ bool writeToConfig( String* message )
 		if ( server.hasArg(intArray[i]) )  configMain[intArray[i]] = server.arg(intArray[i]).toInt();
 
 	
-	#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )      				//=============== Weather Station ==============
-		String stringArray_2[] = {"mqtt_bme280Humidity", "mqtt_bme280Temperature", "mqtt_bme280Pressure"};
-		const byte NAMES_IN_USE_3 = 3;
+	#ifdef MODULE_WEATHER     											//=============== Weather Station ==============
+		
+		String stringArray_2[] = { "mqtt_Temperature", "mqtt_Humidity", "mqtt_Pressure" };
 		String intArray_2[] = {"t_measure", "p_measure", "p_adjust", "pa_unit", "pl_adj"};
+		
+		#ifdef MODULE_DS18B20 
+		// stringArray_2 - use only 1st
+		const byte NAMES_IN_USE_3 = 1;
+		// intArray_2
+		const byte NAMES_IN_USE_4 = 1;
+		#endif
+		#ifdef MODULE_DHT
+		// stringArray_2 - use first 2
+		const byte NAMES_IN_USE_3 = 2;
+		// intArray_2
+		const byte NAMES_IN_USE_4 = 1;
+		#endif
+		#ifdef MODULE_BME280
+		// stringArray_2 - Use all
+		const byte NAMES_IN_USE_3 = 3;
+		// intArray_2
 		const byte NAMES_IN_USE_4 = 5;
+		#endif
 
 		for ( byte i = 0; i < NAMES_IN_USE_3; i++ )
 			if ( server.hasArg(stringArray_2[i]) )  configMain[stringArray_2[i]] = server.arg(stringArray_2[i]);
@@ -261,6 +289,7 @@ bool writeToConfig( String* message )
 		}
 	}
 
+	#ifdef MODULE_TICTACTOE
 	// Let's check if we have change request for Tic Tac Toe state (start/stop)
 	if ( server.hasArg("TicTacStateOn") ) // Check if TicTac was started or Stopped
 	{
@@ -283,6 +312,7 @@ bool writeToConfig( String* message )
 			*message = F("Success Tic Tac Toe Stop");
 		}
 	}
+	#endif
 
 	// After every save of config Let's load it again
 	if ( !initConfig( message ) )

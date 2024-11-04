@@ -8,8 +8,9 @@
  * ticTacToe                    = 2
  * StergoWeather+PowerSwitch    = 3
  * StergoWeather DHT22          = 4
+ * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 1
+#define STERGO_PROGRAM 4
 
 /*
  * Different models used for Weather
@@ -63,36 +64,33 @@
 #include <ESP8266SSDP.h>    // SSDP (Simple Service Discovery Protocol) service
 #include "Filesystem.h"     // 
 
-#if (STERGO_PROGRAM == 0)  // Power Plug | Switch
-#define MODULE_SWITCH
-#define MODULE_TICTACTOE
-#include "Switch.h"
-#include "SSDP.h"
-#include "TicTacToe.h"
-#elif (STERGO_PROGRAM == 1)  // Weather Station
-#define MODULE_WEATHER
-#define MODUL_BME280
-#define MODULE_TICTACTOE
-#include <Adafruit_BME280.h>
-#include "BME280.h"
-#include "SSDP.h"
-#include "TicTacToe.h"
-#elif (STERGO_PROGRAM == 3)  // Weather Station and Switch
-#define MODULE_WEATHER
-#define MODUL_BME280
-#define MODULE_SWITCH
-#include <Adafruit_BME280.h>
-#include "BME280.h"
-#include "SSDP.h"
-#include "Switch.h" 
-#elif (STERGO_PROGRAM == 2)  // TicTacToe
-#define MODULE_TICTACTOE
-#include "SSDP.h"
-#include "TicTacToe.h"
-#elif (STERGO_PROGRAM == 9)  // EXCLUDED CODE
-#include <WiFiClientSecure.h>
+#if ( STERGO_PROGRAM == 0 )  // Power Plug | Switch
+    #define MODULE_SWITCH
+    #include "Switch.h"
+    #include "SSDP.h"
+    #define MODULE_TICTACTOE
+    #include "TicTacToe.h"
+#elif ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 4 || STERGO_PROGRAM == 5 )  // Weather Station BME280 | DHT | DS18B20
+    #define MODULE_WEATHER
+    #include "Weather.h"
+    #define MODULE_TICTACTOE
+    #include "TicTacToe.h"
+    #include "SSDP.h"
+#elif ( STERGO_PROGRAM == 3 )  // Weather Station and Switch BME280
+    #define MODULE_WEATHER
+    #define MODULE_BME280
+    #include "Weather.h"
+    #define MODULE_SWITCH
+    #include "SSDP.h"
+    #include "Switch.h"
+#elif ( STERGO_PROGRAM == 2 )  // TicTacToe
+    #define MODULE_TICTACTOE
+    #include "TicTacToe.h"
+    #include "SSDP.h"
+#elif ( STERGO_PROGRAM == 9 )  // EXCLUDED CODE
+    #include <WiFiClientSecure.h>
 #endif
-
+    
 extern "C" {
 #include "user_interface.h"
 }
