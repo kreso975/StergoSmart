@@ -11,6 +11,8 @@
 - added support for DS18B20 sensor
 - rename Variables mqtt_bme280Humidity, mqtt_bme280Temperature, mqtt_bme280Pressure into generic mqtt_Humidity, mqtt_Temperature, mqtt_Pressure
 - reorganized Weather structure
+- New precompile definitions MODULE_WEATHER, MODULE_BME280, MODULE_DHT, MODULE_DS18B20
+- Restart device after 5 min if APmode && WiFi pass & Gateway are set in config.json (when wifi connection is lost - we need to try go to STA)
 
 **000.05.102**
 - SSDP cleanUp code

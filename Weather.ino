@@ -61,7 +61,7 @@ bool sendMeasuresMQTT()
     	//checkStat = false;
   	}
 
-    #if defined( MODUL_DHT ) || defined( MODUL_BME280 )
+    #if defined( MODULE_DHT ) || defined( MODULE_BME280 )
 	char humidityString[6];
 	dtostrf(h, 5, 1, humidityString);
     
@@ -73,7 +73,7 @@ bool sendMeasuresMQTT()
 	}
     #endif
     
-	#ifdef MODUL_BME280
+	#ifdef MODULE_BME280
 	char pressureString[7];
 	dtostrf(P0, 6, 1, pressureString);
     
@@ -95,13 +95,13 @@ void sendMeasuresWebhook()
     
 	localURL = webLoc_server;
     
-    #ifdef MODUL_DS18B20
+    #ifdef MODULE_DS18B20
     sprintf(data2, "{\"t\":\"%.2f\"}",t);
     #endif
-    #ifdef MODUL_DHT
+    #ifdef MODULE_DHT
     sprintf(data2, "{\"t\":\"%.2f\",\"h\":\"%.2f\"}",t,h);
     #endif
-    #ifdef MODUL_BME280
+    #ifdef MODULE_BME280
 	sprintf(data2, "{\"t\":\"%.2f\",\"h\":\"%.2f\",\"p\":\"%.2f\"}",t,h,P0);
     #endif
 	
@@ -126,13 +126,13 @@ void sendMeasures()
     */
 	char data[40];
 
-    #ifdef MODUL_DS18B20
+    #ifdef MODULE_DS18B20
     sprintf(data, "{\"t\":\"%.2f\"}",t);
     #endif
-    #ifdef MODUL_DHT
+    #ifdef MODULE_DHT
     sprintf(data, "{\"t\":\"%.2f\",\"h\":\"%.2f\"}",t,h);
     #endif
-    #ifdef MODUL_BME280
+    #ifdef MODULE_BME280
 	sprintf(data, "{\"t\":\"%.2f\",\"h\":\"%.2f\",\"p\":\"%.2f\"}",t,h,P0);
     #endif
 
@@ -204,11 +204,11 @@ bool MainSensorConstruct()
 						Sensordata.add(tps);  // Timestamp
 						Sensordata.add(t);    // Temperature
 
-            #if defined( MODUL_DHT ) || defined( MODUL_BME280 )
+            #if defined( MODULE_DHT ) || defined( MODULE_BME280 )
 						Sensordata.add(h);    // Humidity
             #endif
 
-            #ifdef MODUL_BME280
+            #ifdef MODULE_BME280
 						Sensordata.add(P0);   // Pressure
             #endif
 

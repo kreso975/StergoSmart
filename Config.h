@@ -10,7 +10,7 @@
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 4
+#define STERGO_PROGRAM 1
 
 /*
  * Different models used for Weather
@@ -20,7 +20,7 @@
  * ESP8266 default 01S = 1   // v01
  * LOLIN D1 mini       = 2   // v02
  */
-#define STERGO_PROGRAM_BOARD 1
+#define STERGO_PROGRAM_BOARD 2
 
 /*
  * Different models used for Plug / Switch
@@ -35,7 +35,7 @@
 
 
 // Firmware Version always part of this file
-#define FW_VERSION "000.05.102"  // Check releaseLog for details
+#define FW_VERSION "000.05.103"  // Check releaseLog for details
 #define MODEL_FRENDLY_NAME "Stergo Smart"
 #define COMPANY_URL "http://www.stergo.hr"
 
@@ -153,12 +153,12 @@ char softAP_ssid[20] = "StergoSmart_ap";  //This value shows only if SPIFFS not 
 char softAP_pass[20] = "123456789";       //
 #define DNS_PORT 53
 
+// Interval For restart device if in AP mode and pass & Gateway are set in config.json
+#define ap_intervalHist 1000 * 60 * 5                // 1000 * 60 * 5 = 5min
+unsigned long ap_previousMillis = ap_intervalHist;     // time of last point added
+
 /** Should I connect to W LAN asap? */
 bool connect;
-/** Last time I tried to connect to WLAN */
-//long lastConnectTry = 0;
-/** Current WLAN status */
-//byte status = WL_IDLE_STATUS;  // nowhere in the code used. WiFi.status is more readable
 
 byte mqtt_start, webLoc_start, wifi_runAS, wifi_static, deviceType;
 byte randNumber;
@@ -167,7 +167,7 @@ char _deviceType[2] = "1";  // Module device number - like BME280 = 1, Dalas = 2
 char deviceName[20] = ""; 
 char _devicename[28] = "";
 
-//htaccess - Not used anywhere in the code
+//htaccess - Not used anywhere in the code - maybe one day implement credentials for HTTP
 //char htaccess_username[20];
 //char htaccess_password[20];
 
@@ -192,7 +192,7 @@ time_t upTime;
 
 char webLoc_server[120];
 // Time Interval for sending Wb Location data / targeting scripts to send data via HTTP POST method
-int webLoc_interval = 1000 * 60 * 1;
+int webLoc_interval = 1000 * 60 * 1;                    // 1000 * 60 * 1 = 1min
 unsigned long webLoc_intervalHist;
 unsigned long webLoc_previousMillis = webLoc_interval;  // time of last point added
 

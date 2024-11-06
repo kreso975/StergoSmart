@@ -32,13 +32,13 @@ void setup()
   
 	deviceType = atoi(_deviceType);
 
-	#ifdef MODUL_BME280
+	#ifdef MODULE_BME280
 	setupBME280();
 	#endif
-	#ifdef MODUL_DHT
+	#ifdef MODULE_DHT
 	setupDHT();
 	#endif
-	#ifdef MODUL_DS18B20
+	#ifdef MODULE_DS18B20
 	setupDS18B20();
 	#endif
 	#ifdef MODULE_SWITCH
@@ -102,8 +102,22 @@ void setup()
 // nothing can run if we are in 1st setup cycle
 void loop()
 {
-	if ( WiFi.getMode() >= 2 )          // Needed only in WiFi AP mode
+	// WiFi AP mode
+	if ( WiFi.getMode() == 2 )
+	{
 		dnsServer.processNextRequest();
+
+		//IF AP is running for 5 min and we have in cofig setup Password and Gateway
+		//We will restart device and try to connect to WiFi STA again
+		if ( ( millis() - ap_previousMillis > ap_intervalHist ) && strcmp( wifi_ssid, "" )  && strcmp( wifi_password, "" ) )
+		{
+			writeLogFile( F("AP 5min restart"), 1, 3 );
+			delay(500);
+			ESP.restart();
+		}
+				
+	}
+		
 
 	server.handleClient();
 	
@@ -119,13 +133,13 @@ void loop()
 				lastMeasureInterval = millis();
 				measureFirstRun = false;
 
-				#ifdef MODUL_BME280
+				#ifdef MODULE_BME280
 				getWeatherBME();
 				#endif
-				#ifdef MODUL_DHT
+				#ifdef MODULE_DHT
 				getWeatherDHT();
 				#endif
-				#ifdef MODUL_DS18B20
+				#ifdef MODULE_DS18B20
 				getWeatherDS18B20();
 				#endif
 				
