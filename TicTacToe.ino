@@ -1,7 +1,7 @@
 #ifdef MODULE_TICTACTOE
 /*
  *  IDEAS:  - 1st request includes: DO YOU WANT TO PLAY + CHOOSE PLAY 1st or 2nd
- *          - at the END of the game, Looser sends: Congratulations + Do you want to play + Choose play 1st or 2nd
+ *          - at the END of the game, Loser sends: Congratulations + Do you want to play + Choose play 1st or 2nd
  *          
  *          - add flag : game in play | already playing ( this is till more simultanious games can be played )
  *          - starting new game Reset board.
@@ -599,7 +599,7 @@ void sendTicTacWebhook( byte where )
   if ( where == 1 && tictac_discord == 1 )
   {
     String discordAvatar = discord_avatar;
-    String message = "I just won! Looser: "+ playerName + " lost.";
+    String message = "I just won! Loser: "+ playerName + " lost.";
     data = "{\"username\":\"" + discordUsername + "\",\"avatar_url\":\"" + discordAvatar + "\",\"content\":\"" + message + "\"}";
 
     sendWebhook( localURL, data );
@@ -610,7 +610,7 @@ void sendTicTacWebhook( byte where )
   if ( where == 1 && tictac_webhook == 1 )
   {
     String discordAvatar = discord_avatar;
-    String message = "I just won! Looser: "+ playerName + " lost.";
+    String message = "I just won! Loser: "+ playerName + " lost.";
     data = "{\"username\":\"" + discordUsername + "\",\"avatar_url\":\"" + discordAvatar + "\",\"content\":\"" + message + "\"}";
     sendWebhook( localURL, data );
   }
