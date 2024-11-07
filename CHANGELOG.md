@@ -14,6 +14,7 @@
 - New precompile definitions MODULE_WEATHER, MODULE_BME280, MODULE_DHT, MODULE_DS18B20
 - Restart device after 5 min if APmode && WiFi pass & Gateway are set in config.json (when wifi connection is lost - we need to try go to STA)
 - Start ntpUDP always if WiFi is STA
+- fixed old mesures.json link to measures.json 
 
 **000.05.102**
 - SSDP cleanUp code
