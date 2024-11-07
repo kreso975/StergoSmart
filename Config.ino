@@ -5,7 +5,7 @@ Input   : message
 Output  : true / false
 Comments: 
 TODO    : FIX strcpy replace with strlcpy
-		strlcpy(config.hostname,             // <- destination
+		  strlcpy(config.hostname,           // <- destination
           root["hostname"] | "example.com",  // <- source
           sizeof(config.hostname));          // <- destination's capacity
 ====================================================================== */
@@ -127,7 +127,7 @@ Purpose : Write to SPIFF config.json | Update config.json
 Input   : message
 Output  : true / false
 Comments: 
-TODO    : FIX Start MQTT - move it to MQTT file
+TODO    : 
 ====================================================================== */
 bool writeToConfig( String* message )
 { 
@@ -176,7 +176,7 @@ bool writeToConfig( String* message )
 	#ifdef MODULE_WEATHER     											//=============== Weather Station ==============
 		
 		String stringArray_2[] = { "mqtt_Temperature", "mqtt_Humidity", "mqtt_Pressure" };
-		String intArray_2[] = {"t_measure", "p_measure", "p_adjust", "pa_unit", "pl_adj"};
+		String intArray_2[] = { "t_measure", "p_measure", "p_adjust", "pa_unit", "pl_adj" };
 		
 		#ifdef MODULE_DS18B20 
 		// stringArray_2 - use only 1st

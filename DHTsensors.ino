@@ -36,7 +36,7 @@ void getWeatherDHT()
 	float h_tmp, t_tmp;
 	t_tmp = dht.readTemperature();
     
-    // Read temperature as Fahrenheit (isFahrenheit = true)
+    // Read temperature as Fahrenheit ( t_measure == 1 )
     //float f = dht.readTemperature(true);
 
 	h_tmp = round( dht.readHumidity() * 100 ) / 100.0F;
@@ -60,5 +60,4 @@ void getWeatherDHT()
   	}
   
 }
-
 #endif

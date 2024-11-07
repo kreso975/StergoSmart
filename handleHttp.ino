@@ -51,7 +51,7 @@ void setupHttpServer()
 
   #ifdef MODULE_WEATHER                                             //===============================================
     server.serveStatic( "/history.json", SPIFFS, "/history.json" );
-    server.on( "/mesures.json", sendMeasures );
+    server.on( "/measures.json", sendMeasures );
   #endif                                                            //===============================================
   
   #ifdef MODULE_SWITCH                                              //===============================================

@@ -72,6 +72,10 @@ void setup()
 		if ( mqtt_start == 1 )
 			setupMQTT( &message, 1 );
 
+		// Start ntpUDP
+		// We need it for M-SEARCH over UDP - SSDP discovery
+		ntpUDP.begin( LOCAL_UDP_PORT );
+
 
 		#if ( EXCLUDED_CODE == 9 )      //===============================================
     	// test for SSL
@@ -88,13 +92,6 @@ void setup()
 	{
 		setupHttpServer();
 	}
-
-  	#ifdef MODULE_TICTACTOE   			//=============================================== Exclude M-SEARCH over UDP 
-	// Start ntpUDP
-	// We need it for M-SEARCH over UDP - SSDP discovery
-	ntpUDP.begin( LOCAL_UDP_PORT );
-	#endif
-
 	
 }
 
@@ -118,13 +115,12 @@ void loop()
 				
 	}
 		
-
 	server.handleClient();
 	
 	// IN AP MODE we don't have Date & Time so we don't do anything except setup Device
 	if ( WiFi.getMode() == 1 )
 	{
-		// If BME280 is detected
+		// If MODULE WEATHER is detected
 		#ifdef MODULE_WEATHER   							//===============================================
 		if ( detectModule )
 		{

@@ -4,7 +4,7 @@
 #define DHTTYPE DHT22       // DHT 22 (AM2302), AM2321
 //#define DHTTYPE DHT21     // DHT 21 (AM2301)
 
-bool detectModule = false;                                  // Was detectDS18B20 use True if moduledetection not needed
+bool detectModule = false;                                  // Was detect DHT use True if moduledetection not needed
 
 byte t_measure;
 float h, t, dp;
