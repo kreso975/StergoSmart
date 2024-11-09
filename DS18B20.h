@@ -1,5 +1,5 @@
 // GPIO where the DS18B20 is connected to
-const int oneWireBus = 4;     
+#define ONE_WIRE_BUS 2     
 
 bool detectModule = false;                                  // Was detectDS18B20 use True if moduledetection not needed
 
@@ -20,7 +20,7 @@ char mqtt_Temperature[120];
 
 
 // Setup a oneWire instance to communicate with any OneWire devices
-OneWire oneWire(oneWireBus);
+OneWire oneWire(ONE_WIRE_BUS);
 
 // Pass our oneWire reference to Dallas Temperature sensor 
 DallasTemperature sensors(&oneWire);

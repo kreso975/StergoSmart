@@ -11,7 +11,7 @@ bool setupDS18B20()
 {
 	// Init DHT - need to find a way to know is it running properly
 	sensors.begin();
-	
+	delay(500);
 	sensors.requestTemperatures(); // Send the command to get temperatures 
 	if ( !sensors.getDeviceCount() > 0 ) 
 	{ 
