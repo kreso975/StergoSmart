@@ -321,6 +321,11 @@ bool writeToConfig( String* message )
 		*message = F("Error init config.json");
 		return false;
 	}
+	else
+	{
+		*message = F("Success init config.json");
+		return true;
+	}
 
 	return true;
 }
