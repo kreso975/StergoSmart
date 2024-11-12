@@ -1,3 +1,15 @@
+/* defConf ="deviceID": "1", "deviceType": "1", "deviceName": "", "moduleName": "", 
+			"t_measure": 0, "p_measure": 0, "p_adjust": 0, "pa_unit": 0, "pl_adj": 0, "wifi_runAS": 1,
+    		"wifi_hideAP": 0, "softAP_ssid": "StergoSmart", "softAP_pass": "123456789", "wifi_hostname": "StergoSmart",
+    		"wifi_static": 0, "wifi_StaticIP": "", "wifi_SSID": "", "wifi_password": "", "wifi_gateway": "", "wifi_subnet": "",
+    		"wifi_DNS": "", "mqtt_start": 0, "mqtt_interval": 60, "webLoc_start": 0, "webLoc_interval": 60, "tictac_start": 0,
+    		"tictac_interval": 80, "tictac_webhook": 0, "tictac_discord": 0, "webLoc_server": "", "discord_url": "", "discord_avatar": "",
+    		"mqtt_server": "", "mqtt_port": "", "mqtt_clientName": "", "mqtt_clientUsername": "", "mqtt_clientPassword": "",
+    		"mqtt_myTopic": "", "mqtt_Humidity": "", "mqtt_Temperature": "", "mqtt_Pressure": "", "mqtt_switch": "",
+    		"mqtt_switch2": ""
+*/
+
+
 /* ======================================================================
 Function: initConfig
 Purpose : read from SPIFF config.json 
@@ -47,7 +59,8 @@ bool initConfig( String* message )
 	strcpy(mqtt_clientUsername, configMain["mqtt_clientUsername"]);
 	strcpy(mqtt_clientPassword, configMain["mqtt_clientPassword"]);
 	strcpy(mqtt_myTopic, configMain["mqtt_myTopic"]);
- 	 //---
+ 	
+	//---
 	webLoc_start = atoi(configMain["webLoc_start"]);
 	strcpy(webLoc_server, configMain["webLoc_server"]);
 	// WebHook updates for Void loop to take in account Config interval
@@ -56,16 +69,7 @@ bool initConfig( String* message )
 	webLoc_previousMillis = webLoc_intervalHist;     // time of last point added
  	//---
 
-	#ifdef MODULE_TICTACTOE
-	// Tic Tac Toe config
-	tictac_start  = atoi(configMain["tictac_start"]);
-	tictac_interval = atoi(configMain["tictac_interval"]);
-	ticTacCallInterval = 1000 * 60 * tictac_interval;	// 1000 * 60 * 60 - 60min
-	ticCallLMInterval = ticTacCallInterval;     // time of last point added
-	tictac_webhook = atoi(configMain["tictac_webhook"]);
-	tictac_discord = atoi(configMain["tictac_discord"]);
-	//---
-	#endif
+	
 	// Discord
 	strcpy(discord_url, configMain["discord_url"]);
 	strcpy(discord_avatar, configMain["discord_avatar"]);
@@ -73,12 +77,13 @@ bool initConfig( String* message )
 	strcpy(_deviceType,  configMain["deviceType"]);
 	
 	strcpy(deviceName,  configMain["deviceName"]);
+	// This must be placed somwhere else
 	String _tmp = deviceName;
 	_tmp.replace(' ', '-');
 	_tmp += "-";
 	_tmp += ESP.getChipId();
 	_tmp.toCharArray(_devicename, sizeof(_devicename));
-
+	// -----
 	
 	strcpy(moduleName, configMain["moduleName"]);
 
@@ -94,29 +99,37 @@ bool initConfig( String* message )
 	strcpy( wifi_subnet, configMain["wifi_subnet"] );
 	strcpy( wifi_DNS, configMain["wifi_DNS"] );
     
-	#if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )      //=============== Weather Station BME ==============
-		t_measure = atoi(configMain["t_measure"]);
-		p_measure = atoi(configMain["p_measure"]);
-		p_adjust = atoi(configMain["p_adjust"]);
-		pa_unit = atoi(configMain["pa_unit"]);
-		pl_adj = atoi(configMain["pl_adj"]);
-		strcpy(mqtt_Humidity, configMain["mqtt_Humidity"]);
-		strcpy(mqtt_Temperature, configMain["mqtt_Temperature"]);
-		strcpy(mqtt_Pressure, configMain["mqtt_Pressure"]);
-	#endif                                                  //===============================================
-	#if ( STERGO_PROGRAM == 4 || STERGO_PROGRAM == 5 )      //=============== Weather Station DHT || DS18B20 ==============
+	#ifdef MODULE_WEATHER     								  //=============== Weather Station  ==============
 		t_measure = atoi(configMain["t_measure"]);
 		strcpy(mqtt_Temperature, configMain["mqtt_Temperature"]);
-
-		#ifdef MODULE_DHT
-		strcpy(mqtt_Humidity, configMain["mqtt_Humidity"]);
+		
+		#if defined( MODULE_DHT ) || defined( MODULE_BME280 ) //=============== MODULE DHT && BME  =============
+			strcpy(mqtt_Humidity, configMain["mqtt_Humidity"]);
 		#endif
-	#endif                                                  //===============================================
+		
+		#ifdef MODULE_BME280								  //=============== MODULE BME  ===================
+			p_measure = atoi(configMain["p_measure"]);
+			p_adjust = atoi(configMain["p_adjust"]);
+			pa_unit = atoi(configMain["pa_unit"]);
+			pl_adj = atoi(configMain["pl_adj"]);
+			strcpy(mqtt_Pressure, configMain["mqtt_Pressure"]);
+		#endif
+	#endif                                                    //================================================
 
-    #if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )      //=============== Power Switch ==============
+    #ifdef MODULE_SWITCH      								  //=============== Power Switch ===================
 		strcpy(mqtt_switch, configMain["mqtt_switch"]);
 		strcpy(mqtt_switch2, configMain["mqtt_switch2"]);
-	#endif                                                  //===============================================
+	#endif           										  //================================================
+
+	#ifdef MODULE_TICTACTOE									  //=============== Tic Tac Toe  ===================
+	// Tic Tac Toe config
+	tictac_start  = atoi(configMain["tictac_start"]);
+	tictac_interval = atoi(configMain["tictac_interval"]);
+	ticTacCallInterval = 1000 * 60 * tictac_interval;	// 1000 * 60 * 60 - 60min
+	ticCallLMInterval = ticTacCallInterval;     // time of last point added
+	tictac_webhook = atoi(configMain["tictac_webhook"]);
+	tictac_discord = atoi(configMain["tictac_discord"]);
+	#endif													  //================================================
 
 	return true;
 }
@@ -204,7 +217,7 @@ bool writeToConfig( String* message )
 			if ( server.hasArg(intArray_2[i]) )  configMain[intArray_2[i]] = server.arg(intArray_2[i]).toInt();
 	#endif
 
-	#if ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 )      				//=============== Power Switch ==============
+	#ifdef	MODULE_SWITCH     											//=============== Power Switch ==============
 		String stringArray_3[] = {"mqtt_switch", "mqtt_switch2"};
 		const byte NAMES_IN_USE_5 = 2;
 		

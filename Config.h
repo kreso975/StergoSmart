@@ -10,7 +10,7 @@
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 1
+#define STERGO_PROGRAM 2
 
 /*
  * Different models used for Weather
