@@ -1,6 +1,9 @@
 /*
  * For What Device We need to Compile
  * 
+ * Screen or Led On device WS001 = Second 0 == device type
+ * FE: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
+ * 
  * STERGO_PROGRAM :
  *
  * PowerSwitch                  = 0
@@ -13,8 +16,6 @@
 #define STERGO_PROGRAM 2
 
 /*
- * Different models used for Weather
- * 
  * STERGO_PROGRAM_BOARD :
  * 
  * ESP8266 default 01S = 1   // v01
@@ -23,8 +24,6 @@
 #define STERGO_PROGRAM_BOARD 1
 
 /*
- * Different models used for Plug / Switch
- * 
  * STERGO_PLUG :
  * 
  * Native Board relay = 1   // Relay Switch - RS
