@@ -12,6 +12,31 @@ float Kelvin( float celsius ) { return celsius + 273.15; }
 //hPascals to inhg conversion
 float iNHg( float hpa ) { return hpa * 0.02952998; }
 
+void setupWeather()
+{
+	#ifdef MODULE_BME280
+	setupBME280();
+	#endif
+	#ifdef MODULE_DHT
+	setupDHT();
+	#endif
+	#ifdef MODULE_DS18B20
+	setupDS18B20();
+	#endif
+}
+
+void readWeather()
+{
+	#ifdef MODULE_BME280
+	getWeatherBME();
+	#endif
+	#ifdef MODULE_DHT
+	getWeatherDHT();
+	#endif
+	#ifdef MODULE_DS18B20
+	getWeatherDS18B20();
+	#endif
+}
 
 /* ======================================================================
 Function: updateHistory

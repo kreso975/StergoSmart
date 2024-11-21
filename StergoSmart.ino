@@ -27,19 +27,13 @@ void setup()
 	if ( !setupFS() )
 		writeLogFile( F("No Filesystem"), 1, 3 );
 
-	// We will Init config to gather needed data and choose next steps based on that config
+	// We will Init config to load needed data and choose next steps based on that config
 	initConfig ( &message );
   
 	deviceType = atoi(_deviceType);
 
-	#ifdef MODULE_BME280
-	setupBME280();
-	#endif
-	#ifdef MODULE_DHT
-	setupDHT();
-	#endif
-	#ifdef MODULE_DS18B20
-	setupDS18B20();
+	#ifdef MODULE_WEATHER
+	setupWeather();
 	#endif
 	#ifdef MODULE_SWITCH
 	setupSwitch();
@@ -135,15 +129,8 @@ void loop()
 				lastMeasureInterval = millis();
 				measureFirstRun = false;
 
-				#ifdef MODULE_BME280
-				getWeatherBME();
-				#endif
-				#ifdef MODULE_DHT
-				getWeatherDHT();
-				#endif
-				#ifdef MODULE_DS18B20
-				getWeatherDS18B20();
-				#endif
+				// read Weather Sensor based on MODULE
+				readWeather();
 				
 				MainSensorConstruct();
 			}
@@ -182,7 +169,7 @@ void loop()
 
         	client.loop();
       	}
-		// Check if MQTT is turnued of because of too many tries
+		// Check if MQTT is turned OFF because of too many tries
 		if ( mqttTempDown == 1 )
 		{
 			// We will wait mqttTempDownInt and try again
@@ -199,7 +186,7 @@ void loop()
 			}
 		}
       
-      	#ifdef MODULE_TICTACTOE									//=============================================== Exclude M-SEARCH over UDP 
+      	#ifdef MODULE_TICTACTOE														//=============================================== 
 		// We Have config setting for manualy start/stop Tic Tac Toe
 		if ( tictac_start == 1 )
 		{
@@ -228,12 +215,16 @@ void loop()
 			// Time interval to check on inactivity of the game, auto reset
 			if ( ( millis() - ticTacLastPlayed > ticTacLastPlayedInterval ) && gameStarted == 1 && turn > 0 )
 			{
+				#if ( DEBUG == 1 )
 				writeLogFile( F("Inside LastPlayedTicTac measure and gameStarted == 1 and turn > 0"), 1, 1);
+				#endif
 				resetTicTacToe();
     		}
 			if ( ( millis() - ticTacLastPlayed > ticTacLastPlayedInterval ) && didIaskedToPlay )
 			{
+				#if ( DEBUG == 1 )
 				writeLogFile( F("Inside LastPlayedTicTac measure and didIaskedToPlay == true"), 1, 1);
+				#endif
 				resetTicTacToe();
     		}
 		}
@@ -242,6 +233,7 @@ void loop()
 
 	#if ( ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 ) && ( STERGO_PLUG == 2 || STERGO_PLUG == 3 ) )  //===============================================
 	// Button Handling - We have it Both in AP and STA 
+	// This can be moved into Switch.ino
 	if ( millis() - keyPrevMillis >=  keySampleIntervalMs )
 	{	// Move to SWitch.ino
 		keyPrevMillis = millis();

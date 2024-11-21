@@ -32,6 +32,8 @@ String toStringIp2( IPAddress ip )
 }
 */
 
+// Convert Float to double
+// Using it in ArduinoJson Array for t,h,P0 add in History.json
 double round2(double value) {
    return (int)(value * 100 + 0.5) / 100.0;
 }
