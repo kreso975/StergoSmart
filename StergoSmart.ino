@@ -120,7 +120,7 @@ void loop()
 	
 	if ( WiFi.getMode() == 1 )
 	{
-		// If MODULE WEATHER is detected
+		// If MODULE WEATHER is detected on Setup
 		#ifdef MODULE_WEATHER   							//===============================================
 		if ( detectModule )
 		{
