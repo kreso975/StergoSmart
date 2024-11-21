@@ -116,7 +116,6 @@ void handleSSDP()
       
       case Stergo:
         modelName = parseUDP( input, 2 );
-
         message = F("Hi there! ");
         message += modelName;
         message += F(", I'm ");
