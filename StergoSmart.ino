@@ -231,7 +231,7 @@ void loop()
 	  	#endif
 	}
 
-	#if ( ( STERGO_PROGRAM == 0 || STERGO_PROGRAM == 3 ) && ( STERGO_PLUG == 2 || STERGO_PLUG == 3 ) )  //===============================================
+	#if ( defined( MODULE_SWITCH ) && ( STERGO_PLUG == 2 || STERGO_PLUG == 3 ) )  //===============================================
 	// Button Handling - We have it Both in AP and STA 
 	// This can be moved into Switch.ino
 	if ( millis() - keyPrevMillis >=  keySampleIntervalMs )
