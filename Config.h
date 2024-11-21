@@ -12,7 +12,7 @@
  */
 #define STERGO_PROGRAM 1
 // Screen or Led On device WS001 = Second 0 == device type
-// FE: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
+// example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
 #define STERGO_SCREEN 0
 /*
  * STERGO_PROGRAM_BOARD :
