@@ -15,10 +15,10 @@ bool detectModule = false;                // Was detectBME280 use True if module
  * t_measure : 0 = Meter | 1 = Feet;  p_measure : 0 = hPa | 1 = inhg;
  *
  * struct Config {
- *	  byte t_measure						  =	0;
- *	  byte p_measure						  =	0;
- *	  byte p_adjust						    =	1;
- *	  byte pa_unit						    =	0;
+ *	  byte t_measure						    =	0;
+ *	  byte p_measure						    =	0;
+ *	  byte p_adjust						        =	1;
+ *	  byte pa_unit                              =	0;
  *	  int pl_adj							    =	122;
  * };
  *

@@ -1,5 +1,11 @@
 {
     "C_Cpp.autocomplete": "default",
     "C_Cpp.default.intelliSenseMode": "gcc-x64",
-    "C_Cpp.errorSquiggles": "disabled"
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.associations": {
+        "*.embeddedhtml": "html",
+        "*.ino": "cpp",
+        "chrono": "cpp",
+        "cmath": "cpp"
+    }
 }

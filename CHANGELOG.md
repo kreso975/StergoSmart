@@ -16,6 +16,7 @@
 - Start ntpUDP always if WiFi is STA
 - fixed old mesures.json link to measures.json
 - Config.ino added return message for success init config after save/update
+- Upgrade ArduinoJson v5.13.5 to v6.21.5
 
 **000.05.102**
 - SSDP cleanUp code

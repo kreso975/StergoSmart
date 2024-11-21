@@ -199,7 +199,9 @@ void firmwareOnlineUpdate( int what )
   //t_httpUpdate_return ret = ESPhttpUpdate.update( espClient, "http://192.168.1.101/StergoWeather/firmware/temp/StergoSmart.ino.bin", FIRMWARE );
   switch( ret ) {
     case HTTP_UPDATE_FAILED:
+      #if ( DEBUG == 1 )
       Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+      #endif
       writeLogFile( F("HTTP_UPDATE_FAIL"), 1, 3 );
       break;
 

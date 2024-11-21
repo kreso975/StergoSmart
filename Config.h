@@ -58,7 +58,7 @@
 #include <FS.h>
 #include <TimeLib.h>
 #include <NTPClient.h>
-#include "ArduinoJson.h"    //v5.13.5  
+#include "ArduinoJson.h"    // v6.21.5
 #include <WiFiUdp.h>
 #include <PubSubClient.h>
 #include <ESP8266SSDP.h>    // SSDP (Simple Service Discovery Protocol) service
@@ -92,9 +92,7 @@
 #endif
     
 #if ( STERGO_SCREEN == 1 )
-    #include <Adafruit_GFX.h>
-    #include <Adafruit_NeoMatrix.h>
-    #include <Adafruit_NeoPixel.h>
+    #include "FastLED.h"
     #define MODULE_DISPLAY
     #include "Display.h"
 #endif
@@ -163,8 +161,8 @@ char softAP_pass[20] = "123456789";       //
 #define DNS_PORT 53
 
 // Interval For restart device if in AP mode and pass & Gateway are set in config.json
-#define ap_intervalHist 1000 * 60 * 5                // 1000 * 60 * 5 = 5min
-unsigned long ap_previousMillis = ap_intervalHist;     // time of last point added
+#define ap_intervalHist 1000 * 60 * 5                   // 1000 * 60 * 5 = 5min
+unsigned long ap_previousMillis = ap_intervalHist;      // time of last point added
 
 /** Should I connect to W LAN asap? */
 bool connect;

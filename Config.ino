@@ -37,46 +37,44 @@ bool initConfig( String* message )
 	configfile.readBytes(buf.get(), size);
 	configfile.close();
 
-	DynamicJsonBuffer jsonConfig;
-	JsonObject& configMain = jsonConfig.parseObject(buf.get());
-	//configMain.printTo(Serial);
+	DynamicJsonDocument  jsonConfig(6000);
+  	DeserializationError error = deserializeJson( jsonConfig, buf.get());
 
-	if ( !configMain.success() )
+	if ( error )
 	{
-		writeLogFile( faParse + String(configFile), 1 );
+		writeLogFile( faParse + String(error.c_str()), 1 );
 		return false;
 	}
 
-	mqtt_start = atoi(configMain["mqtt_start"]);
+	mqtt_start = jsonConfig["mqtt_start"];
   	// MQTT updates for Void loop to take in account Config interval
-	mqtt_interval = atoi(configMain["mqtt_interval"]);
+	mqtt_interval = jsonConfig["mqtt_interval"];
 	mqtt_intervalHist = 1000 * mqtt_interval;
 	mqtt_previousMillis = mqtt_intervalHist;     // time of last point added
 
-	mqtt_port = atoi(configMain["mqtt_port"]);
-	strcpy(mqtt_server, configMain["mqtt_server"]);
-	strcpy(mqtt_clientName, configMain["mqtt_clientName"]);
-	strcpy(mqtt_clientUsername, configMain["mqtt_clientUsername"]);
-	strcpy(mqtt_clientPassword, configMain["mqtt_clientPassword"]);
-	strcpy(mqtt_myTopic, configMain["mqtt_myTopic"]);
+	mqtt_port = jsonConfig["mqtt_port"];
+	strcpy(mqtt_server, jsonConfig["mqtt_server"]);
+	strcpy(mqtt_clientName, jsonConfig["mqtt_clientName"]);
+	strcpy(mqtt_clientUsername, jsonConfig["mqtt_clientUsername"]);
+	strcpy(mqtt_clientPassword, jsonConfig["mqtt_clientPassword"]);
+	strcpy(mqtt_myTopic, jsonConfig["mqtt_myTopic"]);
  	
 	//---
-	webLoc_start = atoi(configMain["webLoc_start"]);
-	strcpy(webLoc_server, configMain["webLoc_server"]);
+	webLoc_start = jsonConfig["webLoc_start"];
+	strcpy(webLoc_server, jsonConfig["webLoc_server"]);
 	// WebHook updates for Void loop to take in account Config interval
-	webLoc_interval = atoi(configMain["webLoc_interval"]);
+	webLoc_interval = jsonConfig["webLoc_interval"];
 	webLoc_intervalHist = 1000 * webLoc_interval;
 	webLoc_previousMillis = webLoc_intervalHist;     // time of last point added
  	//---
 
-	
 	// Discord
-	strcpy(discord_url, configMain["discord_url"]);
-	strcpy(discord_avatar, configMain["discord_avatar"]);
+	strcpy(discord_url, jsonConfig["discord_url"]);
+	strcpy(discord_avatar, jsonConfig["discord_avatar"]);
 	//---
-	strcpy(_deviceType,  configMain["deviceType"]);
+	strcpy(_deviceType,  jsonConfig["deviceType"]);
 	
-	strcpy(deviceName,  configMain["deviceName"]);
+	strcpy(deviceName,  jsonConfig["deviceName"]);
 	// This must be placed somwhere else
 	String _tmp = deviceName;
 	_tmp.replace(' ', '-');
@@ -85,50 +83,50 @@ bool initConfig( String* message )
 	_tmp.toCharArray(_devicename, sizeof(_devicename));
 	// -----
 	
-	strcpy(moduleName, configMain["moduleName"]);
+	strcpy(moduleName, jsonConfig["moduleName"]);
 
-	wifi_runAS = atoi(configMain["wifi_runAS"]);
-	strcpy( wifi_hostname, configMain["wifi_hostname"] );
-	strcpy( softAP_ssid, configMain["softAP_ssid"] );
-	strcpy( softAP_pass, configMain["softAP_pass"] );
-	strcpy( wifi_ssid, configMain["wifi_SSID"] );
-	strcpy( wifi_password, configMain["wifi_password"] );
-	wifi_static = atoi(configMain["wifi_static"]);
-	strcpy( wifi_StaticIP, configMain["wifi_StaticIP"] );
-	strcpy( wifi_gateway, configMain["wifi_gateway"] );
-	strcpy( wifi_subnet, configMain["wifi_subnet"] );
-	strcpy( wifi_DNS, configMain["wifi_DNS"] );
+	wifi_runAS = jsonConfig["wifi_runAS"];
+	strcpy( wifi_hostname, jsonConfig["wifi_hostname"] );
+	strcpy( softAP_ssid, jsonConfig["softAP_ssid"] );
+	strcpy( softAP_pass, jsonConfig["softAP_pass"] );
+	strcpy( wifi_ssid, jsonConfig["wifi_SSID"] );
+	strcpy( wifi_password, jsonConfig["wifi_password"] );
+	wifi_static = jsonConfig["wifi_static"];
+	strcpy( wifi_StaticIP, jsonConfig["wifi_StaticIP"] );
+	strcpy( wifi_gateway, jsonConfig["wifi_gateway"] );
+	strcpy( wifi_subnet, jsonConfig["wifi_subnet"] );
+	strcpy( wifi_DNS, jsonConfig["wifi_DNS"] );
     
 	#ifdef MODULE_WEATHER     								  //=============== Weather Station  ==============
-		t_measure = atoi(configMain["t_measure"]);
-		strcpy(mqtt_Temperature, configMain["mqtt_Temperature"]);
+		t_measure = jsonConfig["t_measure"];
+		strcpy(mqtt_Temperature, jsonConfig["mqtt_Temperature"]);
 		
 		#if defined( MODULE_DHT ) || defined( MODULE_BME280 ) //=============== MODULE DHT && BME  =============
-			strcpy(mqtt_Humidity, configMain["mqtt_Humidity"]);
+			strcpy(mqtt_Humidity, jsonConfig["mqtt_Humidity"]);
 		#endif
 		
 		#ifdef MODULE_BME280								  //=============== MODULE BME  ===================
-			p_measure = atoi(configMain["p_measure"]);
-			p_adjust = atoi(configMain["p_adjust"]);
-			pa_unit = atoi(configMain["pa_unit"]);
-			pl_adj = atoi(configMain["pl_adj"]);
-			strcpy(mqtt_Pressure, configMain["mqtt_Pressure"]);
+			p_measure = jsonConfig["p_measure"];
+			p_adjust = jsonConfig["p_adjust"];
+			pa_unit = jsonConfig["pa_unit"];
+			pl_adj = jsonConfig["pl_adj"];
+			strcpy(mqtt_Pressure, jsonConfig["mqtt_Pressure"]);
 		#endif
 	#endif                                                    //================================================
 
     #ifdef MODULE_SWITCH      								  //=============== Power Switch ===================
-		strcpy(mqtt_switch, configMain["mqtt_switch"]);
-		strcpy(mqtt_switch2, configMain["mqtt_switch2"]);
+		strcpy(mqtt_switch, jsonConfig["mqtt_switch"]);
+		strcpy(mqtt_switch2, jsonConfig["mqtt_switch2"]);
 	#endif           										  //================================================
 
 	#ifdef MODULE_TICTACTOE									  //=============== Tic Tac Toe  ===================
 	// Tic Tac Toe config
-	tictac_start  = atoi(configMain["tictac_start"]);
-	tictac_interval = atoi(configMain["tictac_interval"]);
+	tictac_start  = jsonConfig["tictac_start"];
+	tictac_interval = jsonConfig["tictac_interval"];
 	ticTacCallInterval = 1000 * 60 * tictac_interval;	// 1000 * 60 * 60 - 60min
 	ticCallLMInterval = ticTacCallInterval;     // time of last point added
-	tictac_webhook = atoi(configMain["tictac_webhook"]);
-	tictac_discord = atoi(configMain["tictac_discord"]);
+	tictac_webhook = jsonConfig["tictac_webhook"];
+	tictac_discord = jsonConfig["tictac_discord"];
 	#endif													  //================================================
 
 	return true;
@@ -160,13 +158,17 @@ bool writeToConfig( String* message )
 	configfile.readBytes(buf.get(), size);
 	configfile.close();
 
-	DynamicJsonBuffer jsonConfig;
-	JsonObject& configMain = jsonConfig.parseObject(buf.get());
+	//DynamicJsonBuffer jsonConfig;
+	//JsonObject& configMain = jsonConfig.parseObject(buf.get());
+	//configMain.printTo(Serial);
+  	DynamicJsonDocument  jsonConfig(6000);
+  	DeserializationError error = deserializeJson( jsonConfig, buf.get());
+	//JsonObject& configMain = jsonConfig.parseObject(buf.get());
 	//configMain.printTo(Serial);
 
-	if ( !configMain.success() )
+	if ( error )
 	{
-		writeLogFile( faParse + String(configFile), 1 );
+		writeLogFile( faParse + String(error.c_str()), 1 );
 		return false;
 	}
 
@@ -180,10 +182,10 @@ bool writeToConfig( String* message )
 	const byte NAMES_IN_USE_2 = 10;
 
 	for ( byte i = 0; i < NAMES_IN_USE_1; i++ )
-		if ( server.hasArg(stringArray[i]) )  configMain[stringArray[i]] = server.arg(stringArray[i]);
+		if ( server.hasArg(stringArray[i]) )  jsonConfig[stringArray[i]] = server.arg(stringArray[i]);
 
 	for ( byte i = 0; i < NAMES_IN_USE_2; i++ )
-		if ( server.hasArg(intArray[i]) )  configMain[intArray[i]] = server.arg(intArray[i]).toInt();
+		if ( server.hasArg(intArray[i]) )  jsonConfig[intArray[i]] = server.arg(intArray[i]).toInt();
 
 	
 	#ifdef MODULE_WEATHER     											//=============== Weather Station ==============
@@ -211,10 +213,10 @@ bool writeToConfig( String* message )
 		#endif
 
 		for ( byte i = 0; i < NAMES_IN_USE_3; i++ )
-			if ( server.hasArg(stringArray_2[i]) )  configMain[stringArray_2[i]] = server.arg(stringArray_2[i]);
+			if ( server.hasArg(stringArray_2[i]) )  jsonConfig[stringArray_2[i]] = server.arg(stringArray_2[i]);
 
 		for ( byte i = 0; i < NAMES_IN_USE_4; i++ )
-			if ( server.hasArg(intArray_2[i]) )  configMain[intArray_2[i]] = server.arg(intArray_2[i]).toInt();
+			if ( server.hasArg(intArray_2[i]) )  jsonConfig[intArray_2[i]] = server.arg(intArray_2[i]).toInt();
 	#endif
 
 	#ifdef	MODULE_SWITCH     											//=============== Power Switch ==============
@@ -222,7 +224,7 @@ bool writeToConfig( String* message )
 		const byte NAMES_IN_USE_5 = 2;
 		
 		for ( byte i = 0; i < NAMES_IN_USE_5; i++ )
-			if ( server.hasArg(stringArray_3[i]) )  configMain[stringArray_3[i]] = server.arg(stringArray_3[i]);
+			if ( server.hasArg(stringArray_3[i]) )  jsonConfig[stringArray_3[i]] = server.arg(stringArray_3[i]);
 	#endif  
   
 	
@@ -234,7 +236,7 @@ bool writeToConfig( String* message )
 		return false;
 	}
     
-	if ( configMain.prettyPrintTo(file) == 0 )
+	if ( serializeJson(jsonConfig, file) == 0 )
 	{
 		writeLogFile( fOpen + String(configFile), 1 );
 		*message = fOpen + String(configFile);

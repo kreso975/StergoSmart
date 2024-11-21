@@ -156,8 +156,6 @@ bool MainSensorConstruct()
     //unsigned int Jsonlength = jsonDataBuffer.length();
     //writeLogFile( "Before load size: " + String(Jsonlength), 1 );
 
-    DynamicJsonBuffer jsonBuffer(12000);
-
 	File file = SPIFFS.open( HISTORY_FILE, "r" );
 	if (!file)
 	{
@@ -179,17 +177,19 @@ bool MainSensorConstruct()
 			file.readBytes(buf.get(), size);
 			file.close();
 			
-			JsonObject& root = jsonBuffer.parseObject(buf.get());
+			DynamicJsonDocument  jsonBuffer(12000);
+      		DeserializationError error = deserializeJson( jsonBuffer, buf.get());
+			//JsonObject& root = jsonBuffer.parseObject(buf.get());
 
-			if ( !root.success() )
+			if ( error )
 			{
-				//writeLogFile( faParse + HISTORY_FILE, 1 );
+				writeLogFile( faParse HISTORY_FILE, 1 );
 				return false;
 			}
 			else
-            {
-				JsonArray& sensor = root["sensor"];
-        		JsonArray& Sensordata = sensor.createNestedArray();	
+      		{
+				JsonArray sensor = jsonBuffer["sensor"];
+        		JsonArray Sensordata = sensor.createNestedArray();	
 				
 				unsigned long currentMillis = millis();
 				// should add on startup to insert record
@@ -202,15 +202,15 @@ bool MainSensorConstruct()
 					if ( tps > 0 )
 					{
 						Sensordata.add(tps);  // Timestamp
-						Sensordata.add(t);    // Temperature
+						Sensordata.add(round2(t));    // Temperature
 
-            #if defined( MODULE_DHT ) || defined( MODULE_BME280 )
-						Sensordata.add(h);    // Humidity
-            #endif
+            			#if defined( MODULE_DHT ) || defined( MODULE_BME280 )
+						Sensordata.add(round2(h));    // Humidity
+            			#endif
 
-            #ifdef MODULE_BME280
-						Sensordata.add(P0);   // Pressure
-            #endif
+            			#ifdef MODULE_BME280
+						Sensordata.add(round2(P0));   // Pressure
+            			#endif
 
 						if ( sensor.size() > sizeHist )
 						{
@@ -227,7 +227,8 @@ bool MainSensorConstruct()
 						}
 						else
 						{
-							if ( root.printTo(file) == 0 )
+							//if ( root.printTo(file) == 0 )
+              				if ( serializeJson( jsonBuffer, file ) == 0 )
 							{
 								// Should do something if this happened!!!!
 								writeLogFile( fWrite + HISTORY_FILE, 1 );

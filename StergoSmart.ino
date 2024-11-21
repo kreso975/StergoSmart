@@ -45,6 +45,11 @@ void setup()
 	setupSwitch();
 	#endif
 
+	#ifdef MODULE_DISPLAY
+	FastLED.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);  // GRB ordering is typical
+	#endif
+
+
 	WiFiManager();
 
 	if ( WiFi.getMode() == 1 )
@@ -100,6 +105,7 @@ void setup()
 void loop()
 {
 	// WiFi AP mode
+	// IN AP MODE we don't have Date & Time so we don't do anything except setup Device
 	if ( WiFi.getMode() == 2 )
 	{
 		dnsServer.processNextRequest();
@@ -117,7 +123,7 @@ void loop()
 		
 	server.handleClient();
 	
-	// IN AP MODE we don't have Date & Time so we don't do anything except setup Device
+	
 	if ( WiFi.getMode() == 1 )
 	{
 		// If MODULE WEATHER is detected

@@ -269,8 +269,10 @@ void letsPlay( byte what, String who )
 
     if ( player == 2 )
     {
+      #if ( DEBUG == 1 )
       printLogInPhase( "LetsPlay_w1p2" );
-
+      #endif
+      
       delay(1000);
       computerMove( board );
       delay(1000);
@@ -284,7 +286,9 @@ void letsPlay( byte what, String who )
 
   if ( what == 2 )
   {
+    #if ( DEBUG == 1 )
     printLogInPhase( "LetsPlay_w2" );
+    #endif
 
     String _tmp;
     _tmp = String(opponentName);
@@ -329,21 +333,29 @@ void letsPlay( byte what, String who )
       switch ( win(board) )
       {
         case 0:
+          #if ( DEBUG == 1 )
           Serial.println("It's a draw.");
+          #endif
           sendTicTacWebhook(2);
           break;
         case 1:
           draw(board);
+          #if ( DEBUG == 1 )
           Serial.println("You " + _tmp + " lose. Arduino wins!");
+          #endif
           sendTicTacWebhook(1);
           sendTicTacWebhook(2);
           break;
         case -1:
+          #if ( DEBUG == 1 )
           Serial.println("You win!");
+          #endif
           break;
       }
       // Let's prepare for new game
+      #if ( DEBUG == 1 )
       Serial.println("Reseting game lets start over");
+      #endif
       resetTicTacToe();
     }
   }
@@ -467,7 +479,10 @@ void playTicTacToe( String input )
         writeLogFile( selectPlayer + " Selected to play as Player: " + String(selectPlayer), 1, 1 );
         #endif
         player = selectPlayer;
+
+        #if ( DEBUG == 1 )
         printLogInPhase( "Player" );
+        #endif
 
         letsPlay( 1, playerName );
       }
@@ -475,7 +490,10 @@ void playTicTacToe( String input )
       {
         // Opponent decided to play As player 1, lets register player as 1 and send him to play
         player = selectPlayer;
+
+        #if ( DEBUG == 1 )
         printLogInPhase( "Player" );
+        #endif
 
         String replyPacket = SERTIC + String(_devicename) + " Move=-1";
         sendUDP  (replyPacket, opponentIP, 4210 );
@@ -484,7 +502,10 @@ void playTicTacToe( String input )
       {
         // Opponent decided to play As player 2, lets register player as 2 and start play
         player = selectPlayer;
+
+        #if ( DEBUG == 1 )
         printLogInPhase( "Player" );
+        #endif
 
         letsPlay( 2, playerName );
         // replyPacket = SERTIC + String(_devicename) + " Move=-1";
@@ -617,6 +638,7 @@ void sendTicTacWebhook( byte where )
 
 }
 
+#if ( DEBUG == 1 )
 // to Optimize code.
 void printLogInPhase( String where )
 {
@@ -626,4 +648,5 @@ void printLogInPhase( String where )
   writeLogFile( "in " + where + ", turn: " + String(turn), 1, 1 );
   #endif
 }
+#endif
 #endif

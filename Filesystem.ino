@@ -160,7 +160,8 @@ bool writeLogFile( String message, int newLine, int output )
 	// Write to Log
   if ( output == 2 || output == 3 )
   {
-    DynamicJsonBuffer jsonBuffer(6000);
+    //DynamicJsonBuffer jsonBuffer(6000);
+    DynamicJsonDocument  jsonBuffer(6000);
 
 	  File file = SPIFFS.open( LOG_FILE, "r" );
 	  if (!file)
@@ -183,17 +184,18 @@ bool writeLogFile( String message, int newLine, int output )
 			    file.readBytes(buf.get(), size);
 			    file.close();
         
-			    JsonObject& rootLog = jsonBuffer.parseObject(buf.get());
-       
-			    if ( !rootLog.success() )
+          DeserializationError error = deserializeJson( jsonBuffer, buf.get());
+          //JsonObject& rootLog = jsonBuffer.parseObject(buf.get());
+
+	        if ( error )
 			    {
 				    writeLogFile( faParse + String(LOG_FILE), 1 );
 				    return false;
 			    }
 			    else
 			    {
-				    JsonArray& logData = rootLog["log"];
-				    JsonObject& LogWritedata = logData.createNestedObject();
+				    JsonArray logData = jsonBuffer["log"];
+				    JsonObject LogWritedata = logData.createNestedObject();
 
 				    long int tps = timeClient.getEpochTime();
 				    //NEEDS TO BE EXTENDED IN ENTIRE CORE TO PROPERLY SETUP WORNING / INFO MESSAGE TYPE
@@ -216,7 +218,8 @@ bool writeLogFile( String message, int newLine, int output )
 				    }
 				    else
 				    {
-					    if ( rootLog.prettyPrintTo(file) == 0 )
+					    //if ( rootLog.prettyPrintTo(file) == 0 )
+              if ( serializeJson( jsonBuffer, file ) == 0 )
 					    {
 						    writeLogFile( fWrite + LOG_FILE, 1 );
 						    //*message = fWrite + LOG_FILE;
