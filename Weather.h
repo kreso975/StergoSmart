@@ -12,9 +12,15 @@
   MODEL_NUMBER "v01" ( ESP8266 default 01S)
   MODEL_NUMBER "v02" ( LOLIN D1 mini)
 
+  Screen or Led On device WS001 = Second 0 == device type
+  FE: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
 */
+
+#define MODEL_PREFIX "WS0"
+
 #if ( STERGO_PROGRAM == 1 )
-  #define MODEL_NAME "WS001"
+  //#define MODEL_NAME "WS001"
+  #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "1"
   #define MODULE_BME280
   #include <Adafruit_BME280.h>
   #include "BME280.h"
@@ -26,17 +32,17 @@
 #endif
 
 #if ( STERGO_PROGRAM == 3 )
-    #define MODEL_NAME "WS002"
+    #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "2"
     #define MODULE_BME280
     #include <Adafruit_BME280.h>
     #include "BME280.h"
 #elif ( STERGO_PROGRAM == 4 )
-    #define MODEL_NAME "WS003"
+    #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "3"
     #define MODULE_DHT
     #include <DHT.h>
     #include "DHTsensors.h"
 #elif ( STERGO_PROGRAM == 5 )
-    #define MODEL_NAME "WS004"
+    #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "4"
     #define MODULE_DS18B20
     #include <OneWire.h>
     #include <DallasTemperature.h>

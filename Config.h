@@ -1,9 +1,6 @@
 /*
  * For What Device We need to Compile
  * 
- * Screen or Led On device WS001 = Second 0 == device type
- * FE: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
- * 
  * STERGO_PROGRAM :
  *
  * PowerSwitch                  = 0
@@ -13,15 +10,17 @@
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 2
-
+#define STERGO_PROGRAM 1
+// Screen or Led On device WS001 = Second 0 == device type
+// FE: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
+#define STERGO_SCREEN 0
 /*
  * STERGO_PROGRAM_BOARD :
  * 
  * ESP8266 default 01S = 1   // v01
  * LOLIN D1 mini       = 2   // v02
  */
-#define STERGO_PROGRAM_BOARD 1
+#define STERGO_PROGRAM_BOARD 2
 
 /*
  * STERGO_PLUG :
@@ -32,6 +31,8 @@
  */
 #define STERGO_PLUG 3
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
 
 // Firmware Version always part of this file
 #define FW_VERSION "000.05.103"  // Check releaseLog for details
@@ -57,7 +58,7 @@
 #include <FS.h>
 #include <TimeLib.h>
 #include <NTPClient.h>
-#include "ArduinoJson.h"    //v5.13.5
+#include "ArduinoJson.h"    //v5.13.5  
 #include <WiFiUdp.h>
 #include <PubSubClient.h>
 #include <ESP8266SSDP.h>    // SSDP (Simple Service Discovery Protocol) service
@@ -87,8 +88,17 @@
     #include "SSDP.h"
 #elif ( STERGO_PROGRAM == 9 )  // EXCLUDED CODE
     #include <WiFiClientSecure.h>
+    #include "Switch.h"
 #endif
     
+#if ( STERGO_SCREEN == 1 )
+    #include <Adafruit_GFX.h>
+    #include <Adafruit_NeoMatrix.h>
+    #include <Adafruit_NeoPixel.h>
+    #define MODULE_DISPLAY
+    #include "Display.h"
+#endif
+
 extern "C" {
 #include "user_interface.h"
 }
@@ -101,9 +111,9 @@ extern "C" {
  *********************************************************************************************************/
 #include "MQTT.h"
 
-String PRODUCT = String(MODEL_NAME) + String(MODEL_NUMBER);
-String FIRMWARE = PRODUCT + "-" + String(FW_VERSION);
-String SERIAL_NUMBER = PRODUCT + "-" + String(ESP.getChipId());
+#define PRODUCT MODEL_NAME MODEL_NUMBER
+#define FIRMWARE PRODUCT "-" FW_VERSION
+String SERIAL_NUMBER = String(PRODUCT) + "-" + String(ESP.getChipId());
 
 #define SERIAL_BAUDRATE 9600
 #define WEBSERVER_PORT 80

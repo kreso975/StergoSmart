@@ -9,12 +9,17 @@
  * Sonoff S26         = 2   // Plug Switch  - PS
  * Sonoff T4EU1C      = 3   // Light Switch - LS
  */
+
+
 #if ( STERGO_PLUG == 1 && STERGO_PROGRAM == 0 )     //===============================================
-  #define MODEL_NAME "RS001"
+  #define MODEL_PREFIX "RS0"
+  #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "1"
 #elif ( STERGO_PLUG == 2 && STERGO_PROGRAM == 0 )   //===============================================
-  #define MODEL_NAME "PS002"
+  #define MODEL_PREFIX "PS0"
+  #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "1"
 #elif ( STERGO_PLUG == 3 && STERGO_PROGRAM == 0 )   //===============================================
-  #define MODEL_NAME "LS001"
+  #define MODEL_PREFIX "LS0"
+  #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "1"
 #endif                                              //===============================================
 
 // ESP8266 01S        = 1
