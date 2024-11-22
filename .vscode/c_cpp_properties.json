@@ -49,7 +49,8 @@
             ],
             "forcedInclude": [
                 "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\cores\\esp8266\\Arduino.h",
-                "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\cores\\esp8266\\FS.h"
+                "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\cores\\esp8266\\FS.h",
+                "C:\\Users\\kreso\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\config.h"
             ],
             "cStandard": "c11",
             "cppStandard": "c++17",

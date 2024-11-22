@@ -338,7 +338,7 @@ bool writeToConfig( String* message )
 	}
 	else
 	{
-		*message = F("Success init config.json");
+		*message = F("Success Save and init Config");
 		return true;
 	}
 
