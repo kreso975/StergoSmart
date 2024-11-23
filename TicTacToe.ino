@@ -1,7 +1,6 @@
 #ifdef MODULE_TICTACTOE
 /*
  *  IDEAS:  - 1st request includes: DO YOU WANT TO PLAY + CHOOSE PLAY 1st or 2nd
- *          - at the END of the game, Loser sends: Congratulations + Do you want to play + Choose play 1st or 2nd
  *          
  *          - add flag : game in play | already playing ( this is till more simultanious games can be played )
  *          - starting new game Reset board.
@@ -12,12 +11,12 @@
  *            or in future all games must be played via/over WebServer (code related for devices - uneccecery growth )
  * 
  * 
-TicTacToe layout:
-  0 | 1 | 2  
-  ---+---+---
-  3 | 4 | 5 
-  ---+---+--- 
-  6 | 7 | 8 
+ *            TicTacToe layout:
+ *              0 | 1 | 2  
+ *              ---+---+---
+ *              3 | 4 | 5 
+ *              ---+---+--- 
+ *              6 | 7 | 8 
 */
 
 // Setup Start variable values
@@ -95,10 +94,10 @@ void drawNumberedBoard()
   #endif
 }
 
+#if ( DEBUG == 1 )
 // Display in Serial played moves after every move
 void draw( int board[9] )
 {
-  #if ( DEBUG == 1 )
   byte vn;
   String bm = "\n ";
   for ( vn = 0; vn < 9; ++vn )
@@ -112,8 +111,8 @@ void draw( int board[9] )
       bm += " | ";
   }
   writeLogFile( bm, 1, 1);
-  #endif
 }
+#endif
 
 int win( const int board[9] )
 {
@@ -276,7 +275,9 @@ void letsPlay( byte what, String who )
       delay(1000);
       computerMove( board );
       delay(1000);
+      #if ( DEBUG == 1)
       draw(board);
+      #endif
 
       // This is fast response , need to brainstorm before 
       String replyPacket = SERTIC + String(_devicename) + " Played Move=" + String(sentMove);
@@ -299,7 +300,9 @@ void letsPlay( byte what, String who )
       if ( (turn + player) % 2 == 0 )
       {
         computerMove( board );
+        #if ( DEBUG == 1)
         draw(board);
+        #endif
 
         String replyPacket = SERTIC + String(_devicename) + " Played Move=" + String(sentMove);
         sendUDP ( replyPacket, opponentIP, 4210 );
@@ -308,11 +311,15 @@ void letsPlay( byte what, String who )
       {
         if ( playerMove( board, receivedMove ) )
         {
+          #if ( DEBUG == 1)
           draw(board);
+          #endif
           if ( turn < 9 && win(board) == 0 )
           {
             computerMove(board);
+            #if ( DEBUG == 1)
             draw(board);
+            #endif
 
             String replyPacket = SERTIC + String(_devicename) + " Played Move=" + String(sentMove);
             sendUDP ( replyPacket, opponentIP, 4210 );
@@ -339,8 +346,8 @@ void letsPlay( byte what, String who )
           sendTicTacWebhook(2);
           break;
         case 1:
-          draw(board);
           #if ( DEBUG == 1 )
+          draw(board);
           Serial.println("You " + _tmp + " lose. Arduino wins!");
           #endif
           sendTicTacWebhook(1);
@@ -642,11 +649,9 @@ void sendTicTacWebhook( byte where )
 // to Optimize code.
 void printLogInPhase( String where )
 {
-  #if ( DEBUG == 1 )
   writeLogFile( "in " + where + ", gameStarted: " + String(gameStarted), 1, 1 );
   writeLogFile( "in " + where + ", player: " + String(player), 1, 1 );
   writeLogFile( "in " + where + ", turn: " + String(turn), 1, 1 );
-  #endif
 }
 #endif
 #endif

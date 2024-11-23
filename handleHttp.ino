@@ -88,18 +88,18 @@ void updateConfig()
   
   if ( what == "restart" )
   {
-    // should return if successs
     writeLogFile( F("Restarting"), 1 );
-    server.send(200, "application/json", "{\"success\":\"Restarting...\"}");
+    sendJSONheaderReply( 1, "Restarting..." );
     delay(500);
     ESP.restart();
-    // should return if successs
   }
   else if ( what == "updateFirmware" )
   {
+    String message;
     // should return if successs
     writeLogFile( F("Updateing Firmware"), 1, 3 );
-    firmwareOnlineUpdate(2);
+    message = firmwareOnlineUpdate(2);
+    sendJSONheaderReply( 3, message );
     // should return if successs
   }
   else if ( what == "updateSpiffs" )
@@ -107,40 +107,39 @@ void updateConfig()
     // should return if successs
     writeLogFile( F("Updateing FirmwareSpiffs"), 1, 3 );
     firmwareOnlineUpdate(1);
+    
     // should return if successs
   }
   #if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )               //===============================================
   else if ( what == "initBME280" )
   {
-    // should return if successs
     writeLogFile( F("init BME280"), 1, 3 );
     if ( setupBME280() )
-      server.send(200, "application/json", "{\"success\":\"Success init BME280\"}");
+      sendJSONheaderReply( 1, "Success init BME280" );
     else
-      server.send(200, "application/json", "{\"Error\":\"Error initBME280\"}");
-    // should return if successs
+      sendJSONheaderReply( 0, "Error initBME280" );
   }
   else if ( what == "eraseHistory" )
   {
       if ( updateHistory( 1 ) )
-        server.send(200, "application/json", "{\"success\":\"Success erased History file\"}");
+        sendJSONheaderReply( 1, "Success erased History file" );
       else
-        server.send(200, "application/json", "{\"Error\":\"Error delete History file\"}"); 
+        sendJSONheaderReply( 0, "Error delete History file" );
   }
   #endif                                    //===============================================
   else if ( what == "eraseLog" )
   {
     if ( saveLogFile( 1 ) )
-      server.send(200, "application/json", "{\"success\":\"Success erased Log file\"}");
+      sendJSONheaderReply( 1, "Success erased Log file" );
     else
-      server.send(200, "application/json", "{\"Error\":\"Error delete Log file\"}");  
+      sendJSONheaderReply( 0, "Error delete Log file" );
   }
   else if ( what == "updateWiFi" || what == "updateMQTT" || what == "updateDevice" || what == "initialSetup" ) //Need to Fix HTML, not so many args - just updateConfig
   {
     if ( writeToConfig( &message ) )
-      server.send( 200, "application/json", "{\"success\":\"" + message + "\"}" );
+      sendJSONheaderReply( 1, message );
     else
-      server.send( 200, "application/json", "{\"Error\":\"" + message + "\"}" );
+      sendJSONheaderReply( 0, message );
   }
   //Serial.println( F"Config updated") );
 }
@@ -170,9 +169,8 @@ void sendDeviceInfo()
   char data[360];
   sprintf( data, "{\"result\":[{\"Name\":\"Firmware\",\"Value\":\"%s\"},{\"Name\":\"Chip ID\",\"Value\":\"%u\"},{\"Name\":\"Free Heap\",\"Value\":\"%u\"},{\"Name\":\"DeviceName\",\"Value\":\"%s\"},{\"Name\":\"Uptime\",\"Value\":\"%s\"},{\"Name\":\"DeviceIP\",\"Value\":\"%s\"},{\"Name\":\"MAC address\",\"Value\":\"%s\"},{\"Name\":\"FreeSPIFFS\",\"Value\":\"%ld\"}]}",
           FIRMWARE, ESP.getChipId(), ESP.getFreeHeap(), deviceName, showDuration(upTime).c_str(), WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(),GetMeFSinfo().toInt() );
-
-  server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.send(200, "application/json", data );
+  // 3 is indicator of JSON already formated reply
+  sendJSONheaderReply( 3, data );
 }
 
 void handleIndex()
@@ -252,4 +250,33 @@ void sendWebhook( char* localURL, String data )
   #endif
   
   http.end();
+}
+
+/* ======================================================================
+Function: sendJSONheaderReply
+Purpose : Display as an response Web Header with JSON reply
+Input   : byte type , String message
+Output  :  
+Comments: 
+====================================================================== */
+void sendJSONheaderReply( byte type, String message )
+{
+  String output;
+  switch( type )
+  {
+    case 0:
+      output = "{\"Error\":\"" + message + "\"}";
+      break;
+    case 1:
+      output = "{\"success\":\"" + message + "\"}";
+      break;
+    case 2:
+      output = "{\"Info\":\"" + message + "\"}";
+      break;
+    case 3:
+      output = message;
+      break;
+  }
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.send(200, "application/json", output );
 }

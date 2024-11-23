@@ -67,7 +67,6 @@ bool updateHistory( int z = 0 )
 		writeLogFile( F("Delete History"), 1, 3 );
 	}
 		
-
 	file.print( json );
   	file.close();
 
@@ -161,9 +160,8 @@ void sendMeasures()
 	sprintf(data, "{\"t\":\"%.2f\",\"h\":\"%.2f\",\"p\":\"%.2f\"}",t,h,P0);
     #endif
 
-
-	server.sendHeader( "Access-Control-Allow-Origin", "*" );
-	server.send( 200, "application/json", data );
+	// 3 is indicator of JSON already formated reply
+	sendJSONheaderReply( 3, data );
 	//Serial.println( F("Sent measures") );
 }
 

@@ -29,11 +29,9 @@ void turnSwitchState( int state )
 
     relay01State = true;
     if ( mqtt_start == 1 )
-    {
       sendSwitchMQTT();
-    }
-    server.sendHeader( "Access-Control-Allow-Origin", "*" );
-    server.send( 200, "application/json", POWERON );
+
+    sendJSONheaderReply( 3, POWERON );
   }  
   else
   {
@@ -41,11 +39,9 @@ void turnSwitchState( int state )
 
     relay01State = false;
     if (mqtt_start == 1)
-    {
       sendSwitchMQTT();
-    }
-    server.sendHeader( "Access-Control-Allow-Origin", "*" );
-    server.send( 200, "application/json", POWEROFF );
+
+    sendJSONheaderReply( 3, POWEROFF );
   }
 
     //return true;
@@ -64,15 +60,9 @@ void checkSwitchState()
   else
   {
     if ( relay01State )
-    {
-      server.sendHeader( "Access-Control-Allow-Origin", "*" );
-      server.send( 200, "application/json", POWERON );
-    }
+      sendJSONheaderReply( 3, POWERON );
     else
-    {
-      server.sendHeader( "Access-Control-Allow-Origin", "*" );
-      server.send( 200, "application/json", POWEROFF );
-    }
+      sendJSONheaderReply( 3, POWEROFF );
   }
 }
 

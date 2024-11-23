@@ -20,7 +20,7 @@
  * ESP8266 default 01S = 1   // v01
  * LOLIN D1 mini       = 2   // v02
  */
-#define STERGO_PROGRAM_BOARD 2
+#define STERGO_PROGRAM_BOARD 1
 
 /*
  * STERGO_PLUG :
@@ -29,7 +29,7 @@
  * Sonoff S26         = 2   // Plug Switch  - PS
  * Sonoff T4EU1C      = 3   // Light Switch - LS
  */
-#define STERGO_PLUG 3
+#define STERGO_PLUG 1
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -44,7 +44,7 @@
 #define EXCLUDED_CODE 0
 
 // 1 true | 0 false  / Serial.print 
-#define DEBUG 1
+#define DEBUG 0
 
 //=================================================================
 

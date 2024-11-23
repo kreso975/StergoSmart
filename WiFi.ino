@@ -171,7 +171,7 @@ Comments: - Firmware Update Version Check done server side
           FIRMWARE is a construct MODEL_NAME + MODEL_NUMBER + FW_VERSION
 ====================================================================== */
 
-void firmwareOnlineUpdate( int what )
+String firmwareOnlineUpdate( byte what )
 {
   /* CODE NEEDS TO BE CHECKED - Based on theese callback We can return Value to Browser whether Success or Error | on success
    *  we can start reload browser process, on Error show in Info bar Error
@@ -180,6 +180,8 @@ void firmwareOnlineUpdate( int what )
   ESPhttpUpdate.onProgress(update_progress);
   ESPhttpUpdate.onError(update_error);
   */
+  String message;
+
   t_httpUpdate_return ret;
   //This WORKS!!! YEAH
   if ( what == 1 )
@@ -191,11 +193,7 @@ void firmwareOnlineUpdate( int what )
   {
     t_httpUpdate_return ret = ESPhttpUpdate.update( espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", FIRMWARE );
   }
-  else
-  {
-    return;
-  }
-
+  
   //t_httpUpdate_return ret = ESPhttpUpdate.update( espClient, "http://192.168.1.101/StergoWeather/firmware/temp/StergoSmart.ino.bin", FIRMWARE );
   switch( ret ) {
     case HTTP_UPDATE_FAILED:
@@ -203,16 +201,19 @@ void firmwareOnlineUpdate( int what )
       Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
       #endif
       writeLogFile( F("HTTP_UPDATE_FAIL"), 1, 3 );
+      message = "{\"Error\":\"Failed\"}";
       break;
-
     case HTTP_UPDATE_NO_UPDATES:
       writeLogFile( F("Firmware Up2Date"), 1, 3 );
+      message = "{\"Info\":\"Up2Date\"}";
       break;
-
     case HTTP_UPDATE_OK:
       writeLogFile( F("HTTP_UPDATE_OK"), 1, 3 );
+      message = "{\"success\":\"Updating..\"}";
       break;
   }  
+
+  return message;
 }
 
 /*
@@ -281,8 +282,7 @@ void wifiScanJSON()
   // Json end
   response += JSE;
 
-  server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.send(200, "application/json", response );
+  sendJSONheaderReply( 3, response );
 }
 
 

@@ -6,17 +6,22 @@
  <br><br>
  
 ## **CHANGES:**
-**000.05.103** - in development
-- added support for DHT sensors DHT11, DHT12, DHT21, DHT22
-- added support for DS18B20 sensor
-- rename Variables mqtt_bme280Humidity, mqtt_bme280Temperature, mqtt_bme280Pressure into generic mqtt_Humidity, mqtt_Temperature, mqtt_Pressure
-- reorganized Weather structure
-- New precompile definitions MODULE_WEATHER, MODULE_BME280, MODULE_DHT, MODULE_DS18B20
-- Restart device after 5 min if APmode && WiFi pass & Gateway are set in config.json (when wifi connection is lost - we need to try go to STA)
-- Start ntpUDP always if WiFi is STA
-- fixed old mesures.json link to measures.json
-- Config.ino added return message for success init config after save/update
-- Upgrade ArduinoJson v5.13.5 to v6.21.5
+**000.05.104** - in development
+-
+
+**000.05.103**
+- added support for DHT sensors DHT11, DHT12, DHT21, DHT22  
+- added support for DS18B20 sensor  
+- rename Variables mqtt_bme280Humidity, mqtt_bme280Temperature, mqtt_bme280Pressure into generic mqtt_Humidity, mqtt_Temperature, mqtt_Pressure  
+- reorganized Weather structure  
+- New precompile definitions MODULE_WEATHER, MODULE_BME280, MODULE_DHT, MODULE_DS18B20  
+- Restart device after 5 min if APmode && WiFi pass & Gateway are set in config.json (when wifi connection is lost - we need to try go to STA)  
+- Start ntpUDP always if WiFi is STA  
+- fixed old mesures.json link to measures.json  
+- Config.ino added return message for success init config after save/update  
+- Upgrade ArduinoJson v5.13.5 to v6.21.5  
+- new #definition STERGO_SCREEN - future use of Screens  
+- reorganized handleHttp. Added More application/json responses. new function sendJSONheaderReply  
 
 **000.05.102**
 - SSDP cleanUp code
