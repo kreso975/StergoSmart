@@ -20,7 +20,7 @@
  * ESP8266 default 01S = 1   // v01
  * LOLIN D1 mini       = 2   // v02
  */
-#define STERGO_PROGRAM_BOARD 1
+#define STERGO_PROGRAM_BOARD 2
 
 /*
  * STERGO_PLUG :
@@ -35,13 +35,13 @@
 #define TOSTRING(x) STRINGIFY(x)
 
 // Firmware Version always part of this file
-#define FW_VERSION "000.05.103"  // Check releaseLog for details
+#define FW_VERSION "000.05.104"  // Check releaseLog for details
 #define MODEL_FRENDLY_NAME "Stergo Smart"
 #define COMPANY_URL "http://www.stergo.hr"
 
 // Exluded Code tu be included
 // 0 = None to be included
-#define EXCLUDED_CODE 0
+#define EXCLUDED_CODE 1
 
 // 1 true | 0 false  / Serial.print 
 #define DEBUG 0
@@ -62,7 +62,7 @@
 #include <WiFiUdp.h>
 #include <PubSubClient.h>
 #include <ESP8266SSDP.h>    // SSDP (Simple Service Discovery Protocol) service
-#include "Filesystem.h"     // 
+#include "Filesystem.h"     //
 
 #if ( STERGO_PROGRAM == 0 )  // Power Plug | Switch
     #define MODULE_SWITCH
@@ -86,9 +86,6 @@
     #define MODULE_TICTACTOE
     #include "TicTacToe.h"
     #include "SSDP.h"
-#elif ( STERGO_PROGRAM == 9 )  // EXCLUDED CODE
-    #include <WiFiClientSecure.h>
-    #include "Switch.h"
 #endif
     
 #if ( STERGO_SCREEN == 1 )
@@ -130,15 +127,6 @@ int actualSSDPdevices = 0;
 
 byte logOutput = 0;  // 0 = Serial, 1 = LogFile
 #define sizeLog 30   // Log size = nr of records
-
-// Optimize string space in flash, avoid duplication
-String JST = "{\r\n";
-String JSE = "\r\n}\r\n";
-String JSE2 = "\r\n},\r\n";
-String QCQ = "\":\"";
-String QC = "\":";
-String QCN = ",\r\n\"";
-String QCNL = "\",\r\n\"";
 
 String fOpen = "Fail to open ";
 String fWrite = "Fail to write ";

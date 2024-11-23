@@ -175,7 +175,6 @@ Comments: - Firmware Update Version Check done server side
           ??? not on device (extensions are added to module - code should auto recognize them)
 
           FIRMWARE is a construct MODEL_NAME + MODEL_NUMBER + FW_VERSION */
-
 String firmwareOnlineUpdate( byte what )
 {
   /* CODE NEEDS TO BE CHECKED - Based on theese callback We can return Value to Browser whether Success or Error | on success
@@ -239,6 +238,22 @@ void update_error(int err) {
 }
 */
 
+void wifiScanResult(int networksFound)
+{ 
+  String json;
+  
+  json = "{\"result\": [";
+  //Serial.printf("%d network(s) found\n", networksFound);
+  for (int i = 0; i < networksFound; i++)
+  {
+    json += "{\"ssid\": \""+WiFi.SSID(i)+"\",\"encType\": \"" + WiFi.encryptionType(i) + "\",\"chann\": "+WiFi.channel(i)+",\"rssi\": "+WiFi.RSSI(i)+"}";
+    ( i < networksFound-1 ) ? json += "," : json +="";
+    //Serial.printf("%d: %s, Ch:%d (%ddBm) %s\n", i + 1, WiFi.SSID(i).c_str(), WiFi.channel(i), WiFi.RSSI(i), WiFi.encryptionType(i) == ENC_TYPE_NONE ? "open" : "");
+  }
+  json += "], \"status\": \"OK\"}";
+
+  sendJSONheaderReply( 3, json );
+}
 
 /* ======================================================================
 Function: wifiScanJSON
@@ -248,102 +263,6 @@ Output  : HTTP JSON
 Comments: - */
 void wifiScanJSON()
 {
-  String response = "";
-  bool first = true;
-  int scanStatus = WiFi.scanComplete();
-
-  // Json start
-  response += JST;
-
-  if ( scanStatus == WIFI_SCAN_FAILED )
-  {
-    WiFi.scanNetworks( true );
-    response += "\"status" + QCQ + "Scan in progess\"";
-  }
-  else if ( scanStatus >= 0 )
-  {
-    response += "\"result\": [";
-    for ( uint8_t i = 0; i < scanStatus; ++i )
-    {
-      int8_t rssi = WiFi.RSSI(i);
-
-      //data["bssid"] = WiFi.BSSIDstr(i);
-      //data["isHidden"] = WiFi.isHidden(i);
-      // dBm to Quality
-      
-      if (first)
-        first = false;
-      else
-        response += ",";
-
-      response += "{\"ssid" + QCQ + WiFi.SSID(i) + "\",\"encType\":\"" + WiFi.encryptionType(i) + "\",\"chann\":"+ wifi_get_channel() +",\"rssi\":" + rssi + JSE;
-
-    }
-    response += "],\"status" + QCQ + "OK\"";
-    WiFi.scanDelete();
-  }
-
-  // Json end
-  response += JSE;
-
-  sendJSONheaderReply( 3, response );
+  // New Async scan Method
+  WiFi.scanNetworksAsync(wifiScanResult);
 }
-
-
-//
-// Testing HTTPS
-#if ( STERGO_PROGRAM == 9 )
-void connectToSecureAndTest()
-{
-  // Use WiFiClientSecure class to create TLS connection
-  WiFiClientSecure client2;
-  Serial.print("connecting to ");
-  Serial.println(host);
-  if (!client2.connect(host, httpsPort)) {
-    Serial.println("connection failed");
-    return;
-  }
-
-  if ( client2.verify(fingerprint, host) )
-    Serial.println("certificate matches");
-  else
-    Serial.println("certificate doesn't match");
-
-  String url = "/StergoWeather/index.php";
-  String PostData = "id=332&mi=76.34&ter=45.76";
-  
-  Serial.print("requesting URL: ");
-  Serial.println(url);
-
-  client2.print(String("POST ") + url + " HTTP/1.1\r\n" +
-               "Host: " + host + "\r\n" +
-               "User-Agent: StergoWS001V01\r\n" +
-               "Connection: close\r\n" +
-               "Accept: */*\r\n" +
-               "Content-Type: application/x-www-form-urlencoded;" + "\r\n" +
-               "Content-Length: " + PostData.length() + "\r\n\r\n" + PostData + "\n" );
-
-  Serial.println("request sent");
-
-  while ( client2.connected() )
-  {
-    String line = client2.readStringUntil('\n');
-    if (line == "\r") {
-      Serial.println("headers received");
-      break;
-    }
-  }
-  
-  while ( client2.available() )
-  {
-    String line = client2.readStringUntil('\n');
-    
-    if ( line.startsWith("\"state\":\"status\"") )
-    {
-      Serial.println(line);
-      break;
-    }
-  }
-  client2.stop();
-}
-#endif

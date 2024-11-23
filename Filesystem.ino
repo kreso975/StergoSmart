@@ -157,7 +157,6 @@ bool writeLogFile( String message, int newLine, int output )
 	// Write to Log
   if ( output == 2 || output == 3 )
   {
-    //DynamicJsonBuffer jsonBuffer(6000);
     DynamicJsonDocument  jsonBuffer(6000);
 
 	  File file = SPIFFS.open( LOG_FILE, "r" );
@@ -182,8 +181,7 @@ bool writeLogFile( String message, int newLine, int output )
 			    file.close();
         
           DeserializationError error = deserializeJson( jsonBuffer, buf.get());
-          //JsonObject& rootLog = jsonBuffer.parseObject(buf.get());
-
+          
 	        if ( error )
 			    {
 				    writeLogFile( faParse + String(LOG_FILE), 1 );

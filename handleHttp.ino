@@ -60,14 +60,8 @@ void setupHttpServer()
   server.on( "/gpio", updateConfig );
   server.on( "/deviceinfo.json", sendDeviceInfo );
   server.on( "/wifiscan.json", wifiScanJSON );
-/*
-  server.on("/upload", HTTP_GET, []() {                 // if the client requests the upload page
-    if (!handleFileRead("/upload.html"))                // send it if it exists
-      server.send(404, "text/plain", "404: Not Found"); // otherwise, respond with a 404 (Not Found) error
-  });
-  */
+
   server.on( "/upload", HTTP_POST, []() {    // if the client posts to the upload page
-    //Serial.println("In upload POST");
     server.send(200, "text/plain", ""); 
     }, handleFileUpload                                 // Send status 200 (OK) to tell the client we are ready to receive
   );                                                    // Receive and save the file
@@ -114,24 +108,24 @@ void updateConfig()
   {
     writeLogFile( F("init BME280"), 1, 3 );
     if ( setupBME280() )
-      sendJSONheaderReply( 1, "Success init BME280" );
+      sendJSONheaderReply( 1, F("Success init BME280") );
     else
-      sendJSONheaderReply( 0, "Error initBME280" );
+      sendJSONheaderReply( 0, F("Error initBME280") );
   }
   else if ( what == "eraseHistory" )
   {
       if ( updateHistory( 1 ) )
-        sendJSONheaderReply( 1, "Success erased History file" );
+        sendJSONheaderReply( 1, F("Success erased History file") );
       else
-        sendJSONheaderReply( 0, "Error delete History file" );
+        sendJSONheaderReply( 0, F("Error delete History file") );
   }
   #endif                                    //===============================================
   else if ( what == "eraseLog" )
   {
     if ( saveLogFile( 1 ) )
-      sendJSONheaderReply( 1, "Success erased Log file" );
+      sendJSONheaderReply( 1, F("Success erased Log file") );
     else
-      sendJSONheaderReply( 0, "Error delete Log file" );
+      sendJSONheaderReply( 0, F("Error delete Log file") );
   }
   else if ( what == "updateWiFi" || what == "updateMQTT" || what == "updateDevice" || what == "initialSetup" ) //Need to Fix HTML, not so many args - just updateConfig
   {
@@ -153,20 +147,10 @@ void sendDeviceInfo()
 {
   upTime = now();
 
-  /* Less Memory more Program 
-  String json = JST +  "\"result\":[{\"Name" + QCQ + "Firmware\",\"Value" + QCQ + String(FW_VERSION) + "\"" + JSE2;
-         json += JST + "\"Name" + QCQ + "Chip ID\",\"Value" + QCQ + String(ESP.getChipId()) + "\"" + JSE2;
-         json += JST + "\"Name" + QCQ + "Free Heap\",\"Value" + QCQ + String(ESP.getFreeHeap()) + "\"" + JSE2;
-         json += JST + "\"Name" + QCQ + "DeviceName\",\"Value" + QCQ + String(deviceName) + "\"" + JSE2;
-         json += JST + "\"Name" + QCQ + "Uptime\",\"Value" + QCQ + showDuration(upTime) + "\"" + JSE2;
-         json += JST + "\"Name" + QCQ + "DeviceIP\",\"Value" + QCQ + WiFi.localIP().toString() + "\"" + JSE2;
-         json += JST + "\"Name" + QCQ + "MAC address\",\"Value" + QCQ + String(WiFi.macAddress()) + "\"" + JSE2;
-         json += JST + "\"Name" + QCQ + "FreeSPIFFS\",\"Value" + QCQ + String(GetMeFSinfo()) + "\"}]" + JSE;
-  */ 
-  
   char data[360];
   sprintf( data, "{\"result\":[{\"Name\":\"Firmware\",\"Value\":\"%s\"},{\"Name\":\"Chip ID\",\"Value\":\"%u\"},{\"Name\":\"Free Heap\",\"Value\":\"%u\"},{\"Name\":\"DeviceName\",\"Value\":\"%s\"},{\"Name\":\"Uptime\",\"Value\":\"%s\"},{\"Name\":\"DeviceIP\",\"Value\":\"%s\"},{\"Name\":\"MAC address\",\"Value\":\"%s\"},{\"Name\":\"FreeSPIFFS\",\"Value\":\"%ld\"}]}",
           FIRMWARE, ESP.getChipId(), ESP.getFreeHeap(), deviceName, showDuration(upTime).c_str(), WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(),GetMeFSinfo().toInt() );
+  
   // 3 is indicator of JSON already formated reply
   sendJSONheaderReply( 3, data );
 }
@@ -198,20 +182,15 @@ bool captivePortal()
 {  
   IPAddress ip;
   if ( !ip.fromString(server.hostHeader()) && server.hostHeader() != (String(wifi_hostname)+".local") )
-  {
-    //Serial.println( F("I'm in captivePortal() - true") );
-    //Serial.print("Request redirected to captive portal");
-    //Serial.println( "HostHeader: " + server.hostHeader() );
-      
+  {   
     server.sendHeader("Location", String("http://") + server.client().localIP().toString(), true);
     server.send ( 302, "text/plain", ""); // Empty content inhibits Content-length header so we have to close the socket ourselves.
     server.client().stop(); // Stop is needed because we sent no content length
+    
     return true;
   }
 
-  //Serial.println("I'm in captivePorta() - false");
-  return false;
-  
+  return false; 
 }
 
 void handleNotFound()

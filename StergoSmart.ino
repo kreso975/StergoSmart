@@ -75,17 +75,6 @@ void setup()
 		// We need it for M-SEARCH over UDP - SSDP discovery
 		ntpUDP.begin( LOCAL_UDP_PORT );
 
-
-		#if ( EXCLUDED_CODE == 9 )      //===============================================
-    	// test for SSL
-    	/*
-      	for ( int i = 1; i<=5; i++ )
-      	{
-      	connectToSecureAndTest();
-      	delay(2000);
-      	}
-    	*/
-    	#endif                           //===============================================
 	}
 	else
 	{
@@ -106,17 +95,16 @@ void loop()
 
 		//IF AP is running for 5 min and we have in cofig setup Password and Gateway
 		//We will restart device and try to connect to WiFi STA again
+		//Now it restarts emidiately Need Fix
 		if ( ( millis() - ap_previousMillis > ap_intervalHist ) && strcmp( wifi_ssid, "" )  && strcmp( wifi_password, "" ) )
 		{
 			writeLogFile( F("AP 5min restart"), 1, 3 );
 			delay(500);
 			ESP.restart();
 		}
-				
 	}
 		
 	server.handleClient();
-	
 	
 	if ( WiFi.getMode() == 1 )
 	{

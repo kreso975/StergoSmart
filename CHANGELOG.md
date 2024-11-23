@@ -7,7 +7,8 @@
  
 ## **CHANGES:**
 **000.05.104** - in development
--
+- wifiScanJSON() rewritten, using asyn method WiFi.scanNetworksAsync(wifiScanResult)
+- code CleanUP
 
 **000.05.103**
 - added support for DHT sensors DHT11, DHT12, DHT21, DHT22  
