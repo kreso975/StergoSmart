@@ -5,8 +5,7 @@ Function: setupSwitch
 Purpose : Initialize Switch
 Input   : 
 Output  : 
-Comments: -
-====================================================================== */
+Comments: -  */
 bool setupSwitch()
 {
   digitalWrite( RELAY, HIGH );

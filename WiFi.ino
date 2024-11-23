@@ -86,6 +86,12 @@ bool startAP()
   return true;
 }
 
+/* ======================== WiFiManager ==============================
+Function: WiFiManager
+Purpose : brain of WiFi behaviour
+Input   : -
+Output  : - WiFi Mode: 1 (STA), WiFi Mode: 2 (AP), WiFi Mode: 3 (AP_STA)
+Comments: - */
 void WiFiManager()
 {
   wifi_station_set_hostname( wifi_hostname );         // This line allows access device by it's name - StergoWeather1.local (define in config.json)
@@ -168,8 +174,7 @@ Comments: - Firmware Update Version Check done server side
           firmware should be check based on module,
           ??? not on device (extensions are added to module - code should auto recognize them)
 
-          FIRMWARE is a construct MODEL_NAME + MODEL_NUMBER + FW_VERSION
-====================================================================== */
+          FIRMWARE is a construct MODEL_NAME + MODEL_NUMBER + FW_VERSION */
 
 String firmwareOnlineUpdate( byte what )
 {
@@ -240,8 +245,7 @@ Function: wifiScanJSON
 Purpose : scan Wifi Access Point and return JSON code
 Input   : -
 Output  : HTTP JSON
-Comments: -
-====================================================================== */
+Comments: - */
 void wifiScanJSON()
 {
   String response = "";

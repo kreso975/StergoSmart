@@ -3,8 +3,7 @@ Function: setupHttpServer
 Purpose : Setup and Initialize HTTP Server
 Input   : 
 Output  : 
-Comments: -
-====================================================================== */
+Comments: -  */
 void setupHttpServer()
 {
   if ( WiFi.getMode() == 1 )
@@ -149,8 +148,7 @@ Function: sendDeviceInfo
 Purpose : Return JSON in HTTP server - All Device Data
 Input   : 
 Output  : HTTP JSON 
-Comments: -
-====================================================================== */
+Comments: - */
 void sendDeviceInfo()
 {
   upTime = now();
@@ -195,8 +193,7 @@ Purpose : Redirect to captive portal if we got a request for another domain.
           Return true in that case so the page handler do not try to handle the request again.
 Input   : 
 Output  :  
-Comments: -
-====================================================================== */
+Comments: - */
 bool captivePortal()
 {  
   IPAddress ip;
@@ -233,8 +230,7 @@ Function: sendWebhook
 Purpose : Sending data as HTTP POST to selected URL
 Input   : localURL = URL where to send | data = JSON payload
 Output  :  
-Comments: - I have local web server for forwarding Discord Webhook
-====================================================================== */
+Comments: - I have local web server for forwarding Discord Webhook */
 void sendWebhook( char* localURL, String data )
 {
   HTTPClient http;
@@ -252,6 +248,12 @@ void sendWebhook( char* localURL, String data )
   http.end();
 }
 
+/* ======================================================================
+Function: sendJSONheaderReply
+Purpose : Display as an response Web Header with JSON reply 
+Input   : byte type , String message
+Output  :  
+Comments:*/
 void sendJSONheaderReply( byte type, String message )
 {
   String output;

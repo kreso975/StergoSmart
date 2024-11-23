@@ -24,8 +24,7 @@ Input   :
 Output  : 
 TODO    : Implement fail over if SPIFFS get corrupted - copy content 
           from web loc or Upload or
-          https://github.com/spacehuhn/esp8266_deauther/blob/master/esp8266_deauther/webfiles.h
-====================================================================== */
+          https://github.com/spacehuhn/esp8266_deauther/blob/master/esp8266_deauther/webfiles.h */
 bool setupFS()
 {
   if ( SPIFFS.begin() )
@@ -115,8 +114,7 @@ Function: saveLogFile
 Purpose : Save || Erase Log file
 Input   : z = 0 (saveLog); z = 1 (eraseLog) 
 Output  : true / false
-Comments: -
-====================================================================== */
+Comments: - */
 bool saveLogFile( int z = 0 )
 { 
   String json;
@@ -141,8 +139,7 @@ Input   : message, newLine = for Serial.print (with or without NEW LINE),
           output: default is 2 if not set. ( 1 only serial, 2 only LOG, 3 both )
 Output  : true / false
 Comments: date:hour, type (warning, info), message
-TODO    : FIX time issue ( no timestamp before NTP ), START using TYPE clasification 
-====================================================================== */
+TODO    : FIX time issue ( no timestamp before NTP ), START using TYPE clasification  */
 bool writeLogFile( String message, int newLine, int output )
 {
   // Write to Serial

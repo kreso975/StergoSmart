@@ -50,8 +50,7 @@ TODO:   : check if jsonDataBuffer not EMPTY before write to file. After
           Should be done similar like wifiManager - logic in one function calling
           sub functions so that we can go over again if needed
 
-Comments: -
-====================================================================== */
+Comments: -  */
 bool updateHistory( int z = 0 )
 {
 	String json;
@@ -139,8 +138,7 @@ Function: sendMeasures
 Purpose : 
 Input   : -
 Output  : HTTP JSON
-Comments: -
-====================================================================== */
+Comments: -  */
 void sendMeasures()
 {
 	/*
@@ -171,8 +169,7 @@ Purpose : brain of load / save data logic
 Input   : -
 Output  : - history.json
 Comments: -
-ToDo	: - 
-====================================================================== */
+ToDo	: -  */
 bool MainSensorConstruct()
 {
     //writeLogFile( F("In MainSensorConstruct"), 0 );
