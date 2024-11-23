@@ -64,8 +64,7 @@
             
             "browse": {
                 "path": ["${workspaceFolder}"],
-                "limitSymbolsToIncludedHeaders": true,
-                "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
+                "limitSymbolsToIncludedHeaders": false
             },
             "cStandard": "c11",
             "cppStandard": "c++17",
