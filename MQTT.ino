@@ -1,9 +1,9 @@
-/* ======================================================================
+/*
+======================================================================
 Function: setupMQTT
 Input: what == 0 | 1 / stop | start mqtt functionality
 TODO: 
-Comments: 
-====================================================================== */
+Comments:*/
 bool setupMQTT( String* message, int what )
 {  
   if ( what == 1 )
@@ -93,8 +93,7 @@ Purpose : send MQTT payload
 Input   : Topic, Payload, retain
 Output  : Success = True | Fail = False
 Comments: 
-TODO    : 
-============================================================================================= */
+TODO    :  */
 bool sendMQTT ( char* Topic, char* Payload, bool retain )
 {
   bool checkStat = true;
