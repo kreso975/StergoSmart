@@ -1,5 +1,9 @@
 {
     "version": 4,
+    "env": {
+        "myIncludePath": ["${workspaceFolder}"],
+        "myDefines": ["DEBUG", "MY_FEATURE=1"]
+    },
     "configurations": [
         {
             "name": "Win32",
@@ -40,6 +44,7 @@
                 "C:\\Users\\kreso\\Documents\\Arduino\\libraries\\**",
                 "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\libraries\\**",
                 "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\cores\\esp8266\\**",
+                "C:\\Users\\kreso\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\**",
                 "c:\\users\\kreso\\appdata\\local\\arduino15\\packages\\esp8266\\tools\\xtensa-lx106-elf-gcc\\3.1.0-gcc10.3-e5f9fec\\xtensa-lx106-elf\\include\\c++\\10.3.0",
                 "c:\\users\\kreso\\appdata\\local\\arduino15\\packages\\esp8266\\tools\\xtensa-lx106-elf-gcc\\3.1.0-gcc10.3-e5f9fec\\xtensa-lx106-elf\\include\\c++\\10.3.0\\xtensa-lx106-elf",
                 "c:\\users\\kreso\\appdata\\local\\arduino15\\packages\\esp8266\\tools\\xtensa-lx106-elf-gcc\\3.1.0-gcc10.3-e5f9fec\\xtensa-lx106-elf\\include\\c++\\10.3.0\\backward",
@@ -50,8 +55,17 @@
             "forcedInclude": [
                 "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\cores\\esp8266\\Arduino.h",
                 "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\cores\\esp8266\\FS.h",
-                "C:\\Users\\kreso\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\config.h"
+                "C:\\Users\\kreso\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\config.h",
+                "C:\\Users\\kreso\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\handleHttp.ino",
+                "C:\\Users\\kreso\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\Weather.ino",
+                "C:\\Users\\kreso\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\MQTT.ino"
             ],
+            
+            "browse": {
+                "path": ["${workspaceFolder}"],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
+            },
             "cStandard": "c11",
             "cppStandard": "c++17",
             "defines": [
