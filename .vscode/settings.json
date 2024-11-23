@@ -2,6 +2,7 @@
     "C_Cpp.autocomplete": "default",
     "C_Cpp.default.intelliSenseMode": "gcc-x64",
     "C_Cpp.errorSquiggles": "disabled",
+    "editor.inlayHints.enabled": "on",
     "files.associations": {
         "*.embeddedhtml": "html",
         "*.ino": "cpp",
