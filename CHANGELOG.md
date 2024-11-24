@@ -8,6 +8,7 @@
 ## **CHANGES:**
 **000.05.104** - in development
 - wifiScanJSON() rewritten, using asyn method WiFi.scanNetworksAsync(wifiScanResult)
+- firmwareOnlineUpdate() updated
 - code CleanUP
 
 **000.05.103**

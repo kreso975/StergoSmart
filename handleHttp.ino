@@ -88,18 +88,23 @@ void updateConfig()
   }
   else if ( what == "updateFirmware" )
   {
-    String message;
-    // should return if successs
     writeLogFile( F("Updateing Firmware"), 1, 3 );
     message = firmwareOnlineUpdate(2);
     sendJSONheaderReply( 3, message );
-    // should return if successs
+    // if there is an update we need to restart ESP
+    if (message.indexOf("success") != -1)
+    {
+      delay(500);
+      ESP.restart();
+    }
+    
   }
   else if ( what == "updateSpiffs" )
   {
     // should return if successs
-    writeLogFile( F("Updateing FirmwareSpiffs"), 1, 3 );
-    firmwareOnlineUpdate(1);
+    writeLogFile( F("Updateing Spiffs"), 1, 3 );
+    message = firmwareOnlineUpdate(1);
+    sendJSONheaderReply( 3, message );
     
     // should return if successs
   }
@@ -251,6 +256,7 @@ void sendJSONheaderReply( byte type, String message )
       output = message;
       break;
   }
+  
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.send(200, "application/json", output );
 }

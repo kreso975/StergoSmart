@@ -141,7 +141,7 @@ void WiFiManager()
       }
       else
       {
-        //Something wrong is with one of IP's == EMPTY
+        // Something is wrong with one of IP's == EMPTY
         // decide what to do
       }
     }
@@ -156,60 +156,52 @@ void WiFiManager()
 /* ======================== OTA Manager ==============================
 Function: firmwareOnlineUpdate
 Purpose : brain of OTA behaviour
-Input   : -
-Output  : - 
+Input   : byte what -> 1 == SPIFFS, 2 == Firmware
+Output  : String Json message format 
 Comments: - Firmware Update Version Check done server side 
             http://192.168.1.101/StergoWeather/firmwareCheck.php
           
-          - naming convetion for firmware file, 
+          - naming convention for firmware file, 
           WS001 = Device, v01 = Device version number, 000.05.000 = firmware version number
           
-
-          WS001v01-00005000.bin
-          WS002v02-00005000.bin
+          WS001v01-000.05.000.bin
+          WS002v02-000.05.000.bin
 
           - 1. Manual upload
             2. Auto check online
 
-          firmware should be check based on module,
-          ??? not on device (extensions are added to module - code should auto recognize them)
-
           FIRMWARE is a construct MODEL_NAME + MODEL_NUMBER + FW_VERSION */
 String firmwareOnlineUpdate( byte what )
 {
-  /* CODE NEEDS TO BE CHECKED - Based on theese callback We can return Value to Browser whether Success or Error | on success
-   *  we can start reload browser process, on Error show in Info bar Error
-  ESPhttpUpdate.onStart(update_started);
-  ESPhttpUpdate.onEnd(update_finished);
-  ESPhttpUpdate.onProgress(update_progress);
-  ESPhttpUpdate.onError(update_error);
-  */
   String message;
 
   t_httpUpdate_return ret;
-  //This WORKS!!! YEAH
+  
+  // We will send all mesages then restart
+  ESPhttpUpdate.rebootOnUpdate(false);
+  // This is needed not to close TCP before messages are sent
+  ESPhttpUpdate.closeConnectionsOnUpdate(false);
+
   if ( what == 1 )
   {
-    t_httpUpdate_return ret = ESPhttpUpdate.updateFS( espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", SERIAL_NUMBER );
+    ret = ESPhttpUpdate.updateFS( espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", SERIAL_NUMBER );
     //t_httpUpdate_return ret = ESPhttpUpdate.updateFS( espClient, "http://192.168.1.101/StergoWeather/firmware/TT001v01-000.05.102.spiffs.bin" );
   }
   else if ( what == 2 )
   {
-    t_httpUpdate_return ret = ESPhttpUpdate.update( espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", FIRMWARE );
+    ret = ESPhttpUpdate.update( espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", FIRMWARE );
+    //t_httpUpdate_return ret = ESPhttpUpdate.update( espClient, "http://192.168.1.101/StergoWeather/firmware/temp/StergoSmart.ino.bin", FIRMWARE );
   }
   
-  //t_httpUpdate_return ret = ESPhttpUpdate.update( espClient, "http://192.168.1.101/StergoWeather/firmware/temp/StergoSmart.ino.bin", FIRMWARE );
   switch( ret ) {
     case HTTP_UPDATE_FAILED:
-      #if ( DEBUG == 1 )
-      Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
-      #endif
-      writeLogFile( F("HTTP_UPDATE_FAIL"), 1, 3 );
+      //Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
+      writeLogFile( "HTTP UPDATE FAIL "+String(ESPhttpUpdate.getLastErrorString()), 1, 3 );
       message = "{\"Error\":\"Failed\"}";
       break;
     case HTTP_UPDATE_NO_UPDATES:
       writeLogFile( F("Firmware Up2Date"), 1, 3 );
-      message = "{\"Info\":\"Up2Date\"}";
+      message = "{\"Info\":\"No Updates\"}";
       break;
     case HTTP_UPDATE_OK:
       writeLogFile( F("HTTP_UPDATE_OK"), 1, 3 );
@@ -234,7 +226,7 @@ void update_progress(int cur, int total) {
 }
 
 void update_error(int err) {
-  serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
+  Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
 }
 */
 
@@ -248,6 +240,7 @@ void wifiScanResult(int networksFound)
   {
     json += "{\"ssid\": \""+WiFi.SSID(i)+"\",\"encType\": \"" + WiFi.encryptionType(i) + "\",\"chann\": "+WiFi.channel(i)+",\"rssi\": "+WiFi.RSSI(i)+"}";
     ( i < networksFound-1 ) ? json += "," : json +="";
+
     //Serial.printf("%d: %s, Ch:%d (%ddBm) %s\n", i + 1, WiFi.SSID(i).c_str(), WiFi.channel(i), WiFi.RSSI(i), WiFi.encryptionType(i) == ENC_TYPE_NONE ? "open" : "");
   }
   json += "], \"status\": \"OK\"}";

@@ -74,7 +74,6 @@ void setup()
 		// Start ntpUDP
 		// We need it for M-SEARCH over UDP - SSDP discovery
 		ntpUDP.begin( LOCAL_UDP_PORT );
-
 	}
 	else
 	{
