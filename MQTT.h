@@ -6,7 +6,7 @@
 byte mqtt_connectTry = 3;	// How many time we will try to connect to MQTT before we will put it at sleep = 3
 byte mqttTempDown = 0; // If we coudn't reconnect, mqtt_start is set to 0, and mqttTempDown is set to 1. 
 // Time interval for try to start MQTT again
-#define mqttTempDownInt 1000 * 60 * 15                         // 4 measures / hours - orig 1000 * 60 * 60 - 60min
+#define mqttTempDownInt 1000 * 60 * 15                                 // 4 measures / hours - orig 1000 * 60 * 15 - 15 min
 unsigned long lastmqttTempDownMillis = mqttTempDownInt;                // time of last point added
 
 char mqtt_server[20];

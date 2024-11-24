@@ -29,7 +29,7 @@
  * Sonoff S26         = 2   // Plug Switch  - PS
  * Sonoff T4EU1C      = 3   // Light Switch - LS
  */
-#define STERGO_PLUG 1
+#define STERGO_PLUG 3
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -149,8 +149,8 @@ char softAP_pass[20] = "123456789";       //
 #define DNS_PORT 53
 
 // Interval For restart device if in AP mode and pass & Gateway are set in config.json
-#define ap_intervalHist 1000 * 60 * 5                   // 1000 * 60 * 5 = 5min
-unsigned long ap_previousMillis = ap_intervalHist;      // time of last point added
+#define ap_intervalHist 1000 * 60 * 5            // 1000 * 60 * 5 = 5min
+unsigned long ap_previousMillis = millis();      // time of last point added
 
 /** Should I connect to W LAN asap? */
 bool connect;

@@ -212,24 +212,6 @@ String firmwareOnlineUpdate( byte what )
   return message;
 }
 
-/*
-void update_started() {
-  serial.println("CALLBACK:  HTTP update process started");
-}
-
-void update_finished() {
-  serial.println("CALLBACK:  HTTP update process finished");
-}
-
-void update_progress(int cur, int total) {
-  serial.printf("CALLBACK:  HTTP update process at %d of %d bytes...\n", cur, total);
-}
-
-void update_error(int err) {
-  Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
-}
-*/
-
 void wifiScanResult(int networksFound)
 { 
   String json;

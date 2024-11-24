@@ -20,6 +20,12 @@ bool setupSwitch()
   return true;
 }
 
+/* ======================================================================
+Function: turnSwitchState
+Purpose : Turn the Switch on/off
+Input   : int state | 0 == OFF or 1 == ON
+Output  : digitalWrite( RELAY, HIGH || LOW )
+Comments: -  */
 void turnSwitchState( int state )
 {
   if ( state == 1 ) // Turn the Relay on/off
@@ -46,6 +52,12 @@ void turnSwitchState( int state )
     //return true;
 }
 
+/* ======================================================================
+Function: checkSwitchState
+Purpose : Get state of the Switch on/off 
+Input   : -
+Output  : JSON {\"POWER\":\"ON || OFF\"}
+Comments: -  */
 void checkSwitchState()
 {    
   // Get arg from client browser GET
@@ -65,6 +77,12 @@ void checkSwitchState()
   }
 }
 
+/* ======================================================================
+Function: sendSwitchMQTT
+Purpose : Send state of the Switch on/off 
+Input   : -
+Output  : bool true || false on success
+Comments: -  */
 bool sendSwitchMQTT()
 {
   bool checkStat = true;
