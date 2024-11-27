@@ -40,7 +40,8 @@ void setup()
 	#endif
 
 	#ifdef MODULE_DISPLAY
-	FastLED.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);  // GRB ordering is typical
+	FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+	FastLED.setBrightness(BRIGHTNESS);
 	#endif
 
 
@@ -94,7 +95,6 @@ void loop()
 
 		//IF AP is running for 5 min and we have in cofig setup Password and Gateway
 		//We will restart device and try to connect to WiFi STA again
-		//Now it restarts emidiately Need Fix
 		if ( ( millis() - ap_previousMillis > ap_intervalHist ) && strcmp( wifi_ssid, "" )  && strcmp( wifi_password, "" ) )
 		{
 			writeLogFile( F("AP 5min restart"), 1, 3 );
@@ -107,8 +107,8 @@ void loop()
 	
 	if ( WiFi.getMode() == 1 )
 	{
-		// If MODULE WEATHER is detected on Setup
 		#ifdef MODULE_WEATHER   							//===============================================
+		// If MODULE WEATHER is detected on Setup
 		if ( detectModule )
 		{
     		if ( ( millis() - lastMeasureInterval > measureInterval ) || measureFirstRun )
@@ -216,6 +216,18 @@ void loop()
     		}
 		}
 	  	#endif
+
+		#ifdef MODULE_DISPLAY
+		//timeClient.update();
+		//setTime(timeClient.getEpochTime());
+		unsigned long currentDisplayMillis = millis();
+		if ( currentDisplayMillis - displayPreviousMillis >= displayInterval )
+		{
+			displayPreviousMillis = currentDisplayMillis;
+			updateDisplay();
+			FastLED.show();
+		}
+		#endif
 	}
 
 	#if ( defined( MODULE_SWITCH ) && ( STERGO_PLUG == 2 || STERGO_PLUG == 3 ) )  //===============================================

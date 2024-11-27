@@ -13,14 +13,14 @@
 #define STERGO_PROGRAM 1
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
-#define STERGO_SCREEN 0
+#define STERGO_SCREEN 1
 /*
  * STERGO_PROGRAM_BOARD :
  * 
  * ESP8266 default 01S = 1   // v01
  * LOLIN D1 mini       = 2   // v02
  */
-#define STERGO_PROGRAM_BOARD 2
+#define STERGO_PROGRAM_BOARD 1
 
 /*
  * STERGO_PLUG :
@@ -29,13 +29,10 @@
  * Sonoff S26         = 2   // Plug Switch  - PS
  * Sonoff T4EU1C      = 3   // Light Switch - LS
  */
-#define STERGO_PLUG 3
-
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
+#define STERGO_PLUG 2
 
 // Firmware Version always part of this file
-#define FW_VERSION "000.05.104"  // Check releaseLog for details
+#define FW_VERSION "000.05.104"                 // Check releaseLog for details
 #define MODEL_FRENDLY_NAME "Stergo Smart"
 #define COMPANY_URL "http://www.stergo.hr"
 
@@ -44,11 +41,9 @@
 #define EXCLUDED_CODE 1
 
 // 1 true | 0 false  / Serial.print 
-#define DEBUG 1
+#define DEBUG 0
 
 //=================================================================
-
-
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include "ESP8266WebServer.h"
@@ -98,6 +93,8 @@ extern "C" {
 #include "user_interface.h"
 }
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
 
 /*********************************************************************************************************/
 /* MQTT Server address
