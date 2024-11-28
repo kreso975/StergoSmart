@@ -12,6 +12,7 @@
 - code CleanUP
 - Fixed Interval For restart device if in AP mode and pass & Gateway are set in config.json | default 5min
 - Prep for Display 8x32 WS2812B using FastLed.h
+- Moved Switch button functionality from Main Loop to Switch.ino - checkSwitchButton()
 
 **000.05.103**
 - added support for DHT sensors DHT11, DHT12, DHT21, DHT22  

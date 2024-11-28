@@ -51,6 +51,7 @@ void updateDisplay()
 
 void displayTime(CRGB color)
 {
+    // Need to Prepare more setup details about Time display, using seconds, 24h or 12h etc
     char timeString[9];
     snprintf( timeString, sizeof(timeString), "%02d%c%02d%c%02d", hour(), (second() % 2 == 0) ? ':' : ' ', minute(), (second() % 2 == 0) ? ':' : ' ', second());
     // Display the time string on the LED matrix
@@ -66,10 +67,7 @@ void displayTemperature(CRGB color)
     
     // Display the temperature string on the LED matrix
     for ( int i = 0; i < 8; i++ )
-    {
-        drawChar(tempString[i], i * 6, color);
-        // Assuming each character is 6 pixels wide
-    }
+        drawChar(tempString[i], i * 6, color); // Assuming each character is 6 pixels wide
 }
 
 void displayHumidity(CRGB color)
@@ -79,22 +77,25 @@ void displayHumidity(CRGB color)
     
     // Display the humidity string on the LED matrix
     for ( int i = 0; i < 8; i++ )
-    {
-        drawChar(humString[i], i * 6, color);
-        // Assuming each character is 6 pixels wide
-    }
+        drawChar(humString[i], i * 6, color); // Assuming each character is 6 pixels wide
 }
+
 
 void displayMessage( CRGB color )
 {
-    for ( int i = 0; i < 32; i++ ) {
-        int charPosition = (scrollPosition + i) % messageDisplayLength;
-        drawChar( messageDisplay[charPosition], i * 6, color ); // Assuming each character is 6 pixels wide
-    }
-    scrollPosition++;
-    if ( scrollPosition >= messageDisplayLength )
+    unsigned long currentMillis = millis();
+    if ( currentMillis - previousScrollMillis >= scrollInterval )
     {
-        scrollPosition = 0;
+        previousScrollMillis = currentMillis;
+        for ( int i = 0; i < 32; i++ )
+        {
+            int charPosition = (scrollPosition + i) % messageDisplayLength;
+            drawChar(messageDisplay[charPosition], i * 6, color); // Assuming each character is 6 pixels wide
+        }
+
+        scrollPosition++; 
+        if ( scrollPosition >= messageDisplayLength )
+            scrollPosition = 0;
     }
 }
 

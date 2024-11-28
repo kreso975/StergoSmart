@@ -97,9 +97,43 @@ bool sendSwitchMQTT()
   return checkStat;
 }
 
+
 // Sonoff S26 && Sonoff T4EU1C
 #if ( STERGO_PLUG == 2 || STERGO_PLUG == 3 )                  //===============================================
-// called when button is kept pressed for less than 2 seconds
+
+/* ======================================================================
+Function: checkSwitchButton
+Purpose : Check for Button Long or Short Press  
+Input   : -
+Output  : 
+Comments: -  */
+void checkSwitchButton()
+{
+  // Button Handling - We have it Both in AP and STA 
+	// This can be moved into Switch.ino
+	if ( millis() - keyPrevMillis >=  keySampleIntervalMs )
+	{	// Move to SWitch.ino
+		keyPrevMillis = millis();
+
+		byte currKeyState = digitalRead( BUTTON01 );
+        
+		if ( prevKeyState == HIGH && currKeyState == LOW )
+			keyPress();
+		else if ( prevKeyState == LOW && currKeyState == HIGH )
+			keyRelease();
+		else if ( currKeyState == LOW )
+			longKeyPressCount++;
+
+		prevKeyState = currKeyState;
+	}
+}
+
+/* ======================================================================
+Function: shortKeyPress
+Purpose : when button is kept pressed for less than 2 seconds 
+Input   : -
+Output  : 
+Comments: -  */
 void shortKeyPress()
 {
   if ( relay01State )
@@ -108,8 +142,12 @@ void shortKeyPress()
     turnSwitchState( 1 );
 }
 
-
-// called when button is kept pressed for more than 2 seconds
+/* ======================================================================
+Function: longKeyPress
+Purpose : when button is kept pressed for more than 2 seconds 
+Input   : -
+Output  : 
+Comments: -  */
 void longKeyPress()
 {
   if ( ledStatus )
@@ -125,14 +163,24 @@ void longKeyPress()
   //writeLogFile( F("longKeyPress"), 1 );
 }
 
-// called when key goes from not pressed to pressed
+/* ======================================================================
+Function: keyPress
+Purpose : when key goes from not pressed to pressed
+Input   : -
+Output  : 
+Comments: -  */
 void keyPress()
 {
   //Serial.println("key press");
   longKeyPressCount = 0;
 }
 
-// called when key goes from pressed to not pressed
+/* ======================================================================
+Function: keyRelease
+Purpose : when key goes from pressed to not pressed
+Input   : -
+Output  : 
+Comments: -  */
 void keyRelease()
 {
   //Serial.println("key release");

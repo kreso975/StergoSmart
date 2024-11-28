@@ -231,22 +231,8 @@ void loop()
 	}
 
 	#if ( defined( MODULE_SWITCH ) && ( STERGO_PLUG == 2 || STERGO_PLUG == 3 ) )  //===============================================
-	// Button Handling - We have it Both in AP and STA 
-	// This can be moved into Switch.ino
-	if ( millis() - keyPrevMillis >=  keySampleIntervalMs )
-	{	// Move to SWitch.ino
-		keyPrevMillis = millis();
 
-		byte currKeyState = digitalRead( BUTTON01 );
-        
-		if ( prevKeyState == HIGH && currKeyState == LOW )
-			keyPress();
-		else if ( prevKeyState == LOW && currKeyState == HIGH )
-			keyRelease();
-		else if ( currKeyState == LOW )
-			longKeyPressCount++;
+	checkSwitchButton();	// Check Button State - long press
 
-		prevKeyState = currKeyState;
-	}
-	#endif                                                                   //===============================================
+	#endif                                                                   	  //===============================================
 }
