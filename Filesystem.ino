@@ -147,10 +147,12 @@ bool writeLogFile( String message, int newLine, int output )
   {
     if ( logOutput == 0 )
 	  {
+      #if ( DEBUG == 1 )
 		  if ( newLine == 0 )
 			  Serial.print( message );
 		  else
 			  Serial.println( message );
+      #endif
 	  }
   }
 	

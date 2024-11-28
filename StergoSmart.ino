@@ -20,7 +20,9 @@ void setup()
 {
 	String message;
 
+	#if ( DEBUG == 1 )
 	Serial.begin ( SERIAL_BAUDRATE );
+	#endif
 	delay(1000);
 	//Serial.setDebugOutput(true);
   
@@ -219,7 +221,7 @@ void loop()
 
 		#ifdef MODULE_DISPLAY
 		//timeClient.update();
-		//setTime(timeClient.getEpochTime());
+		setTime(timeClient.getEpochTime() + timeZoneOffset );
 		unsigned long currentDisplayMillis = millis();
 		if ( currentDisplayMillis - displayPreviousMillis >= displayInterval )
 		{

@@ -19,8 +19,7 @@ Comments:
 TODO    : FIX strcpy replace with strlcpy
 		  strlcpy(config.hostname,           // <- destination
           root["hostname"] | "example.com",  // <- source
-          sizeof(config.hostname));          // <- destination's capacity
-====================================================================== */
+          sizeof(config.hostname));          // <- destination's capacity */
 bool initConfig( String* message )
 {
 	File configfile = SPIFFS.open( configFile, "r" );
@@ -158,13 +157,8 @@ bool writeToConfig( String* message )
 	configfile.readBytes(buf.get(), size);
 	configfile.close();
 
-	//DynamicJsonBuffer jsonConfig;
-	//JsonObject& configMain = jsonConfig.parseObject(buf.get());
-	//configMain.printTo(Serial);
   	DynamicJsonDocument  jsonConfig(6000);
   	DeserializationError error = deserializeJson( jsonConfig, buf.get());
-	//JsonObject& configMain = jsonConfig.parseObject(buf.get());
-	//configMain.printTo(Serial);
 
 	if ( error )
 	{
@@ -245,8 +239,6 @@ bool writeToConfig( String* message )
 	}
     
 	file.close();
-	//configMain.printTo(Serial);
-	//return true;
 
 	// Let's check if we have change request for MQTT state (start/stop)
 	if ( server.hasArg("MQTTstateOn") ) // Check if MQTT was started or Stopped
@@ -254,53 +246,48 @@ bool writeToConfig( String* message )
 		if ( server.arg("MQTTstateOn") == "1" )
 		{
 			// HERE WE MUST TELL THAT WE WILL START MQTT SERVICES
-			if ( !initConfig( message ) )
-			{
-				// Should check what was response in message
-				*message = F("Error init MQTT");
-				return false;
-			}
 			mqtt_start = 1;
 			if ( setupMQTT( message, 1 ) )
 			{
-				*message = F("Success MQTT start");
 				return true;
 			}
 			else
 			{
-				*message = F("Error MQTT start");
+				*message = F("{\"Error\":\"Error MQTT start\"}");
 				return false;
 			}
 		}
 		else if ( server.arg("MQTTstateOn") == "0" )
 		{
 			mqtt_start = 0;
+			
 			setupMQTT( message, 0 );
-
-			*message = F("Success MQTT stop");
+			// reset interval times
+			mqtt_previousMillis = mqtt_intervalHist;     // time of last point added
+			return true;
 		}
 	}
 
 	// Let's check if we have change request for MWebHookQTT state (start/stop)
 	if ( server.hasArg("WhookStateOn") ) // Check if WebHook was started or Stopped
 	{
+		String msg;
 		if ( server.arg("WhookStateOn") == "1" )
 		{
-			// HERE WE MUST TELL THAT WE WILL START WebHook SERVICES
-			if ( !initConfig( message ) )
-			{
-				// Should check what was response in message
-				*message = F("Error init WebHook");
-				return false;
-			}
 			webLoc_start = 1;
-			*message = F("Success WebHook Start");
+			msg = F("Success WebHook Start");
+			writeLogFile( msg, 1, 3 );
+    		*message = F("{\"success\":\"") + msg + F("\"}");
 			return true;
 		}
 		else if ( server.arg("WhookStateOn") == "0" )
 		{
 			webLoc_start = 0;
-			*message = F("Success WebHook Stop");
+			msg = F("Success WebHook Stop");
+			writeLogFile( msg, 1, 3 );
+    		*message = F("{\"success\":\"") + msg + F("\"}");
+			webLoc_previousMillis = webLoc_intervalHist;     // time of last point added
+			return true;
 		}
 	}
 
@@ -308,23 +295,24 @@ bool writeToConfig( String* message )
 	// Let's check if we have change request for Tic Tac Toe state (start/stop)
 	if ( server.hasArg("TicTacStateOn") ) // Check if TicTac was started or Stopped
 	{
+		String msg;
 		if ( server.arg("TicTacStateOn") == "1" )
 		{
-			// HERE WE MUST TELL THAT WE WILL START TicTacToe SERVICE
-			if ( !initConfig( message ) )
-			{
-				// Should check what was response in message
-				*message = F("Error init TicTac");
-				return false;
-			}
+			// HERE WE MUST TELL THAT WE WILL START/STOP TicTacToe SERVICE
 			tictac_start = 1;
-			*message = F("Success Tic Tac Toe Start");
+			msg = F("Success Tic Tac Toe Start");
+			writeLogFile( msg, 1, 3 );
+    		*message = F("{\"success\":\"") + msg + F("\"}");
 			return true;
 		}
 		else if ( server.arg("TicTacStateOn") == "0" )
 		{
 			tictac_start = 0;
-			*message = F("Success Tic Tac Toe Stop");
+			msg = F("Success Tic Tac Toe Stop");
+			writeLogFile( msg, 1, 3 );
+    		*message = F("{\"success\":\"") + msg + F("\"}");
+			ticCallLMInterval = ticTacCallInterval;
+			return true;
 		}
 	}
 	#endif

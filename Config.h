@@ -10,7 +10,7 @@
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 3
+#define STERGO_PROGRAM 1
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
 #define STERGO_SCREEN 1
@@ -41,7 +41,7 @@
 #define EXCLUDED_CODE 1
 
 // 1 true | 0 false  / Serial.print 
-#define DEBUG 0
+#define DEBUG 1
 
 //=================================================================
 #include <ESP8266WiFi.h>
@@ -110,6 +110,7 @@ String SERIAL_NUMBER = String(PRODUCT) + "-" + String(ESP.getChipId());
 #define SERIAL_BAUDRATE 9600
 #define WEBSERVER_PORT 80
 #define NTPSERVER "europe.pool.ntp.org"
+const long timeZoneOffset = 3600 * 1;           // Adjust this value to your time zone offset in seconds (e.g., 3600 for +1 hour)
 #define SSDPPORT 1900
 #define SSDPADRESS 239, 255, 255, 250
 

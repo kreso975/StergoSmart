@@ -5,7 +5,8 @@ Input: what == 0 | 1 / stop | start mqtt functionality
 TODO: 
 Comments:*/
 bool setupMQTT( String* message, int what )
-{  
+{ 
+  String msg; 
   if ( what == 1 )
   {
     // If we submited again to start MQTT and it's already running
@@ -21,16 +22,18 @@ bool setupMQTT( String* message, int what )
   		{
     		if ( MQTTreconnect() )
     		{
-    			*message = F("Success MQTT Start");
-    			writeLogFile( *message, 1, 3 );
-      			return true;
+          msg = F("Success MQTT Start");
+    			*message = F("{\"success\":\"") + msg + F("\"}");
+    			writeLogFile( msg, 1, 3 );
+      		return true;
     		}
   		}
     }
     else
     {
-      *message = F("Success MQTT already running");
-      writeLogFile( *message, 1, 3 );
+      msg = F("Success MQTT already running");
+    	*message = F("{\"success\":\"") + msg + F("\"}");
+      writeLogFile( msg, 1, 3 );
       return true;
     }
 	}
@@ -39,13 +42,14 @@ bool setupMQTT( String* message, int what )
 		if ( client.connected() )
 			client.disconnect();
 
-    *message = F("Success MQTT Stop");
-    writeLogFile( *message, 1, 3 );
+    msg = F("Success MQTT Stop");
+    *message = F("{\"success\":\"") + msg + F("\"}");
+    writeLogFile( msg, 1, 3 );
 		
     return true;
 	}
   
-  *message = F("Error MQTT service");
+  //*message = F("Error MQTT service");
 	return false; 
 	
 }

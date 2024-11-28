@@ -58,31 +58,31 @@ bool startSTA( int STAmode = 0 )
       return false;
       
     delay(500);
-    //Serial.print('.');
+    #if ( DEBUG == 1 )
     writeLogFile( ".", 0, 1 );
+    #endif
     cnt ++;
   }
-  
+  #if ( DEBUG == 1 )
   writeLogFile( F("STA connected"), 1, 3 );
   writeLogFile( F("WiFi Mode: ") + String(WiFi.getMode()), 1, 3 );
   writeLogFile( F("IP: ") + WiFi.localIP().toString(), 1, 3 );
-  
+  #endif
   return true;
 }
 
 bool startAP()
 {
-  //writeLogFile( F("Starting AP"), 1 );
-  
   WiFi.mode( WIFI_AP );
   String tmp = String(softAP_ssid) + "_" + String(ESP.getChipId());  
   WiFi.softAP( tmp.c_str(), softAP_pass );
   delay(500);                                                             // Without delay I've seen the IP address blank
 
+  #if ( DEBUG == 1 )
   writeLogFile( F("AP connected"), 1, 3 );
   writeLogFile( F("WiFi Mode: ") + String(WiFi.getMode()), 1, 3 );
   writeLogFile( F("IP: ") + WiFi.softAPIP().toString(), 1, 3 );
-  
+  #endif
   return true;
 }
 
@@ -110,8 +110,9 @@ void WiFiManager()
       if ( startSTA() ) { }
       else
       {
+        #if ( DEBUG == 1 )
         writeLogFile( F("Problem connect to STA"), 1 );
-
+        #endif
         // We Need to Bring up AP
         disconnectSTA();
         startAP();
@@ -123,16 +124,21 @@ void WiFiManager()
       {
         if ( startSTA( 1 ) ) // Connecting with static IP
         {
+          #if ( DEBUG == 1 )
           writeLogFile( F("Succes connect with Static IP"), 1, 3 );
+          #endif
         }
         else // PROBLEM
         {
+          #if ( DEBUG == 1 )
           writeLogFile( F("Problem connect with Static IP"), 1, 3 ); // decide what to do 
+          #endif
           if ( startSTA() ) { }                                      // We Can try again with dynamic IP
           else                                                       // and if that does not work - go to AP
           {
+            #if ( DEBUG == 1 )
             writeLogFile( F("Problem connect to STA"), 1, 3 );
- 
+            #endif
             // We Need to Bring up AP
             disconnectSTA();
             startAP();
@@ -197,15 +203,15 @@ String firmwareOnlineUpdate( byte what )
     case HTTP_UPDATE_FAILED:
       //Serial.printf("HTTP_UPDATE_FAILD Error (%d): %s", ESPhttpUpdate.getLastError(), ESPhttpUpdate.getLastErrorString().c_str());
       writeLogFile( "HTTP UPDATE FAIL "+String(ESPhttpUpdate.getLastErrorString()), 1, 3 );
-      message = "{\"Error\":\"Failed\"}";
+      message = F("{\"Error\":\"Failed\"}");
       break;
     case HTTP_UPDATE_NO_UPDATES:
       writeLogFile( F("Firmware Up2Date"), 1, 3 );
-      message = "{\"Info\":\"No Updates\"}";
+      message = F("{\"Info\":\"No Updates\"}");
       break;
     case HTTP_UPDATE_OK:
-      writeLogFile( F("HTTP_UPDATE_OK"), 1, 3 );
-      message = "{\"success\":\"Updating..\"}";
+      writeLogFile( F("Firmware Update"), 1, 3 );
+      message = F("{\"success\":\"Updating..\"}");
       break;
   }  
 

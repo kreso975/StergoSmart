@@ -6,23 +6,27 @@ void updateDisplay()
     if ( currentBlinkMillis - lastDisplayChange >= displayIntervalBlink )
     {
         lastDisplayChange = currentBlinkMillis;
-        displayMode = ( displayMode + 1 ) % 4; // Rotate between 3 display modes
+        displayMode = ( displayMode + 1 ) % 5; // Rotate between 3 display modes
     }
     
     fill_solid( leds, NUM_LEDS, CRGB::Black ); // Clear the display
     
+    //writeLogFile( F("Display Mode: ") + String(displayMode), 1, 1 );
     switch ( displayMode )
     {
         case 0:
-            displayTime(CRGB(255, 255, 255)); // How to use RGB 
+            displayTime(false, CRGB(255, 255, 255)); // How to use RGB 
             break;
         case 1:
-            displayTemperature(CRGB::Red);
+            displayTime(true, CRGB(255, 255, 255)); // How to use RGB 
             break;
         case 2:
-            displayHumidity(CRGB::Blue);
+            displayTemperature(CRGB::Red);
             break;
         case 3:
+            displayHumidity(CRGB::Blue);
+            break;
+        case 4:
             displayMessage( CRGB(0, 255, 0) ); // Green color for message
             break;
     }
@@ -49,34 +53,44 @@ void updateDisplay()
     FastLED.setBrightness(brightness);
 }
 
-void displayTime(CRGB color)
+void displayTime( bool displayDate, CRGB color )
 {
-    // Need to Prepare more setup details about Time display, using seconds, 24h or 12h etc
-    char timeString[9];
-    snprintf( timeString, sizeof(timeString), "%02d%c%02d%c%02d", hour(), (second() % 2 == 0) ? ':' : ' ', minute(), (second() % 2 == 0) ? ':' : ' ', second());
-    // Display the time string on the LED matrix
-    for ( int i = 0; i < 8; i++ )
-        drawChar(timeString[i], i * 6, color); // Assuming each character is 6 pixels wide
+    char displayString[11]; // Adjust size to accommodate date string
+    
+    if ( displayDate )  // Prepare the date string for display
+        snprintf( displayString, sizeof(displayString), "%02d.%02d.", day(), month());
+    else // Prepare the time string for display
+        snprintf( displayString, sizeof(displayString), "%02d%c%02d%c%02d", hour(), (second() % 2 == 0) ? ':' : ' ', minute(), (second() % 2 == 0) ? ':' : ' ', second());
+        
+    // Log the display string
+    //String logMessage = displayDate ? "Display Date: " : "Display Time: ";
+    //logMessage += String(displayString);
+    //writeLogFile(logMessage, 1, 1);
+    
+    // Display the string on the LED matrix
+    for (byte i = 0; i < 10; i++) // Adjust loop to match displayString length
+        drawChar( displayString[i], i * 6, color); // Assuming each character is 6 pixels wide }
 }
 
 void displayTemperature(CRGB color)
 {
-    char tempString[9];
-    
-    snprintf( tempString, sizeof(tempString), "Temp:%.1fC", t );
-    
+    char tempString[20];
+    snprintf(tempString, sizeof(tempString), "%.2f℃", t);
+
+    //writeLogFile( String(tempString), 1, 1 );
     // Display the temperature string on the LED matrix
-    for ( int i = 0; i < 8; i++ )
+    for ( byte i = 0; i < 8; i++ )
         drawChar(tempString[i], i * 6, color); // Assuming each character is 6 pixels wide
 }
 
 void displayHumidity(CRGB color)
 {
-     char humString[9];
-    snprintf(humString, sizeof(humString), "Hum:%.1f%%", h);
+    char humString[9];
     
+    snprintf(humString, sizeof(humString), "%.1f%%", h);
+    //writeLogFile( F("Display Hum: ") + String(humString), 1, 1 );
     // Display the humidity string on the LED matrix
-    for ( int i = 0; i < 8; i++ )
+    for ( byte i = 0; i < 8; i++ )
         drawChar(humString[i], i * 6, color); // Assuming each character is 6 pixels wide
 }
 
@@ -87,7 +101,7 @@ void displayMessage( CRGB color )
     if ( currentMillis - previousScrollMillis >= scrollInterval )
     {
         previousScrollMillis = currentMillis;
-        for ( int i = 0; i < 32; i++ )
+        for ( byte i = 0; i < 32; i++ )
         {
             int charPosition = (scrollPosition + i) % messageDisplayLength;
             drawChar(messageDisplay[charPosition], i * 6, color); // Assuming each character is 6 pixels wide
@@ -101,14 +115,16 @@ void displayMessage( CRGB color )
 
 void drawChar( char c, int x, CRGB color )
 {   
+    const static uint8_t PROGMEM Font[256][6] = {};
     if (c < 32 || c > 127)
         return;
         
     // Ignore non-printable characters
-    for ( int i = 0; i < 6; i++ )
+    for ( byte i = 0; i < 6; i++ )
     {
-        uint8_t line = Font[c - 32][i];
-        for (int j = 0; j < 8; j++)
+        //uint8_t line = Font[c - 32][i]; // Check what is better for us - at the moment without PROGMEM is crashing 
+        uint8_t line = pgm_read_byte(&Font[c - 32][i]);
+        for (byte j = 0; j < 8; j++)
         {
             if (line & (1 << j))
             {

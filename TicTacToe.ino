@@ -343,7 +343,7 @@ void letsPlay( byte what, String who )
           #if ( DEBUG == 1 )
           Serial.println("It's a draw.");
           #endif
-          sendTicTacWebhook(2);
+          //sendTicTacWebhook(2);
           break;
         case 1:
           #if ( DEBUG == 1 )
@@ -615,6 +615,7 @@ void inviteDeviceTicTacToe()
 }
 
 // We should build 2 different calls 1. Discord, 2 Webhook
+// Without Secure Client it's not possible to send to Discord Directly
 void sendTicTacWebhook( byte where )
 {
   char* localURL;
@@ -622,27 +623,17 @@ void sendTicTacWebhook( byte where )
   
   localURL = discord_url;
   String discordUsername = _devicename;
-  
-  // We also check if we can publish to Discord
-  if ( where == 1 && tictac_discord == 1 )
-  {
-    String discordAvatar = discord_avatar;
-    String message = "I just won! Loser: "+ playerName + " lost.";
-    data = "{\"username\":\"" + discordUsername + "\",\"avatar_url\":\"" + discordAvatar + "\",\"content\":\"" + message + "\"}";
-
-    sendWebhook( localURL, data );
-  }
-  
+    
   // We also check if we can publish to Webhook
   // For now its just demo
-  if ( where == 1 && tictac_webhook == 1 )
+  if ( where == 1 && ( tictac_webhook == 1 || tictac_discord == 1 ) )
   {
     String discordAvatar = discord_avatar;
-    String message = "I just won! Loser: "+ playerName + " lost.";
-    data = "{\"username\":\"" + discordUsername + "\",\"avatar_url\":\"" + discordAvatar + "\",\"content\":\"" + message + "\"}";
+    String message = F("I Won! Loser: ") + playerName + F(" lost.");
+    data = F("{\"username\":\"") + discordUsername + F("\",\"avatar_url\":\"") + discordAvatar + F("\",\"content\":\"") + message + F("\"}");
     sendWebhook( localURL, data );
   }
-
+  
 }
 
 #if ( DEBUG == 1 )

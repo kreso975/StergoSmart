@@ -19,9 +19,9 @@ const long displayInterval = 500;
 unsigned long displayIntervalBlink = 5000;
 // Interval for rotating display
 unsigned long lastDisplayChange = 0;
-int displayMode = 0;
-int fadeAmount = 5; // Amount to fade the brightness by
-int brightness = 0; // Initial brightness
+byte displayMode = 0;
+byte fadeAmount = 5; // Amount to fade the brightness by
+byte brightness = 0; // Initial brightness
 bool fadeIn = true; // Direction of fade
 
 const char* messageDisplay = "Hello, World! ";
@@ -33,7 +33,8 @@ const long scrollInterval = 100; // Adjust this value to control the scroll spee
 
 const uint8_t FontHeight=8;
 const uint8_t FontWidth=6;
-
+//const static uint8_t Font[256][6]
+//const static uint8_t PROGMEM Font[256][6]
 const static uint8_t PROGMEM Font[256][6]={
 {0x00,0x00,0x00,0x00,0x00,0x00},	// 0x00
 {0x00,0x3E,0x45,0x51,0x45,0x3E},	// 0x01
@@ -84,10 +85,10 @@ const static uint8_t PROGMEM Font[256][6]={
 {0x00,0x00,0x60,0x60,0x00,0x00},	// 0x2E         .
 {0x00,0x20,0x10,0x08,0x04,0x02},	// 0x2F
 {126,255,129,129,255,126},	        // 0x30         0
-{0,130,255,255,128,0},	                // 0x31         1
+{0,130,255,255,128,0},	            // 0x31         1
 {194,227,177,153,143,134},	        // 0x32         2
 {66,195,137,137,255,118},	        // 0x33         3
-{56,60,38,243,241,32},	                // 0x34         4
+{56,60,38,243,241,32},	            // 0x34         4
 {79,207,137,137,249,113},	        // 0x35         5   
 {126,255,137,137,251,114},	        // 0x36         6
 {1,1,241,249,15,7},	                // 0x37         7

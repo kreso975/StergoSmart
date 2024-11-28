@@ -67,8 +67,9 @@ void setupHttpServer()
   );                                                    // Receive and save the file
 
   server.begin();
+  #if ( DEBUG == 1 )
   writeLogFile( F("HTTP server started"), 1, 3 );
-
+  #endif
 }
 
 /**********************************************************/
@@ -82,13 +83,15 @@ void updateConfig()
   if ( what == "restart" )
   {
     writeLogFile( F("Restarting"), 1 );
-    sendJSONheaderReply( 1, "Restarting..." );
+    sendJSONheaderReply( 1, F("Restarting...") );
     delay(500);
     ESP.restart();
   }
   else if ( what == "updateFirmware" )
   {
+    #if ( DEBUG == 1 )
     writeLogFile( F("Updateing Firmware"), 1, 3 );
+    #endif
     message = firmwareOnlineUpdate(2);
     sendJSONheaderReply( 3, message );
     // if there is an update we need to restart ESP
@@ -111,7 +114,9 @@ void updateConfig()
   #if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )               //===============================================
   else if ( what == "initBME280" )
   {
+    #if ( DEBUG == 1 )
     writeLogFile( F("init BME280"), 1, 3 );
+    #endif
     if ( setupBME280() )
       sendJSONheaderReply( 1, F("Success init BME280") );
     else
@@ -132,12 +137,10 @@ void updateConfig()
     else
       sendJSONheaderReply( 0, F("Error delete Log file") );
   }
-  else if ( what == "updateWiFi" || what == "updateMQTT" || what == "updateDevice" || what == "initialSetup" ) //Need to Fix HTML, not so many args - just updateConfig
+  else if ( what == "updateWiFi" || what == "updateMQTT" || what == "updateDevice" || what == "initialSetup" || what == "updateConfig" ) //Need to Fix HTML, not so many args - just updateConfig
   {
-    if ( writeToConfig( &message ) )
-      sendJSONheaderReply( 1, message );
-    else
-      sendJSONheaderReply( 0, message );
+    writeToConfig( &message );
+    sendJSONheaderReply( 3, message );
   }
   //Serial.println( F"Config updated") );
 }
@@ -201,9 +204,7 @@ bool captivePortal()
 void handleNotFound()
 {
   if ( captivePortal() )
-  { // If captive portal redirect instead of displaying the error page.
-    return;
-  }
+    return; // If captive portal redirect instead of displaying the error page.
   
   server.send ( 404, "text/plain", "Not Found" );
 }
@@ -244,13 +245,13 @@ void sendJSONheaderReply( byte type, String message )
   switch( type )
   {
     case 0:
-      output = "{\"Error\":\"" + message + "\"}";
+      output = F("{\"Error\":\"") + message + F("\"}");
       break;
     case 1:
-      output = "{\"success\":\"" + message + "\"}";
+      output = F("{\"success\":\"") + message + F("\"}");
       break;
     case 2:
-      output = "{\"Info\":\"" + message + "\"}";
+      output = F("{\"Info\":\"") + message + F("\"}");
       break;
     case 3:
       output = message;
