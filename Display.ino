@@ -35,9 +35,9 @@ void updateDisplay()
     if ( fadeIn )
     {
         brightness += fadeAmount;
-        if ( brightness >= BRIGHTNESS )
+        if ( brightness >= maxBrightness )
         {
-            brightness = BRIGHTNESS;
+            brightness = maxBrightness;
             fadeIn = false;
         }
     }
@@ -53,24 +53,35 @@ void updateDisplay()
     FastLED.setBrightness(brightness);
 }
 
-void displayTime( bool displayDate, CRGB color )
+void displayTime(bool displayDate, CRGB color)
 {
     char displayString[11]; // Adjust size to accommodate date string
     
-    if ( displayDate )  // Prepare the date string for display
-        snprintf( displayString, sizeof(displayString), "%02d.%02d.", day(), month());
-    else // Prepare the time string for display
-        snprintf( displayString, sizeof(displayString), "%02d%c%02d%c%02d", hour(), (second() % 2 == 0) ? ':' : ' ', minute(), (second() % 2 == 0) ? ':' : ' ', second());
-        
+    // Get the current time and adjust for time zone offset
+    time_t adjustedTime = now() + timeZoneOffset;
+    int adjustedHour = hour(adjustedTime);
+    int adjustedMinute = minute(adjustedTime);
+    int adjustedSecond = second(adjustedTime);
+    int adjustedDay = day(adjustedTime);
+    int adjustedMonth = month(adjustedTime);
+
+    if (displayDate) 
+        snprintf(displayString, sizeof(displayString), "%02d.%02d.", adjustedDay, adjustedMonth);
+    else 
+        snprintf(displayString, sizeof(displayString), "%02d%c%02d%c%02d", adjustedHour, (adjustedSecond % 2 == 0) ? ':' : ' ', adjustedMinute, (adjustedSecond % 2 == 0) ? ':' : ' ', adjustedSecond);
+    
     // Log the display string
     //String logMessage = displayDate ? "Display Date: " : "Display Time: ";
     //logMessage += String(displayString);
     //writeLogFile(logMessage, 1, 1);
     
     // Display the string on the LED matrix
-    for (byte i = 0; i < 10; i++) // Adjust loop to match displayString length
-        drawChar( displayString[i], i * 6, color); // Assuming each character is 6 pixels wide }
+    for (byte i = 0; i < 10; i++) { // Adjust loop to match displayString length
+        drawChar(displayString[i], i * 6, color); // Assuming each character is 6 pixels wide
+    }
 }
+
+
 
 void displayTemperature(CRGB color)
 {
@@ -132,5 +143,12 @@ void drawChar( char c, int x, CRGB color )
             }
         }
     }
+}
+
+void displayState()
+{
+    // Get arg/params posted and change settings
+    // timeZoneOffset, brightness, messageDisplay, displayMode
+    //String what = server.arg("state");
 }
 #endif

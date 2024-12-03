@@ -18,6 +18,7 @@ logs
 
 # Device directories
 data-configs/
+HTML/
 
 # Webstorm
 .idea

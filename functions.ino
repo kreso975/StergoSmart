@@ -47,35 +47,25 @@ Output  : String DD:HH:MM:SS
 Comments: 
 TODO    :
 =============================================================================== */
-
-String showDuration( uint32_t duration )
+String showDuration()
 {
-  String S = "";
-  // prints the duration in days, hours, minutes and seconds
-  if ( duration >= SECS_PER_DAY )
-  {
-     S += duration / SECS_PER_DAY;
-     S += "d ";
-     duration = duration % SECS_PER_DAY;
-  }
+  time_t currentTime = now();
+  time_t elapsedTime = currentTime - startTime;
   
-  if ( duration >= SECS_PER_HOUR )
-  {
-     S += duration / SECS_PER_HOUR;
-     S += "h ";
-     duration = duration % SECS_PER_HOUR;
-  }
-  if ( duration >= SECS_PER_MIN )
-  {
-     S += duration / SECS_PER_MIN;
-     S += "m ";
-     duration = duration % SECS_PER_MIN;
-  }
+  int days = elapsedTime / 86400;
+  elapsedTime %= 86400;
+  int hours = elapsedTime / 3600;
+  elapsedTime %= 3600;
+  int minutes = elapsedTime / 60;
+  int seconds = elapsedTime % 60;
   
-  S += duration;
-  S += "s";
-
-  return S;
+  String uptime = "";
+  uptime += String(days) + "d ";
+  uptime += String(hours) + "h ";
+  uptime += String(minutes) + "m ";
+  uptime += String(seconds) + "s";
+  
+  return uptime;
 }
 
 /* ======================================================================

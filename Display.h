@@ -4,13 +4,12 @@
 // Clock pin only needed for SPI based chipsets when not using hardware SPI
 #define DATA_PIN 3
 #define NUM_LEDS 256
-#define BRIGHTNESS 64
+byte maxBrightness = 64;
 #define LED_TYPE WS2812B
 #define COLOR_ORDER GRB
 
 // Define the array of leds
 CRGB leds[NUM_LEDS];
-
 
 unsigned long displayPreviousMillis = 0;
 const long displayInterval = 500;
@@ -19,6 +18,7 @@ const long displayInterval = 500;
 unsigned long displayIntervalBlink = 5000;
 // Interval for rotating display
 unsigned long lastDisplayChange = 0;
+// displayMode is what are we going to Swhow, time, date, temp, hum, message - now is in rotation
 byte displayMode = 0;
 byte fadeAmount = 5; // Amount to fade the brightness by
 byte brightness = 0; // Initial brightness

@@ -56,6 +56,11 @@ void setupHttpServer()
   #ifdef MODULE_SWITCH                                              //===============================================
     server.on( "/POWER", checkSwitchState );
   #endif                                                            //===============================================
+
+  // Use to fast modifications and Setup
+  #ifdef MODULE_DISPLAY                                             //===============================================
+    server.on( "/display", displayState );
+  #endif                                                            //===============================================
   
   server.on( "/gpio", updateConfig );
   server.on( "/deviceinfo.json", sendDeviceInfo );
@@ -153,11 +158,9 @@ Output  : HTTP JSON
 Comments: - */
 void sendDeviceInfo()
 {
-  upTime = now();
-
   char data[360];
   sprintf( data, "{\"result\":[{\"Name\":\"Firmware\",\"Value\":\"%s\"},{\"Name\":\"Chip ID\",\"Value\":\"%u\"},{\"Name\":\"Free Heap\",\"Value\":\"%u\"},{\"Name\":\"DeviceName\",\"Value\":\"%s\"},{\"Name\":\"Uptime\",\"Value\":\"%s\"},{\"Name\":\"DeviceIP\",\"Value\":\"%s\"},{\"Name\":\"MAC address\",\"Value\":\"%s\"},{\"Name\":\"FreeSPIFFS\",\"Value\":\"%ld\"}]}",
-          FIRMWARE, ESP.getChipId(), ESP.getFreeHeap(), deviceName, showDuration(upTime).c_str(), WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(),GetMeFSinfo().toInt() );
+          FIRMWARE, ESP.getChipId(), ESP.getFreeHeap(), deviceName, showDuration().c_str(), WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(),GetMeFSinfo().toInt() );
   
   // 3 is indicator of JSON already formated reply
   sendJSONheaderReply( 3, data );

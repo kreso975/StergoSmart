@@ -110,7 +110,6 @@ String SERIAL_NUMBER = String(PRODUCT) + "-" + String(ESP.getChipId());
 #define SERIAL_BAUDRATE 9600
 #define WEBSERVER_PORT 80
 #define NTPSERVER "europe.pool.ntp.org"
-const long timeZoneOffset = 3600 * 1;           // Adjust this value to your time zone offset in seconds (e.g., 3600 for +1 hour)
 #define SSDPPORT 1900
 #define SSDPADRESS 239, 255, 255, 250
 
@@ -180,9 +179,6 @@ char wifi_DNS[16] = "";
  *  TODO: 
  *
  ******************************************************************************************************/
-// UpTime - Device
-time_t upTime;
-
 char webLoc_server[120];
 // Time Interval for sending Wb Location data / targeting scripts to send data via HTTP POST method
 int webLoc_interval = 1000 * 60 * 1;                    // 1000 * 60 * 1 = 1min
@@ -216,7 +212,14 @@ File fsUploadFile;
 
 WiFiUDP ntpUDP;
 
+// Adjust this value to your time zone offset in seconds (e.g., 3600 for +1 hour)
+const long timeZoneOffset = 3600 * 1;
+
+//NTPClient timeClient(ntpUDP, NTPSERVER, 0, 60000);
 NTPClient timeClient(ntpUDP, NTPSERVER, 0, 60000);
+
+// startTime - When Device Started
+time_t startTime;
 
 ESP8266WebServer server(WEBSERVER_PORT);
  

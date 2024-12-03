@@ -43,7 +43,7 @@ void setup()
 
 	#ifdef MODULE_DISPLAY
 	FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-	FastLED.setBrightness(BRIGHTNESS);
+	FastLED.setBrightness(maxBrightness);
 	#endif
 
 
@@ -54,9 +54,9 @@ void setup()
 		MDNS.begin( wifi_hostname );
 
 		timeClient.begin();
-		timeClient.setUpdateInterval(60000);
-		//timeClient.setTimeOffset(timeClient.adjustDstEurope());
 		timeClient.update();
+		setTime(timeClient.getEpochTime());
+		startTime = now();
 
 		/*
     	String statusMessage = "Year is: " + String(timeClient.getYear()) + "\n" + "Month is: " + String(timeClient.getMonth()) + "\n" + "Day is: " + String(timeClient.getDay());
@@ -109,6 +109,8 @@ void loop()
 	
 	if ( WiFi.getMode() == 1 )
 	{
+		timeClient.update();
+
 		#ifdef MODULE_WEATHER   							//===============================================
 		// If MODULE WEATHER is detected on Setup
 		if ( detectModule )
@@ -220,8 +222,6 @@ void loop()
 	  	#endif
 
 		#ifdef MODULE_DISPLAY
-		//timeClient.update();
-		setTime(timeClient.getEpochTime() + timeZoneOffset );
 		unsigned long currentDisplayMillis = millis();
 		if ( currentDisplayMillis - displayPreviousMillis >= displayInterval )
 		{
