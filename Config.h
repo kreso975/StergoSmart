@@ -212,10 +212,6 @@ File fsUploadFile;
 
 WiFiUDP ntpUDP;
 
-// Adjust this value to your time zone offset in seconds (e.g., 3600 for +1 hour)
-const long timeZoneOffset = 3600 * 1;
-
-//NTPClient timeClient(ntpUDP, NTPSERVER, 0, 60000);
 NTPClient timeClient(ntpUDP, NTPSERVER, 0, 60000);
 
 // startTime - When Device Started

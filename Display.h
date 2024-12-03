@@ -11,6 +11,9 @@ byte maxBrightness = 64;
 // Define the array of leds
 CRGB leds[NUM_LEDS];
 
+// Adjust this value to your time zone offset in seconds (e.g., 3600 for +1 hour)
+const long timeZoneOffset = 3600 * 1;
+
 unsigned long displayPreviousMillis = 0;
 const long displayInterval = 500;
 
