@@ -239,7 +239,8 @@ bool writeToConfig( String* message )
 	}
     
 	file.close();
-
+  
+  String msg;
 	// Let's check if we have change request for MQTT state (start/stop)
 	if ( server.hasArg("MQTTstateOn") ) // Check if MQTT was started or Stopped
 	{
@@ -271,7 +272,6 @@ bool writeToConfig( String* message )
 	// Let's check if we have change request for MWebHookQTT state (start/stop)
 	if ( server.hasArg("WhookStateOn") ) // Check if WebHook was started or Stopped
 	{
-		String msg;
 		if ( server.arg("WhookStateOn") == "1" )
 		{
 			webLoc_start = 1;
@@ -295,7 +295,6 @@ bool writeToConfig( String* message )
 	// Let's check if we have change request for Tic Tac Toe state (start/stop)
 	if ( server.hasArg("TicTacStateOn") ) // Check if TicTac was started or Stopped
 	{
-		String msg;
 		if ( server.arg("TicTacStateOn") == "1" )
 		{
 			// HERE WE MUST TELL THAT WE WILL START/STOP TicTacToe SERVICE
@@ -321,12 +320,14 @@ bool writeToConfig( String* message )
 	if ( !initConfig( message ) )
 	{
 		// Should check what was response in message
-		*message = F("Error init config.json");
+		msg = F("Failed init config.json");
+    *message = F("{\"Error\":\"") + msg + F("\"}");
 		return false;
 	}
 	else
 	{
-		*message = F("Success Save and init Config");
+		msg = F("Saved and init Config");
+    *message = F("{\"success\":\"") + msg + F("\"}");
 		return true;
 	}
 

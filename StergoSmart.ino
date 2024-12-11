@@ -42,8 +42,9 @@ void setup()
 	#endif
 
 	#ifdef MODULE_DISPLAY
-	FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-	FastLED.setBrightness(maxBrightness);
+	FastLED.addLeds<CHIPSET, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
+    FastLED.setMaxPowerInVoltsAndMilliamps(POWER_VOLTAGE, MAX_POWER_MILLIAMPS); // check config
+    FastLED.setBrightness(maxBrightness);    
 	#endif
 
 
@@ -80,6 +81,7 @@ void setup()
 	}
 	else
 	{
+    ap_previousMillis = millis();
 		setupHttpServer();
 	}
 	
@@ -222,13 +224,15 @@ void loop()
 	  	#endif
 
 		#ifdef MODULE_DISPLAY
-		unsigned long currentDisplayMillis = millis();
-		if ( currentDisplayMillis - displayPreviousMillis >= displayInterval )
+		unsigned long curDispMil = millis();
+		if ( curDispMil - dispPrevMils >= displayInterval )
 		{
-			displayPreviousMillis = currentDisplayMillis;
+			adjustedTime = now() + timeZoneOffset;	// Adjust time by Time Zone offset 
+			dispPrevMils = curDispMil;
 			updateDisplay();
-			FastLED.show();
+			for (int i = 0; i < NUM_LEDS; i++) { leds[i].nscale8_video(maxBrightness); }
 		}
+		FastLED.show();
 		#endif
 	}
 

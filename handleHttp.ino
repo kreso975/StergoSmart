@@ -30,19 +30,11 @@ void setupHttpServer()
 
   server.serveStatic( "/favicon.ico", SPIFFS, "/img/favicon.ico");
 
-  server.on( "/js/jquery.min.js", []() {
-    if ( !handleFileRead("/js/jquery.min.js") )             // send it if it exists
-      server.send(404, "text/plain", "404: Not Found");     // otherwise, respond with a 404 (Not Found) error
-  });
   server.on( "/css/dashboard.css", []() {
     if ( !handleFileRead("/css/dashboard.css") )            // send it if it exists
       server.send(404, "text/plain", "404: Not Found");     // otherwise, respond with a 404 (Not Found) error
   });
-  server.on( "/css/bootstrap-table.min.css", []() {
-    if ( !handleFileRead("/css/bootstrap-table.min.css") )  // send it if it exists
-      server.send(404, "text/plain", "404: Not Found");     // otherwise, respond with a 404 (Not Found) error
-  });
-    
+  
   server.serveStatic( "/img", SPIFFS, "/img" );
 
   server.serveStatic( "/config.json", SPIFFS, "/config.json" );
@@ -142,7 +134,7 @@ void updateConfig()
     else
       sendJSONheaderReply( 0, F("Error delete Log file") );
   }
-  else if ( what == "updateWiFi" || what == "updateMQTT" || what == "updateDevice" || what == "initialSetup" || what == "updateConfig" ) //Need to Fix HTML, not so many args - just updateConfig
+  else if ( what == "updateWiFi" || what == "updateMQTT" || what == "updateDevice" || what == "updateConfig" ) //Need to Fix HTML, not so many args - just updateConfig
   {
     writeToConfig( &message );
     sendJSONheaderReply( 3, message );
@@ -178,7 +170,7 @@ void handleRoot()
   if ( captivePortal() ) // If captive portal redirect instead of displaying the page.
     return;
   
-  if ( !handleFileRead("/captive_1.html") )                // send it if it exists
+  if ( !handleFileRead("/captive.html") )                // send it if it exists
       server.send(404, "text/plain", "404: Not Found");    // otherwise, respond with a 404 (Not Found) error
 }
 

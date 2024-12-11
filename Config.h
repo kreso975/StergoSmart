@@ -10,7 +10,7 @@
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 1
+#define STERGO_PROGRAM 4
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
 #define STERGO_SCREEN 1
@@ -20,7 +20,7 @@
  * ESP8266 default 01S = 1   // v01
  * LOLIN D1 mini       = 2   // v02
  */
-#define STERGO_PROGRAM_BOARD 2
+#define STERGO_PROGRAM_BOARD 1
 
 /*
  * STERGO_PLUG :
@@ -216,6 +216,7 @@ NTPClient timeClient(ntpUDP, NTPSERVER, 0, 60000);
 
 // startTime - When Device Started
 time_t startTime;
+time_t adjustedTime;
 
 ESP8266WebServer server(WEBSERVER_PORT);
  

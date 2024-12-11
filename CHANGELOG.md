@@ -11,7 +11,7 @@
 - firmwareOnlineUpdate() updated
 - code CleanUP
 - Fixed Interval For restart device if in AP mode and pass & Gateway are set in config.json | default 5min
-- Prep for Display 8x32 WS2812B using FastLed.h
+- Prep for Display 8x32 WS2812B using FastLed.h with DHT22. Time, date, Temperature and Humidity
 - Moved Switch button functionality from Main Loop to Switch.ino - checkSwitchButton()
 - adjusted Time Handling overall
 - New GUI design

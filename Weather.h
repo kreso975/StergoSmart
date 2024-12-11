@@ -37,12 +37,12 @@
     #include <Adafruit_BME280.h>
     #include "BME280.h"
 #elif ( STERGO_PROGRAM == 4 )
-    #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "3"
+    #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "4"
     #define MODULE_DHT
     #include <DHT.h>
     #include "DHTsensors.h"
 #elif ( STERGO_PROGRAM == 5 )
-    #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "4"
+    #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "5"
     #define MODULE_DS18B20
     #include <OneWire.h>
     #include <DallasTemperature.h>
