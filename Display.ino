@@ -12,10 +12,10 @@ void updateDisplay() {
     
     switch (displayMode) {
         case 0:
-            drawDate(1, 0, CRGB(255, 0, 0) );             // Display date
+            drawDate(1, 0, displayColor );             // Display date
             break;
         case 1:
-            drawTime(1, 0, CRGB(255, 0, 0), true, false); // Display time
+            drawTime(1, 0, displayColor, true, false); // Display time
             break;
         case 2:
             drawTempHum(0, 0, CRGB::Green, true);
@@ -42,55 +42,36 @@ void drawLetter(int posx, int posy, char letter, CRGB color) {
 
 void drawTempHum(int x, int y, CRGB color, bool isTemperature)
 {
-    char tmpStr[10]; // Buffer to hold the converted string 
+    char tmpStr[10];
 
-    // Adjust initial x position
     x = 4;
     if (isTemperature) {
         dtostrf(t, 3, 0, tmpStr);
-        Serial.println("Temperature string: " + String(tmpStr));
-        // Add "C" at y position 1 and x position -2
         drawLetter(x, 1, 'C', CRGB(255, 0, 0));
-        x += FontWidth - 3; // Move to the next position
-        // Add "." at y position 0 and x position -2
+        x += FontWidth - 3;
         drawLetter(x, -5, '.', CRGB(255, 0, 0));
-        x += 6; // Move to the next position
+        x += 6;
     } else {
         dtostrf(h, 3, 0, tmpStr);
-        Serial.println("Humidity string: " + String(tmpStr));
-        // Add "%" at y position 0 and x position -2
         drawLetter(x, 1, '%', CRGB(0, 0, 255));
-        x += FontWidth + 1; // Move to the next position
+        x += FontWidth + 1;
     }
 
     int length = strlen(tmpStr); // Get the length of the character array
     for (int i = 0; i < length; i++) {
         char letter = tmpStr[length - 1 - i]; // Reverse order
-        drawLetter(x, y, letter, color); // Draw the letter
+        drawLetter(x, y, letter, color);
         x += FontWidth + 1; // Move to the next position
     }
 }
 
 
-void drawTime(int x, int y, CRGB color, bool colon, bool seconds) {
-    // Get current time components
-    //time_t epochTime = timeClient.getEpochTime();
-    //time_t adjustedTime = now() + timeZoneOffset;
+void drawTime(int x, int y, CRGB color, bool colon, bool seconds)
+{
     int hours = hour(adjustedTime);
     int minutes = minute(adjustedTime);
     int secs = second(adjustedTime);
     
-
-    //int hours = timeClient.getHours();
-    //int hours = hour(epochTime);
-    writeLogFile( "Hour: " + String(hours), 1, 1 );
-    //int minutes = timeClient.getMinutes();
-    //int minutes = minute(epochTime);
-    writeLogFile( "Min: " + String(minutes), 1, 1 );
-    //int secs = timeClient.getSeconds();
-    //int secs = second(epochTime);
-    writeLogFile( "Sec: " + String(secs), 1, 1 );
-
     // Clear the LEDs
     fill_solid(leds, NUM_LEDS, CRGB::Black); // Clear the display
     
@@ -118,9 +99,8 @@ void drawTime(int x, int y, CRGB color, bool colon, bool seconds) {
 }
 
 
-void drawDate(int x, int y, CRGB color) {
-    // Get current time
-    //time_t epochTime = timeClient.getEpochTime();
+void drawDate(int x, int y, CRGB color)
+{ 
     struct tm *ptm = gmtime((time_t*)&adjustedTime);
 
     // Get current date components
@@ -240,7 +220,7 @@ void displayState()
         // Example: "#A12345"
         hexColor.remove(0, 1); // Remove the '#'character
         uint32_t colorValue = strtoul(hexColor.c_str(), NULL, 16);
-        CRGB color = CRGB((colorValue >> 16) & 0xFF, (colorValue >> 8) & 0xFF, colorValue & 0xFF);
+        displayColor = CRGB((colorValue >> 16) & 0xFF, (colorValue >> 8) & 0xFF, colorValue & 0xFF);
         writeLogFile( F("Color: ") + server.arg("color"), 1, 1 );
 
     }

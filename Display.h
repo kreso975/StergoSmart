@@ -16,7 +16,7 @@ const bool    kMatrixVertical = true;
 #define NUM_LEDS (kMatrixWidth * kMatrixHeight)
 CRGB leds_plus_safety_pixel[ NUM_LEDS + 1];
 CRGB* const leds( leds_plus_safety_pixel + 1);
-CRGB color = CRGB(255, 0 , 0); // Red default
+CRGB displayColor = CRGB(255, 0 , 0); // Red default
 
 const long timeZoneOffset = 3600; // Adjust for your timezone +1
 

@@ -5,7 +5,7 @@
  *
  *
  * ESP8266 + BME280 + DHT + DS18B20 + BOOTSTRAP + SPIFFS + GOOGLE CHARTS + MQTT + WebHooks
- * + CAPTIVE PORTAL + SSDP + OTA + TicTacToe
+ * + CAPTIVE PORTAL + SSDP + OTA + TicTacToe + LED Matrix Display 8x32 + Discord
  *
  *
  * Copyright (C) 2018-2024 Kresimir Kokanovic - https://github.com/kreso975/StergoSmart
