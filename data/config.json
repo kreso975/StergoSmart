@@ -39,5 +39,8 @@
     "mqtt_myTopic": "iot/device/Attic/WeatherClock119",
     "mqtt_Humidity": "iot/things/AtticClock/Humidity",
     "mqtt_Temperature": "iot/things/AtticClock/Temperature",
-    "mqtt_Pressure": ""
+    "mqtt_Pressure": "",
+    "mqtt_Brightness": "",
+    "mqtt_Color": "",
+    "timeZone": 1
 }
