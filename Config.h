@@ -10,10 +10,10 @@
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 4
+#define STERGO_PROGRAM 0
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
-#define STERGO_SCREEN 1
+#define STERGO_SCREEN 0
 /*
  * STERGO_PROGRAM_BOARD :
  * 
@@ -29,7 +29,7 @@
  * Sonoff S26         = 2   // Plug Switch  - PS
  * Sonoff T4EU1C      = 3   // Light Switch - LS
  */
-#define STERGO_PLUG 2
+#define STERGO_PLUG 1
 
 // Firmware Version always part of this file
 #define FW_VERSION "000.05.104"                 // Check releaseLog for details

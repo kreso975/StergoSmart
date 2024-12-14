@@ -180,6 +180,7 @@ Comments: - Firmware Update Version Check done server side
 String firmwareOnlineUpdate( byte what )
 {
   String message;
+  String prefix;
 
   t_httpUpdate_return ret;
   
@@ -190,11 +191,13 @@ String firmwareOnlineUpdate( byte what )
 
   if ( what == 1 )
   {
+    prefix = "Spiffs";
     ret = ESPhttpUpdate.updateFS( espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", SERIAL_NUMBER );
     //t_httpUpdate_return ret = ESPhttpUpdate.updateFS( espClient, "http://192.168.1.101/StergoWeather/firmware/TT001v01-000.05.102.spiffs.bin" );
   }
   else if ( what == 2 )
   {
+    prefix = "Firmware";
     ret = ESPhttpUpdate.update( espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", FIRMWARE );
     //t_httpUpdate_return ret = ESPhttpUpdate.update( espClient, "http://192.168.1.101/StergoWeather/firmware/temp/StergoSmart.ino.bin", FIRMWARE );
   }
@@ -206,12 +209,12 @@ String firmwareOnlineUpdate( byte what )
       message = F("{\"Error\":\"Failed\"}");
       break;
     case HTTP_UPDATE_NO_UPDATES:
-      writeLogFile( F("Firmware Up2Date"), 1, 3 );
+      writeLogFile( prefix + F(" Up2Date"), 1, 3 );
       message = F("{\"Info\":\"No Updates\"}");
       break;
     case HTTP_UPDATE_OK:
-      writeLogFile( F("Firmware Update"), 1, 3 );
-      message = F("{\"success\":\"Updating..\"}");
+      writeLogFile( prefix + F(" Update"), 1, 3 );
+      message = F("{\"success\":\"Updating ..\"}");
       break;
   }  
 

@@ -105,10 +105,8 @@ void updateConfig()
     writeLogFile( F("Updateing Spiffs"), 1, 3 );
     message = firmwareOnlineUpdate(1);
     sendJSONheaderReply( 3, message );
-    
-    // should return if successs
   }
-  #if ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 3 )               //===============================================
+  #ifdef MODULE_BME280                       //===============================================
   else if ( what == "initBME280" )
   {
     #if ( DEBUG == 1 )
@@ -119,6 +117,8 @@ void updateConfig()
     else
       sendJSONheaderReply( 0, F("Error initBME280") );
   }
+  #endif 
+  #ifdef MODULE_WEATHER                       //===============================================
   else if ( what == "eraseHistory" )
   {
       if ( updateHistory( 1 ) )
