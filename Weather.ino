@@ -216,7 +216,7 @@ bool MainSensorConstruct()
 				if ( currentMillis - previousMillis > intervalHist )
 				{
 					//writeLogFile( F("In check intervalHist - 1st: "), 0 );
-					long int tps = timeClient.getEpochTime();
+					long int tps = now();
 					previousMillis = currentMillis;
 
 					if ( tps > 0 )

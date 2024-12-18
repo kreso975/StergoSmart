@@ -112,6 +112,8 @@ void loop()
 	if ( WiFi.getMode() == 1 )
 	{
 		timeClient.update();
+		if ( timeClient.getEpochTime() != now() )
+			setTime(timeClient.getEpochTime());
 
 		#ifdef MODULE_WEATHER   							//===============================================
 		// If MODULE WEATHER is detected on Setup
