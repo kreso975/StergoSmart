@@ -14,9 +14,9 @@ bool setupMQTT( String* message, int what )
     {
   		client.setServer( mqtt_server, mqtt_port );
 
-  		#ifdef MODULE_SWITCH                                    //====================================================
-    	client.setCallback(callbackMQTT);                       // Only Switch needs listening, Weather just publishes
-  		#endif                                                  //====================================================
+      #if defined( MODULE_SWITCH ) || defined( MODULE_DISPLAY ) //======================================================
+    	client.setCallback(callbackMQTT);                         // Only Switch & Display listens, Weather just publishes
+  		#endif                                                    //======================================================
       
   		if ( !client.connected() )
   		{
@@ -66,6 +66,10 @@ bool MQTTreconnect()
       client.publish( mqtt_myTopic, "connected" );            // Once connected, publish an announcement...
       #ifdef MODULE_SWITCH                                    //===============================================
       client.subscribe(mqtt_switch);                          // We will subsribe only if Switch
+      #endif                                                  //===============================================
+      #ifdef MODULE_DISPLAY                                   //===============================================
+      client.subscribe(mqtt_Brightness);                      // mqtt_Brightness == maxBrightness
+      client.subscribe(mqtt_Color);                           // mqtt_Color == RGB() or HSV()
       #endif                                                  //===============================================
     }
     else
@@ -125,9 +129,10 @@ bool sendMQTT ( char* Topic, char* Payload, bool retain )
 }
 
 // Only for Switches
-#ifdef MODULE_SWITCH                                                //===============================================
+#if defined( MODULE_SWITCH ) || defined( MODULE_DISPLAY )         //===============================================
 void callbackMQTT( char* topic, byte* payload, unsigned int length )
 {
+  #ifdef MODULE_SWITCH
     if ( String(topic) == String(mqtt_switch) )
     {
       if ( (char)payload[0] == '1' ) {          // Turn the Relay on/off
@@ -149,5 +154,31 @@ void callbackMQTT( char* topic, byte* payload, unsigned int length )
         digitalWrite( LED2, 1);
       #endif
     }
+  #endif
+  #ifdef MODULE_DISPLAY
+    if ( String(topic) == String(mqtt_Switch) )
+    {
+      displayON = payload[0];
+    }
+    if ( String(topic) == String(mqtt_Brightness) )
+    {
+      payload[length] = '\0'; // Null-terminate the payload
+      maxBrightness = atoi((char*)payload);
+    }
+    if ( String(topic) == String(mqtt_Color) )
+    {
+      // Null-terminate the payload
+      payload[length] = '\0';
+      // Convert payload to String
+      String hexColor = String((char*)payload);
+      // Remove the '#' character 
+      hexColor.remove(0, 1);
+      // Convert hexColor to uint32_t 
+      uint32_t colorValue = strtoul(hexColor.c_str(), NULL, 16);
+      // Set displayColor
+      displayColor = CRGB((colorValue >> 16) & 0xFF, (colorValue >> 8) & 0xFF, colorValue & 0xFF);
+    }
+  #endif
+
 }
 #endif                                                                 //===============================================

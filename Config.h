@@ -212,7 +212,7 @@ File fsUploadFile;
 
 WiFiUDP ntpUDP;
 
-NTPClient timeClient(ntpUDP, NTPSERVER, 0, 60000);
+NTPClient timeClient(ntpUDP, NTPSERVER, 0, 36e5); // 60 * 60 * 1000 == 1 hour
 
 // startTime - When Device Started
 time_t startTime;

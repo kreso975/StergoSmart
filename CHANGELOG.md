@@ -15,6 +15,9 @@
 - Moved Switch button functionality from Main Loop to Switch.ino - checkSwitchButton()
 - adjusted Time Handling overall
 - New GUI design
+- added send Text message to display
+- fix NTP rare 2036 date problem
+- MQTT for controling display ( maxBrightness, RGB or HSV )
 
 **000.05.103**
 - added support for DHT sensors DHT11, DHT12, DHT21, DHT22  

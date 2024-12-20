@@ -219,7 +219,8 @@ bool MainSensorConstruct()
 					long int tps = now();
 					previousMillis = currentMillis;
 
-					if ( tps > 0 )
+					// Check if we have any record and if maybe record is false: 1.1.2036
+					if ( tps > 0 && tps < 2085974400 )
 					{
 						Sensordata.add(tps);  // Timestamp
 						Sensordata.add(round2(t));    // Temperature

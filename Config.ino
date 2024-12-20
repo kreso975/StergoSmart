@@ -36,7 +36,7 @@ bool initConfig( String* message )
 	configfile.readBytes(buf.get(), size);
 	configfile.close();
 
-	DynamicJsonDocument  jsonConfig(6000);
+	DynamicJsonDocument  jsonConfig(8000);
   	DeserializationError error = deserializeJson( jsonConfig, buf.get());
 
 	if ( error )
@@ -128,6 +128,15 @@ bool initConfig( String* message )
 	tictac_discord = jsonConfig["tictac_discord"];
 	#endif													  //================================================
 
+	#ifdef MODULE_DISPLAY									  //===============   Display   ====================
+	// Display config
+	maxBrightness = jsonConfig["maxBrightness"];
+	timeZone = jsonConfig["timeZone"];
+	//displayColor = 
+	strcpy(mqtt_Brightness, jsonConfig["mqtt_Brightness"]);
+	strcpy(mqtt_Color, jsonConfig["mqtt_Color"]);
+	#endif           										  //================================================
+
 	return true;
 }
 
@@ -157,7 +166,7 @@ bool writeToConfig( String* message )
 	configfile.readBytes(buf.get(), size);
 	configfile.close();
 
-  	DynamicJsonDocument  jsonConfig(6000);
+  	DynamicJsonDocument  jsonConfig(8000);
   	DeserializationError error = deserializeJson( jsonConfig, buf.get());
 
 	if ( error )
@@ -240,7 +249,7 @@ bool writeToConfig( String* message )
     
 	file.close();
   
-  String msg;
+  	String msg;
 	// Let's check if we have change request for MQTT state (start/stop)
 	if ( server.hasArg("MQTTstateOn") ) // Check if MQTT was started or Stopped
 	{

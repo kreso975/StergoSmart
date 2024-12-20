@@ -7,26 +7,25 @@ void updateDisplay() {
         displayMode = (displayMode + 1) % 4; // Rotate between 3 display modes
     }
 
-    
     fill_solid(leds, NUM_LEDS, CRGB::Black); // Clear the display
     
     switch (displayMode)
     {
         case 0:
-            displayRotateInterval = 4000;
+            displayRotateInterval = 4000;              // 4 sec
             drawDate(1, 0, displayColor );             // Display date
             break;
         case 1:
-            displayRotateInterval = 10000;
+            displayRotateInterval = 10000;             // 10 sec
             drawTime(1, 0, displayColor, true, false); // Display time
             break;
         case 2:
-            displayRotateInterval = 5000;
-            drawTempHum(0, 0, displayColor, true);       // Display Temperature true
+            displayRotateInterval = 5000;              // 5 sec
+            drawTempHum(0, 0, displayColor, true);     // Display Temperature true
             break;
         case 3:
             displayRotateInterval = 4000;
-            drawTempHum(0, 0, displayColor, false);       // Display Humidity - false
+            drawTempHum(0, 0, displayColor, false);    // Display Humidity - false
             break;
     }
 }
@@ -108,26 +107,25 @@ void drawTime(int x, int y, CRGB color, bool colon, bool seconds)
 
 void drawDate(int x, int y, CRGB color)
 { 
-    struct tm *ptm = gmtime((time_t*)&adjustedTime);
+    //struct tm *ptm = gmtime((time_t*)&adjustedTime);
 
     // Get current date components
-    int day = ptm->tm_mday;
-    int month = ptm->tm_mon + 1; // tm_mon is 0-11, so we add 1
-
+    int days = day(adjustedTime);
+    int months = month(adjustedTime);
     // Clear the display
     fill_solid(leds, NUM_LEDS, CRGB::Black);
 
     // Display date on LED matrix
     x -= 0;
-    drawLetter(x, y, month % 10 + '0', color);
+    drawLetter(x, y, months % 10 + '0', color);
     x += FontWidth + 1;
-    drawLetter(x, y, month / 10 + '0', color);
+    drawLetter(x, y, months / 10 + '0', color);
     x += FontWidth + 1;
     drawLetter(x-2, y+1, '.', color);
     x += 4;
-    drawLetter(x, y, day % 10 + '0', color);
+    drawLetter(x, y, days % 10 + '0', color);
     x += FontWidth + 1;
-    drawLetter(x, y, day / 10 + '0', color);
+    drawLetter(x, y, days / 10 + '0', color);
 }
 
 void displayMessage(CRGB color, int numSpaces)
@@ -204,12 +202,13 @@ Comments:
 TODO    : */
 void displayState()
 {
+    char buffer[8];
+
     if ( server.args() == 0 )
     {
-        char data[50];
-        char buffer[8];
+        char data[80];
         sprintf(buffer, "#%02X%02X%02X", displayColor.r, displayColor.g, displayColor.b);
-        sprintf(data, "{\"Brightness\":%d,\"color\":\"%s\",\"timeZone\":%d}", maxBrightness, buffer, 1);
+        sprintf(data, "{\"Brightness\":%d,\"displayColor\":\"%s\",\"timeZone\":%d}", maxBrightness, buffer, 1);
 
         // 3 is indicator of JSON already formated reply
         sendJSONheaderReply( 3, data );
@@ -220,15 +219,32 @@ void displayState()
         // timeZoneOffset, brightness, messageDisplay, displayMode
         if ( server.hasArg("brightness") )
         {
-            maxBrightness = (byte)server.arg("brightness").toInt();
+            maxBrightness = server.arg("brightness").toInt();
+            itoa(maxBrightness, buffer, 10);    // Convert
             writeLogFile( F("Updated brightness to ") + String(maxBrightness), 1, 1 );
-            
+            if ( !sendMQTT( mqtt_Brightness, buffer, true ) )
+                writeLogFile( F("Publish Brightness: failed"), 1 );
+                
+        }
+        // On OFF
+        if ( server.hasArg("displayON") )
+        {
+            displayON = (byte)server.arg("displayON").toInt();
+            itoa(maxBrightness, buffer, 10);    // Convert
+            maxBrightness = (displayON) ? 30 : 0;
+
+            writeLogFile( F("Updated displayON to ") + String(maxBrightness), 1, 1 );
+            if ( !sendMQTT( mqtt_Brightness, buffer, true ) )
+                writeLogFile( F("Publish displayON: failed"), 1 );
+                
         }
 
         if ( server.hasArg("messageDisplay") )
         {
             messageDisplay = server.arg("messageDisplay").c_str();
             writeLogFile( F("Updated messageDisplay to ") + String(messageDisplay), 1, 1 );
+            messageON = true;
+            messagePrevMills = millis();
         }
 
         if ( server.hasArg("color") )
@@ -236,9 +252,12 @@ void displayState()
             //need to decide how to store color as a string or ...
             String hexColor = server.arg("color");
             // Example: "#A12345"
+            hexColor.toCharArray(buffer, sizeof(buffer));
             hexColor.remove(0, 1); // Remove the '#'character
             uint32_t colorValue = strtoul(hexColor.c_str(), NULL, 16);
             displayColor = CRGB((colorValue >> 16) & 0xFF, (colorValue >> 8) & 0xFF, colorValue & 0xFF);
+            if ( !sendMQTT( mqtt_Color, buffer, true ) )
+                writeLogFile( F("Publish Color: failed"), 1 );
             writeLogFile( F("Color: ") + server.arg("color"), 1, 1 );
 
         }
