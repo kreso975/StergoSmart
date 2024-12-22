@@ -81,27 +81,27 @@ tested with Sonoff S26, T4EU1C
 
 **Info & Log**  
   
-<div style="display: flex; justify-content: center;"> <img src="./ScreenShots/Info-and-Log.png?raw=true" alt="Info & Log" title="Info & Log" style="width: 50%;"> </div>
+<div style="display: flex; justify-content: center;"> <img src="./ScreenShots/Info-and-Log.png?raw=true" alt="Info & Log" title="Info & Log" style="width: 30%;"> </div>
   
    
 **Publish**  
   
-<div style="display: flex; justify-content: center;"> <img src="./ScreenShots/Module-Settings.png?raw=true" alt="Publish" title="Publish" style="width: 50%;"> </div>
+<div style="display: flex; justify-content: center;"> <img src="./ScreenShots/Module-Settings.png?raw=true" alt="Publish" title="Publish" style="width: 30%;"> </div>
 
   
 **WiFi**  
   
-<div style="display: flex; flex-wrap: wrap; gap: 10px;"> <img src="./ScreenShots/Wifi-Setup.png?raw=true" alt="WiFi" title="WiFi" style="width: 45%;"> <img src="./ScreenShots/WiFi-available-AP.png?raw=true" alt="WiFi available networks" title="WiFi available networks" style="width: 45%;"> </div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px;"> <img src="./ScreenShots/Wifi-Setup.png?raw=true" alt="WiFi" title="WiFi" style="width: 45%;"> <img src="./ScreenShots/WiFi-available-AP.png?raw=true" alt="WiFi available networks" title="WiFi available networks" style="width: 30%;"> </div>
   
 
 **Settings**  
   
 
-<div style="display: flex; justify-content: center;"> <img src="./ScreenShots/Settings.png?raw=true" alt="Settings" title="Settings" style="width: 50%;"> </div>
+<div style="display: flex; justify-content: center;"> <img src="./ScreenShots/Settings.png?raw=true" alt="Settings" title="Settings" style="width: 30%;"> </div>
   
 
 **Captive portal** 
   
   
-<div style="display: flex; justify-content: center;"> <img src="./ScreenShots/Captive-portal.png?raw=true" alt="Captive portal" title="Captive portal" style="width: 50%;"> </div>
+<div style="display: flex; justify-content: center;"> <img src="./ScreenShots/Captive-portal.png?raw=true" alt="Captive portal" title="Captive portal" style="width: 30%;"> </div>
 
