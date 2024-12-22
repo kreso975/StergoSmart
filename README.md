@@ -76,33 +76,32 @@ tested with Sonoff S26, T4EU1C
 ## Screenshots of GUI  
   
 **Dashboard**  
-
-![Weather DashBoard](./ScreenShots/Weather-Dashboard.png?raw=true "Weather Dashboard")  
-![Weather Clock DashBoard](./ScreenShots/Weather-Clock-Dashboard.png?raw=true "Weather Clock Dashboard")  
-![Switch DashBoard](./ScreenShots/Switch-Dashboard.png?raw=true "Switch Dashboard")  
-
+  
+<div style="display: flex; flex-wrap: wrap; gap: 10px;"> <img src="./ScreenShots/Weather-Dashboard.png?raw=true" alt="Weather Dashboard" title="Weather Dashboard" style="width: 30%;"> <img src="./ScreenShots/Weather-Clock-Dashboard.png?raw=true" alt="Weather Clock Dashboard" title="Weather Clock Dashboard" style="width: 30%;"> <img src="./ScreenShots/Switch-Dashboard.png?raw=true" alt="Switch Dashboard" title="Switch Dashboard" style="width: 30%;"> </div>  
 
 **Info & Log**  
-
-![Info](./ScreenShots/Info-and-Log.png?raw=true "Info & Log")  
-
-
+  
+<div style="display: flex; justify-content: center;"> <img src="./ScreenShots/Info-and-Log.png?raw=true" alt="Info & Log" title="Info & Log" style="width: 50%;"> </div>
+  
+   
 **Publish**  
+  
+<div style="display: flex; justify-content: center;"> <img src="./ScreenShots/Module-Settings.png?raw=true" alt="Publish" title="Publish" style="width: 50%;"> </div>
 
-![Publish](./ScreenShots/Module-Settings.png?raw=true "Publish")  
-
-
+  
 **WiFi**  
-
-![WiFi](./ScreenShots/Wifi-Setup.png?raw=true "WiFi")  
-![WiFi](./ScreenShots/WiFi-available-AP.png?raw=true "WiFi available networks")  
+  
+<div style="display: flex; flex-wrap: wrap; gap: 10px;"> <img src="./ScreenShots/Wifi-Setup.png?raw=true" alt="WiFi" title="WiFi" style="width: 45%;"> <img src="./ScreenShots/WiFi-available-AP.png?raw=true" alt="WiFi available networks" title="WiFi available networks" style="width: 45%;"> </div>
   
 
 **Settings**  
-
-![Settings](./ScreenShots/Settings.png?raw=true "Settings")  
   
 
-**Captive portal**  
+<div style="display: flex; justify-content: center;"> <img src="./ScreenShots/Settings.png?raw=true" alt="Settings" title="Settings" style="width: 50%;"> </div>
+  
 
-![Captive portal](./ScreenShots/Captive-portal.png?raw=true "Caprive portal")  
+**Captive portal** 
+  
+  
+<div style="display: flex; justify-content: center;"> <img src="./ScreenShots/Captive-portal.png?raw=true" alt="Captive portal" title="Captive portal" style="width: 50%;"> </div>
+
