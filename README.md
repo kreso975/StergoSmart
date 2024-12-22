@@ -77,26 +77,32 @@ tested with Sonoff S26, T4EU1C
   
 **Dashboard**  
 
-![DashBoard](./ScreenShots/StergoSmart-DashBoard.png?raw=true "Dashboard")  
+![Weather DashBoard](./ScreenShots/Weather-Dashboard.png?raw=true "Weather Dashboard")  
+![Weather Clock DashBoard](./ScreenShots/Weather-Clock-Dashboard.png?raw=true "Weather Clock Dashboard")  
+![Switch DashBoard](./ScreenShots/Switch-Dashboard.png?raw=true "Switch Dashboard")  
 
 
-**Info**  
+**Info & Log**  
 
-![Info](./ScreenShots/StergoSmart-Info.png?raw=true "Info")  
+![Info](./ScreenShots/Info-and-Log.png?raw=true "Info & Log")  
 
 
 **Publish**  
 
-![Publish](./ScreenShots/StergoSmart-Publish.png?raw=true "Publish")  
+![Publish](./ScreenShots/Module-Settings.png?raw=true "Publish")  
 
 
 **WiFi**  
 
-![WiFi](./ScreenShots/StergoSmart-WiFi.png?raw=true "WiFi")  
+![WiFi](./ScreenShots/Wifi-Setup.png?raw=true "WiFi")  
+![WiFi](./ScreenShots/WiFi-available-AP.png?raw=true "WiFi available networks")  
   
 
 **Settings**  
 
-![Settings](./ScreenShots/StergoSmart-Settings.png?raw=true "Settings")  
-
+![Settings](./ScreenShots/Settings.png?raw=true "Settings")  
   
+
+**Captive portal**  
+
+![Captive portal](./ScreenShots/Captive-portal.png?raw=true "Caprive portal")  
