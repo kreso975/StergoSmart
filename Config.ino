@@ -119,22 +119,26 @@ bool initConfig( String* message )
 	#endif           										  //================================================
 
 	#ifdef MODULE_TICTACTOE									  //=============== Tic Tac Toe  ===================
-	// Tic Tac Toe config
-	tictac_start  = jsonConfig["tictac_start"];
-	tictac_interval = jsonConfig["tictac_interval"];
-	ticTacCallInterval = 1000 * 60 * tictac_interval;	// 1000 * 60 * 60 - 60min
-	ticCallLMInterval = ticTacCallInterval;     // time of last point added
-	tictac_webhook = jsonConfig["tictac_webhook"];
-	tictac_discord = jsonConfig["tictac_discord"];
+		// Tic Tac Toe config
+		tictac_start  = jsonConfig["tictac_start"];
+		tictac_interval = jsonConfig["tictac_interval"];
+		ticTacCallInterval = 1000 * 60 * tictac_interval;	// 1000 * 60 * 60 - 60min
+		ticCallLMInterval = ticTacCallInterval;     // time of last point added
+		tictac_webhook = jsonConfig["tictac_webhook"];
+		tictac_discord = jsonConfig["tictac_discord"];
 	#endif													  //================================================
 
 	#ifdef MODULE_DISPLAY									  //===============   Display   ====================
-	// Display config
-	maxBrightness = jsonConfig["maxBrightness"];
-	timeZone = jsonConfig["timeZone"];
-	//displayColor = 
-	strcpy(mqtt_Brightness, jsonConfig["mqtt_Brightness"]);
-	strcpy(mqtt_Color, jsonConfig["mqtt_Color"]);
+		// Display config
+		displayON = jsonConfig["displayON"];
+		maxBrightness = jsonConfig["maxBrightness"];
+		timeZone = jsonConfig["timeZone"];
+		
+		String hexColor = String(jsonConfig["displayColor"]);
+		displayColor = strtol(&hexColor[1], NULL, 16);
+		strcpy(mqtt_displayON, jsonConfig["mqtt_displayON"]);
+		strcpy(mqtt_Brightness, jsonConfig["mqtt_Brightness"]);
+		strcpy(mqtt_Color, jsonConfig["mqtt_Color"]);
 	#endif           										  //================================================
 
 	return true;
@@ -228,7 +232,19 @@ bool writeToConfig( String* message )
 		
 		for ( byte i = 0; i < NAMES_IN_USE_5; i++ )
 			if ( server.hasArg(stringArray_3[i]) )  jsonConfig[stringArray_3[i]] = server.arg(stringArray_3[i]);
-	#endif  
+	#endif
+
+	#ifdef	MODULE_DISPLAY     											//=============== Display Clock ==============
+		String stringArray_4[] = {"mqtt_displayON", "mqtt_Brightness", "mqtt_Color", "displayColor"};
+		const byte NAMES_IN_USE_6 = 4;
+		String intArray_3[] = { "maxBrightness", "timeZone", "displayON" };
+		const byte NAMES_IN_USE_7 = 3;
+		
+		for ( byte i = 0; i < NAMES_IN_USE_6; i++ )
+			if ( server.hasArg(stringArray_4[i]) )  jsonConfig[stringArray_4[i]] = server.arg(stringArray_4[i]);
+		for ( byte i = 0; i < NAMES_IN_USE_7; i++ )
+			if ( server.hasArg(intArray_3[i]) )  jsonConfig[intArray_3[i]] = server.arg(intArray_3[i]).toInt();
+	#endif 
   
 	
 	File file = SPIFFS.open( configFile, "w" );
@@ -324,19 +340,60 @@ bool writeToConfig( String* message )
 		}
 	}
 	#endif
+	#ifdef MODULE_DISPLAY
+	if ( server.hasArg("timeZone") ) // Check if TicTac was started or Stopped
+	{
+		String timeZoneStr = server.arg("timeZone");
+		timeZoneOffset = 3600 * timeZoneStr.toInt();
+	}
+	// Let's check if we have change request for Tic Tac Toe state (start/stop)
+	if ( server.hasArg("displayON") ) // Check if TicTac was started or Stopped
+	{
+		char payload[4]; // Ensure the array is large enough to hold the string representation
+		if ( server.arg("displayON") == "1" )
+		{
+			// Set Updated Display values and do not reload config
+			displayON = 1;
+			itoa(displayON, payload, 10); // Convert byte to string
+			msg = F("Success Display ON");
+			writeLogFile( msg, 1, 3 );
+    		*message = F("{\"success\":\"") + msg + F("\"}");
+			
+			if ( mqtt_start == 1 )
+                if ( !sendMQTT( mqtt_displayON, payload, true ) )
+                    writeLogFile( F("Publish displayON: failed"), 1 );
+			
+			return true;
+		}
+		else if ( server.arg("displayON") == "0" )
+		{
+			// Set Updated Display values and do not reload config
+			displayON = 0;
+			itoa(displayON, payload, 10); // Convert byte to string
+			msg = F("Success Display OFF");
+			writeLogFile( msg, 1, 3 );
+    		*message = F("{\"success\":\"") + msg + F("\"}");
+
+			if ( mqtt_start == 1 )
+                if ( !sendMQTT( mqtt_displayON, payload, true ) )
+                    writeLogFile( F("Publish displayON: failed"), 1 );
+			return true;
+		}
+	}
+	#endif
 
 	// After every save of config Let's load it again
 	if ( !initConfig( message ) )
 	{
 		// Should check what was response in message
 		msg = F("Failed init config.json");
-    *message = F("{\"Error\":\"") + msg + F("\"}");
+    	*message = F("{\"Error\":\"") + msg + F("\"}");
 		return false;
 	}
 	else
 	{
 		msg = F("Saved and init Config");
-    *message = F("{\"success\":\"") + msg + F("\"}");
+    	*message = F("{\"success\":\"") + msg + F("\"}");
 		return true;
 	}
 

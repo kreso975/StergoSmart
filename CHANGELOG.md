@@ -17,7 +17,8 @@
 - New GUI design
 - added send Text message to display
 - fix NTP rare 2036 date problem
-- MQTT for controling display ( maxBrightness, RGB or HSV )
+- MQTT for controling display ( On/Off, Brightness, RGB )
+- Temp display color and Brightnes and Permanent save in config
 
 **000.05.103**
 - added support for DHT sensors DHT11, DHT12, DHT21, DHT22  

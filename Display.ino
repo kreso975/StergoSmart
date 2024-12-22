@@ -7,7 +7,7 @@ void updateDisplay() {
         displayMode = (displayMode + 1) % 4; // Rotate between 3 display modes
     }
 
-    fill_solid(leds, NUM_LEDS, CRGB::Black); // Clear the display
+    FastLED.clearData(); // Clear the display
     
     switch (displayMode)
     {
@@ -79,9 +79,6 @@ void drawTime(int x, int y, CRGB color, bool colon, bool seconds)
     int minutes = minute(adjustedTime);
     int secs = second(adjustedTime);
     
-    // Clear the LEDs
-    fill_solid(leds, NUM_LEDS, CRGB::Black); // Clear the display
-    
     // Display time on LED matrix with swapped positions
     x -= 0;
     drawLetter(x, y, minutes % 10 + '0', color);
@@ -112,9 +109,7 @@ void drawDate(int x, int y, CRGB color)
     // Get current date components
     int days = day(adjustedTime);
     int months = month(adjustedTime);
-    // Clear the display
-    fill_solid(leds, NUM_LEDS, CRGB::Black);
-
+    
     // Display date on LED matrix
     x -= 0;
     drawLetter(x, y, months % 10 + '0', color);
@@ -174,7 +169,7 @@ void displayMessage(CRGB color, int numSpaces)
         scrollPosition = 0; // Reset the scroll position
     }
 
-    fill_solid(leds, NUM_LEDS, CRGB::Black); // Clear the display
+    FastLED.clearData();
 
     // Copy the relevant part of the buffer to the LED matrix
     for (int x = 0; x < kMatrixWidth; x++)
@@ -195,9 +190,9 @@ void displayMessage(CRGB color, int numSpaces)
 
 /* ======================================================================
 Function: displayState
-Purpose : fast change for Display Params - no save 
-Input   : POST
-Output  : json
+Purpose : fast change for Display Params - return JSON on status no save 
+Input   : POST || Blank == return JSON
+Output  : nothing || return JSON
 Comments: 
 TODO    : */
 void displayState()
@@ -206,9 +201,9 @@ void displayState()
 
     if ( server.args() == 0 )
     {
-        char data[80];
+        char data[90];
         sprintf(buffer, "#%02X%02X%02X", displayColor.r, displayColor.g, displayColor.b);
-        sprintf(data, "{\"Brightness\":%d,\"displayColor\":\"%s\",\"timeZone\":%d}", maxBrightness, buffer, 1);
+        sprintf(data, "{\"displayON\":%d,\"Brightness\":%d,\"displayColor\":\"%s\",\"timeZone\":%d}", displayON, maxBrightness, buffer, 1);
 
         // 3 is indicator of JSON already formated reply
         sendJSONheaderReply( 3, data );
@@ -222,44 +217,31 @@ void displayState()
             maxBrightness = server.arg("brightness").toInt();
             itoa(maxBrightness, buffer, 10);    // Convert
             writeLogFile( F("Updated brightness to ") + String(maxBrightness), 1, 1 );
-            if ( !sendMQTT( mqtt_Brightness, buffer, true ) )
-                writeLogFile( F("Publish Brightness: failed"), 1 );
-                
-        }
-        // On OFF
-        if ( server.hasArg("displayON") )
-        {
-            displayON = (byte)server.arg("displayON").toInt();
-            itoa(maxBrightness, buffer, 10);    // Convert
-            maxBrightness = (displayON) ? 30 : 0;
-
-            writeLogFile( F("Updated displayON to ") + String(maxBrightness), 1, 1 );
-            if ( !sendMQTT( mqtt_Brightness, buffer, true ) )
-                writeLogFile( F("Publish displayON: failed"), 1 );
-                
+            if ( mqtt_start == 1 )
+                if ( !sendMQTT( mqtt_Brightness, buffer, true ) )
+                    writeLogFile( F("Publish Brightness: failed"), 1 );  
         }
 
         if ( server.hasArg("messageDisplay") )
         {
             messageDisplay = server.arg("messageDisplay").c_str();
-            writeLogFile( F("Updated messageDisplay to ") + String(messageDisplay), 1, 1 );
+            //writeLogFile( F("Updated messageDisplay to ") + String(messageDisplay), 1, 1 );
             messageON = true;
             messagePrevMills = millis();
         }
 
         if ( server.hasArg("color") )
         {
-            //need to decide how to store color as a string or ...
             String hexColor = server.arg("color");
             // Example: "#A12345"
             hexColor.toCharArray(buffer, sizeof(buffer));
             hexColor.remove(0, 1); // Remove the '#'character
-            uint32_t colorValue = strtoul(hexColor.c_str(), NULL, 16);
-            displayColor = CRGB((colorValue >> 16) & 0xFF, (colorValue >> 8) & 0xFF, colorValue & 0xFF);
-            if ( !sendMQTT( mqtt_Color, buffer, true ) )
-                writeLogFile( F("Publish Color: failed"), 1 );
-            writeLogFile( F("Color: ") + server.arg("color"), 1, 1 );
-
+            displayColor = strtoul(hexColor.c_str(), NULL, 16);
+            if ( mqtt_start == 1 )
+                if ( !sendMQTT( mqtt_Color, buffer, true ) )
+                    writeLogFile( F("Publish Color: failed"), 1 );
+            
+            //writeLogFile( F("Color: ") + server.arg("color"), 1, 1 );
         }
         sendJSONheaderReply( 1, "Updated" );
     }

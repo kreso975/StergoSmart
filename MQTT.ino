@@ -70,6 +70,7 @@ bool MQTTreconnect()
       #ifdef MODULE_DISPLAY                                   //===============================================
       client.subscribe(mqtt_Brightness);                      // mqtt_Brightness == maxBrightness
       client.subscribe(mqtt_Color);                           // mqtt_Color == RGB() or HSV()
+      client.subscribe(mqtt_displayON);                       // mqtt_displayON == ON | OFF
       #endif                                                  //===============================================
     }
     else
@@ -156,9 +157,14 @@ void callbackMQTT( char* topic, byte* payload, unsigned int length )
     }
   #endif
   #ifdef MODULE_DISPLAY
-    if ( String(topic) == String(mqtt_Switch) )
-    {
-      displayON = payload[0];
+    if ( String(topic) == String(mqtt_displayON) )
+    { 
+      //displayON = (byte)payload[0];
+      if( (char)payload[0] == '1' )
+        displayON = 1;
+      if( (char)payload[0] == '0' )
+        displayON = 0;
+      
     }
     if ( String(topic) == String(mqtt_Brightness) )
     {
@@ -171,12 +177,7 @@ void callbackMQTT( char* topic, byte* payload, unsigned int length )
       payload[length] = '\0';
       // Convert payload to String
       String hexColor = String((char*)payload);
-      // Remove the '#' character 
-      hexColor.remove(0, 1);
-      // Convert hexColor to uint32_t 
-      uint32_t colorValue = strtoul(hexColor.c_str(), NULL, 16);
-      // Set displayColor
-      displayColor = CRGB((colorValue >> 16) & 0xFF, (colorValue >> 8) & 0xFF, colorValue & 0xFF);
+      displayColor = strtol(&hexColor[1], NULL, 16);
     }
   #endif
 

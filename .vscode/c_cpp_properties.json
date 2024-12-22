@@ -32,14 +32,18 @@
             "forcedInclude": [
                 "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\cores\\esp8266\\Arduino.h",
                 "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\cores\\esp8266\\FS.h",
+                "C:\\Users\\kreso\\Documents\\Arduino\\libraries\\FastLED\\src\\FastLED.cpp",
+                "C:\\Users\\kreso\\Documents\\Arduino\\libraries\\PubSubClient\\src\\PubSubClient.cpp",
+                "C:\\Users\\kreso\\Documents\\Arduino\\libraries\\PubSubClient\\src\\PubSubClient.h",
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\config.h",
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\handleHttp.ino",
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\Weather.ino",
-                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\MQTT.ino"
+                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\MQTT.ino",
+                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\Display.ino"
             ],
             
             "browse": {
-                "path": ["${workspaceFolder}"],
+                "path": ["${workspaceFolder}/**"],
                 "limitSymbolsToIncludedHeaders": false
             },
             "cStandard": "c11",

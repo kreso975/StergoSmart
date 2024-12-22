@@ -40,7 +40,11 @@
     "mqtt_Humidity": "iot/things/AtticClock/Humidity",
     "mqtt_Temperature": "iot/things/AtticClock/Temperature",
     "mqtt_Pressure": "",
-    "mqtt_Brightness": "",
-    "mqtt_Color": "",
+    "mqtt_displayON": "iot/things/AtticClock/displayON",
+    "mqtt_Brightness": "iot/things/AtticClock/Brightness",
+    "mqtt_Color": "iot/things/AtticClock/Color",
+    "displayON": 1,
+    "maxBrightness": 30,
+    "displayColor": "#0000FF",
     "timeZone": 1
 }

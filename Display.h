@@ -4,43 +4,44 @@
 #define POWER_VOLTAGE 5             // set Voltage
 #define MAX_POWER_MILLIAMPS 700     // set Milliamps
 byte  maxBrightness = 35;
+byte displayON = 1;
 
 // Params for width and height
 const uint8_t kMatrixWidth = 32;
 const uint8_t kMatrixHeight = 8;
+#define NUM_LEDS (kMatrixWidth * kMatrixHeight)
 
 // Param for different pixel layouts
 const bool    kMatrixSerpentineLayout = true;
 const bool    kMatrixVertical = true;
 
-#define NUM_LEDS (kMatrixWidth * kMatrixHeight)
 CRGB leds_plus_safety_pixel[ NUM_LEDS + 1];
 CRGB* const leds( leds_plus_safety_pixel + 1);
+
 CRGB displayColor = CRGB(255, 0 , 0); // Red default
 
-byte timeZone = 1; 
-const long timeZoneOffset = 3600 * timeZone; // Adjust for your timezone +1
+int timeZone = 1; 
+long timeZoneOffset; // Adjust for your timezone +1 - in Setup after config
 
+// Interval - enter into updateDisplay()
 unsigned long displayInterval = 1000;
 unsigned long dispPrevMils = displayInterval;
-// Interval for rotating display
+// Interval for rotating display - default
 unsigned long displayRotateInterval = 10000;
 unsigned long lastDisplayChange = 0;
 byte displayMode = 0;
 
-const char* messageDisplay = "Historia est magistra VITAE";
+const char* messageDisplay = "";
 int scrollPosition = 0;
 bool messageON = false;
 const long messageInterval = 10000;  // 10 seconds
 unsigned long messagePrevMills = messageInterval;
 
-byte displayON = 1;
 
 //MQTT Topics used from config.json
 char mqtt_Brightness[120];
 char mqtt_Color[120];
-char mqtt_Switch[120];
-
+char mqtt_displayON[120];
 
 const uint8_t FontHeight=8;
 const uint8_t FontWidth=6;

@@ -44,7 +44,9 @@ void setup()
 	#ifdef MODULE_DISPLAY
 	FastLED.addLeds<CHIPSET, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
     FastLED.setMaxPowerInVoltsAndMilliamps(POWER_VOLTAGE, MAX_POWER_MILLIAMPS); // check config
-    FastLED.setBrightness(maxBrightness);    
+    FastLED.setBrightness(maxBrightness);
+
+	timeZoneOffset = 3600 * timeZone;
 	#endif
 
 
@@ -226,33 +228,39 @@ void loop()
 	  	#endif
 
 		#ifdef MODULE_DISPLAY													//===============================================
-		if ( messageON )
+		if ( displayON == 1 )	// if display is SET ON
 		{
-			server.stop(); // Stopping webServer because it scrambles scroll buffer if accessed during scroll
-			displayMessage(displayColor, 16); // Scroll message
-			for (int i = 0; i < NUM_LEDS; i++) { leds[i].nscale8_video(maxBrightness); }
-			FastLED.delay(10);
-			
-			unsigned long curMessageMil = millis();
-			if ( curMessageMil - messagePrevMills >= messageInterval )
+			if ( messageON )
 			{
-				server.begin(); // restart web server after scroll ends
-				messagePrevMills = curMessageMil;
-				messageON = false; // Set messageON to false after 10 seconds 
+				server.stop(); // Stopping webServer because it scrambles scroll buffer if accessed during scroll
+				displayMessage(displayColor, 16); // Scroll message
+				for (int i = 0; i < NUM_LEDS; i++) { leds[i].nscale8_video(maxBrightness); }
+				FastLED.delay(10);
+				
+				unsigned long curMessageMil = millis();
+				if ( curMessageMil - messagePrevMills >= messageInterval )
+				{
+					server.begin(); // restart web server after scroll ends
+					messagePrevMills = curMessageMil;
+					messageON = false; // Set messageON to false after 10 seconds 
+				}
+			}
+			else
+			{
+				unsigned long curDispMil = millis();
+				if ( curDispMil - dispPrevMils >= displayInterval )
+				{
+					adjustedTime = now() + timeZoneOffset;	// Adjust time by Time Zone offset 
+					dispPrevMils = curDispMil;
+					updateDisplay();
+					for (int i = 0; i < NUM_LEDS; i++) { leds[i].nscale8_video(maxBrightness); }
+				}
 			}
 		}
 		else
 		{
-			unsigned long curDispMil = millis();
-			if ( curDispMil - dispPrevMils >= displayInterval )
-			{
-				adjustedTime = now() + timeZoneOffset;	// Adjust time by Time Zone offset 
-				dispPrevMils = curDispMil;
-				updateDisplay();
-				for (int i = 0; i < NUM_LEDS; i++) { leds[i].nscale8_video(maxBrightness); }
-			}
+			FastLED.clearData();
 		}
-		
 		FastLED.show();
 		#endif																	//===============================================
 	}

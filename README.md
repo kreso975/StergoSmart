@@ -12,15 +12,17 @@ Smart Home IOT - Weather and Switches with GUI
 **BME280**  
 tested with Sonoff S26, T4EU1C
 
-- Bootstrap 3.4
+- Bootstrap 5.3 | old UI Bootstrap 3.4
 - jQuery
 - GUI Interface: Dashboard, Configuration
-- Google Charts
+- ApexCharts | old UI - Google Charts
 - Captive portal for initial Setup
 - OTA update
 - MQTT, HTTP, Publish as Webhook
 - WiFi manager
 - SSDP
+- WS2812b matrix 8x32.
+- Clock displaying Time, Date, Temperature, Humidity, Message
 - UDP Tic Tac Toe
 - Tic Tac Toe winners Publish as Webhook (Discord channel)
   
@@ -44,6 +46,7 @@ tested with Sonoff S26, T4EU1C
 > OneWire by Jim Studt, Tom Pollard.. **v2.3.8**  
 > DallasTemperature by Miles Burton **v3.9.0**  
 > Time by Michael Margolis **v1.6.1**  
+> FastLED by Daniel Garcia **v3.7.8**  
 
 > [!NOTE]
 > **Compile setup: ** 
