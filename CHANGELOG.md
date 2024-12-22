@@ -6,7 +6,10 @@
  <br><br>
  
 ## **CHANGES:**
-**000.05.104** - in development
+**000.05.105** - in development
+
+
+**000.05.104**  
 - wifiScanJSON() rewritten, using asyn method WiFi.scanNetworksAsync(wifiScanResult)
 - firmwareOnlineUpdate() updated
 - code CleanUP
@@ -20,7 +23,7 @@
 - MQTT for controling display ( On/Off, Brightness, RGB )
 - Temp display color and Brightnes and Permanent save in config
 
-**000.05.103**
+**000.05.103**  
 - added support for DHT sensors DHT11, DHT12, DHT21, DHT22  
 - added support for DS18B20 sensor  
 - rename Variables mqtt_bme280Humidity, mqtt_bme280Temperature, mqtt_bme280Pressure into generic mqtt_Humidity, mqtt_Temperature, mqtt_Pressure  
