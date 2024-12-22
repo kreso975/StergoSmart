@@ -91,7 +91,7 @@ tested with Sonoff S26, T4EU1C
   
 **WiFi**  
   
-<div style="display: flex; flex-wrap: wrap; gap: 10px;"> <img src="./ScreenShots/Wifi-Setup.png?raw=true" alt="WiFi" title="WiFi" style="width: 45%;"> <img src="./ScreenShots/WiFi-available-AP.png?raw=true" alt="WiFi available networks" title="WiFi available networks" style="width: 30%;"> </div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px;"> <img src="./ScreenShots/Wifi-Setup.png?raw=true" alt="WiFi" title="WiFi" style="width: 30%;"> <img src="./ScreenShots/WiFi-available-AP.png?raw=true" alt="WiFi available networks" title="WiFi available networks" style="width: 30%;"> </div>
   
 
 **Settings**  
