@@ -106,19 +106,17 @@ void updateConfig()
     message = firmwareOnlineUpdate(1);
     sendJSONheaderReply( 3, message );
   }
-  #ifdef MODULE_BME280                       //===============================================
-  else if ( what == "initBME280" )
+  #ifdef MODULE_WEATHER                       //===============================================
+  else if ( what == "initWeather" )
   {
     #if ( DEBUG == 1 )
-    writeLogFile( F("init BME280"), 1, 3 );
+    writeLogFile( F("init Weather"), 1, 3 );
     #endif
-    if ( setupBME280() )
-      sendJSONheaderReply( 1, F("Success init BME280") );
+    if ( setupWeather() )
+      sendJSONheaderReply( 1, F("Success init Weather") );
     else
-      sendJSONheaderReply( 0, F("Error initBME280") );
+      sendJSONheaderReply( 0, F("Error init Weather") );
   }
-  #endif 
-  #ifdef MODULE_WEATHER                       //===============================================
   else if ( what == "eraseHistory" )
   {
       if ( updateHistory( 1 ) )

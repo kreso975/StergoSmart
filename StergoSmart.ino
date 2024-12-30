@@ -49,7 +49,7 @@ void setup()
 	timeZoneOffset = 3600 * timeZone;
 	#endif
 
-	WiFiManager();
+	wifiManager.manageWiFi();
 
 	if ( WiFi.getMode() == 1 )
 	{

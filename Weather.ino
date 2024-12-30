@@ -48,17 +48,22 @@ float Kelvin( float celsius ) { return celsius + 273.15; }
 //hPascals to inhg conversion
 float iNHg( float hpa ) { return hpa * 0.02952998; }
 
-void setupWeather()
+bool setupWeather()
 {
 	#ifdef MODULE_BME280
-	setupBME280();
+	if ( setupBME280() )
+		return true;
 	#endif
 	#ifdef MODULE_DHT
-	setupDHT();
+	if ( setupDHT() )
+		return true;
 	#endif
 	#ifdef MODULE_DS18B20
 	setupDS18B20();
+	return true;
 	#endif
+
+	return false;
 }
 
 void readWeather()

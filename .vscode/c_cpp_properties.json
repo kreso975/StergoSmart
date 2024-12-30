@@ -36,10 +36,15 @@
                 "C:\\Users\\kreso\\Documents\\Arduino\\libraries\\PubSubClient\\src\\PubSubClient.cpp",
                 "C:\\Users\\kreso\\Documents\\Arduino\\libraries\\PubSubClient\\src\\PubSubClient.h",
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\config.h",
+                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\Config.ino",
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\handleHttp.ino",
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\Weather.ino",
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\MQTT.ino",
-                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\Display.ino"
+                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\Display.ino",
+                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\WiFiManager.h",
+                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\WiFi.ino",
+                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\TicTacToe.h",
+                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\TicTacToe.ino"
             ],
             
             "browse": {
