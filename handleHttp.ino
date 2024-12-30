@@ -150,9 +150,9 @@ Output  : HTTP JSON
 Comments: - */
 void sendDeviceInfo()
 {
-  char data[360];
-  sprintf( data, "{\"result\":[{\"Name\":\"Firmware\",\"Value\":\"%s\"},{\"Name\":\"Chip ID\",\"Value\":\"%u\"},{\"Name\":\"Free Heap\",\"Value\":\"%u\"},{\"Name\":\"DeviceName\",\"Value\":\"%s\"},{\"Name\":\"Uptime\",\"Value\":\"%s\"},{\"Name\":\"DeviceIP\",\"Value\":\"%s\"},{\"Name\":\"MAC address\",\"Value\":\"%s\"},{\"Name\":\"FreeSPIFFS\",\"Value\":\"%ld\"}]}",
-          FIRMWARE, ESP.getChipId(), ESP.getFreeHeap(), deviceName, showDuration().c_str(), WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(),GetMeFSinfo().toInt() );
+  char data[460];
+  int len = snprintf(data, sizeof(data), "{\"result\":[{\"Name\":\"Firmware\",\"Value\":\"%s\"},{\"Name\":\"Chip ID\",\"Value\":\"%u\"},{\"Name\":\"CPU Frequency(MHz)\",\"Value\":\"%u\"},{\"Name\":\"Free Heap\",\"Value\":\"%u\"},{\"Name\":\"DeviceName\",\"Value\":\"%s\"},{\"Name\":\"Uptime\",\"Value\":\"%s\"},{\"Name\":\"DeviceIP\",\"Value\":\"%s\"},{\"Name\":\"MAC address\",\"Value\":\"%s\"},{\"Name\":\"FreeSPIFFS\",\"Value\":\"%ld\"}]}",
+    FIRMWARE, ESP.getChipId(), ESP.getCpuFreqMHz(), ESP.getFreeHeap(), deviceName, showDuration().c_str(), WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), GetMeFSinfo().toInt());
   
   // 3 is indicator of JSON already formated reply
   sendJSONheaderReply( 3, data );

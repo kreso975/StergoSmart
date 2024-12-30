@@ -7,7 +7,8 @@
  
 ## **CHANGES:**
 **000.05.105** - in development
-
+- added CPU Frequency(MHz) in deviceinfo.json
+- cleanUP Main Loop - moved logic to each owner
 
 **000.05.104**  
 - wifiScanJSON() rewritten, using asyn method WiFi.scanNetworksAsync(wifiScanResult)

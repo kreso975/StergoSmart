@@ -350,33 +350,34 @@ bool writeToConfig( String* message )
 	if ( server.hasArg("displayON") ) // Check if TicTac was started or Stopped
 	{
 		char payload[4]; // Ensure the array is large enough to hold the string representation
-		if ( server.arg("displayON") == "1" )
+		if (server.arg("displayON") == "1")
 		{
 			// Set Updated Display values and do not reload config
 			displayON = 1;
 			itoa(displayON, payload, 10); // Convert byte to string
 			msg = F("Success Display ON");
-			writeLogFile( msg, 1, 3 );
-    		*message = F("{\"success\":\"") + msg + F("\"}");
-			
-			if ( mqtt_start == 1 )
-                if ( !sendMQTT( mqtt_displayON, payload, true ) )
-                    writeLogFile( F("Publish displayON: failed"), 1 );
-			
+			writeLogFile(msg, 1, 3);
+			*message = F("{\"success\":\"") + msg + F("\"}");
+
+			if (mqtt_start == 1)
+				if (!sendMQTT(mqtt_displayON, payload, true))
+					writeLogFile(F("Publish displayON: failed"), 1);
+
 			return true;
 		}
-		else if ( server.arg("displayON") == "0" )
+		else if (server.arg("displayON") == "0")
 		{
 			// Set Updated Display values and do not reload config
 			displayON = 0;
+			FastLED.clearData();
 			itoa(displayON, payload, 10); // Convert byte to string
 			msg = F("Success Display OFF");
-			writeLogFile( msg, 1, 3 );
-    		*message = F("{\"success\":\"") + msg + F("\"}");
+			writeLogFile(msg, 1, 3);
+			*message = F("{\"success\":\"") + msg + F("\"}");
 
-			if ( mqtt_start == 1 )
-                if ( !sendMQTT( mqtt_displayON, payload, true ) )
-                    writeLogFile( F("Publish displayON: failed"), 1 );
+			if (mqtt_start == 1)
+				if (!sendMQTT(mqtt_displayON, payload, true))
+					writeLogFile(F("Publish displayON: failed"), 1);
 			return true;
 		}
 	}

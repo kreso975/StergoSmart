@@ -19,6 +19,58 @@
  *              6 | 7 | 8 
 */
 
+
+/* ======================================================================
+Function: updateTicTacToe
+Purpose : Main TicTacToe Constructor ( listen and initiate game)
+Input   : 
+Output  : 
+Comments: 
+TODO    : */
+void updateTicTacToe()
+{
+	// We Have config setting for manualy start/stop Tic Tac Toe
+	if ( tictac_start == 1 )
+	{
+		// Search for Devices in LAN
+		if ( (millis() - previousSSDP > intervalSSDP ) || measureSSDPFirstRun )
+		{
+			previousSSDP = millis();
+			measureSSDPFirstRun = false;
+			requestSSDP(1); // This request should be done periodicaly / every 10min
+		}
+
+		// Init M-SEARCH over UDP , SSDP Discovery Listen for TicTacToe
+		handleSSDP(); // WE DON'T NEED SSDP in WiFi AP mode
+
+		// Time interval to ask net devices to play tic tac toe
+		if ((millis() - ticCallLMInterval > ticTacCallInterval) || ticCallFirstRun)
+		{
+			ticCallLMInterval = millis();
+			ticCallFirstRun = false;
+			#if (DEBUG == 1)
+			Serial.println("Inside TicTac Invite");
+			#endif
+			// Init Game
+			inviteDeviceTicTacToe();
+		}
+		// Time interval to check on inactivity of the game, auto reset
+		if ((millis() - ticTacLastPlayed > ticTacLastPlayedInterval) && gameStarted == 1 && turn > 0)
+		{
+			#if (DEBUG == 1)
+			writeLogFile(F("Inside LastPlayedTicTac measure and gameStarted == 1 and turn > 0"), 1, 1);
+			#endif
+			resetTicTacToe();
+		}
+		if ((millis() - ticTacLastPlayed > ticTacLastPlayedInterval) && didIaskedToPlay)
+		{
+			#if (DEBUG == 1)
+			writeLogFile(F("Inside LastPlayedTicTac measure and didIaskedToPlay == true"), 1, 1);
+			#endif
+			resetTicTacToe();
+		}
+	}
+}
 // Setup Start variable values
 void startGameValues( String playerName )
 {
@@ -114,6 +166,13 @@ void draw( int board[9] )
 }
 #endif
 
+/* ======================================================================
+Function: win
+Purpose : Check if there is a winner
+Input   : 
+Output  : 0 or 1 or -1
+Comments: 
+TODO    : */
 int win( const int board[9] )
 {
   if ( turn > 0 )
@@ -131,6 +190,13 @@ int win( const int board[9] )
   return 0;
 }
 
+/* ======================================================================
+Function: minimax
+Purpose : Calculate the best move for AI
+Input   : 
+Output  : Return best move - dependant on depth (IQ)
+Comments: 
+TODO    : */
 int minimax( int board[9], int player, byte depth )
 {
   //check if there is a winner
@@ -163,6 +229,13 @@ int minimax( int board[9], int player, byte depth )
   return score;
 }
 
+/* ======================================================================
+Function: computerMove
+Purpose : AI Player
+Input   : 
+Output  : Play move
+Comments: 
+TODO    : */
 void computerMove( int board[9] )
 {
   int move = -1;
@@ -205,7 +278,13 @@ void computerMove( int board[9] )
   ++turn;
 }
 
-//
+/* ======================================================================
+Function: playerMove
+Purpose : Opponent Player || Remote Player
+Input   : 
+Output  : Play move
+Comments: 
+TODO    : */
 bool playerMove( int board[9], byte moveKeypadNum )
 {
   int move = 0;
@@ -245,9 +324,14 @@ bool playerMove( int board[9], byte moveKeypadNum )
   return false;
 }
 
-
-// what = 1 / Init Game // who
-// what = 2 / Play move
+/* ======================================================================
+Function: letsPlay
+Purpose : Main logic for playing TicTacToe
+Input   : what = 1 / Init Game // who
+          what = 2 / Play move
+Output  : What in next step in Game Play
+Comments: 
+TODO    : */
 void letsPlay( byte what, String who )
 {
   
@@ -350,6 +434,13 @@ void letsPlay( byte what, String who )
           draw(board);
           Serial.println("You " + _tmp + " lose. Arduino wins!");
           #endif
+          #ifdef MODULE_DISPLAY
+          renderWIN = true;
+				  messageWinON = true;
+          messageON = true;
+				  server.stop(); // Stopping webServer because it scrambles scroll buffer if accessed during scroll
+          prevMilMesLife = millis();
+          #endif
           sendTicTacWebhook(1);
           sendTicTacWebhook(2);
           break;
@@ -368,14 +459,12 @@ void letsPlay( byte what, String who )
   }
 }
 
-
 /* ======================================================================
 Function: playTicTacToe
 Purpose : initial Tic Tac Toe Manager
 Input   : String input - UDP ASCII message received
 Output  : 
-TODO    : 
-====================================================================== */
+TODO    :  */
 void playTicTacToe( String input )
 {
   playerName = parseUDP(input , 2);     // Parsing Input from UDP
@@ -568,8 +657,7 @@ Function: inviteDeviceTicTacToe
 Purpose : invite available device to play Tic Tac Toe with you (SSDP)
 Input   : 
 Output  : 
-TODO    : In here We Can have settup for Playing UDP or MQTT
-====================================================================== */
+TODO    : In here We Can have settup for Playing UDP or MQTT */
 void inviteDeviceTicTacToe()
 {
   // Let's check if we are already playing
@@ -614,35 +702,41 @@ void inviteDeviceTicTacToe()
   }
 }
 
-// We should build 2 different calls 1. Discord, 2 Webhook
-// Without Secure Client it's not possible to send to Discord Directly
-void sendTicTacWebhook( byte where )
+/* ======================================================================
+Function: sendTicTacWebhook
+Purpose : Send Webhook to Discord or WebServer
+Input   : where = 1 / Send to Discord
+          where = 2 / Send to WebServer
+Output  : 
+TODO    :  We should build 2 different calls 1. Discord, 2 Webhook
+           Without Secure Client it's not possible to send to Discord Directly */
+void sendTicTacWebhook(byte where)
 {
-  char* localURL;
-  String data;
-  
-  localURL = discord_url;
-  String discordUsername = _devicename;
-    
-  // We also check if we can publish to Webhook
-  // For now its just demo
-  if ( where == 1 && ( tictac_webhook == 1 || tictac_discord == 1 ) )
-  {
-    String discordAvatar = discord_avatar;
-    String message = F("I Won! Loser: ") + playerName + F(" lost.");
-    data = F("{\"username\":\"") + discordUsername + F("\",\"avatar_url\":\"") + discordAvatar + F("\",\"content\":\"") + message + F("\"}");
-    sendWebhook( localURL, data );
-  }
-  
+	char *localURL;
+	String data;
+
+	localURL = discord_url;
+	String discordUsername = _devicename;
+
+	// We also check if we can publish to Webhook
+	// For now its just demo
+	if (where == 1 && (tictac_webhook == 1 || tictac_discord == 1))
+	{
+		String discordAvatar = discord_avatar;
+		String message = F("I Won! Loser: ") + playerName + F(" lost.");
+		data = F("{\"username\":\"") + discordUsername + F("\",\"avatar_url\":\"") + discordAvatar + F("\",\"content\":\"") + message + F("\"}");
+		sendWebhook(localURL, data);
+	}
 }
 
-#if ( DEBUG == 1 )
+#if (DEBUG == 1)
 // to Optimize code.
-void printLogInPhase( String where )
+void printLogInPhase(String where)
 {
-  writeLogFile( "in " + where + ", gameStarted: " + String(gameStarted), 1, 1 );
-  writeLogFile( "in " + where + ", player: " + String(player), 1, 1 );
-  writeLogFile( "in " + where + ", turn: " + String(turn), 1, 1 );
+	writeLogFile("in " + where + ", gameStarted: " + String(gameStarted), 1, 1);
+	writeLogFile("in " + where + ", player: " + String(player), 1, 1);
+	writeLogFile("in " + where + ", turn: " + String(turn), 1, 1);
 }
 #endif
+
 #endif

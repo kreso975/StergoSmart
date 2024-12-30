@@ -1,3 +1,51 @@
+/* ======================================================================
+Function: updateMQTT
+Purpose : Main Loop handler for MQTT
+Input   : 
+Output  : logic execution and listener
+Comments: 
+TODO    : */
+void updateMQTT()
+{
+	// Check if MQTT is turned ON
+	if ( mqtt_start == 1 )
+	{
+		if (!client.connected())
+			MQTTreconnect();
+
+		#ifdef MODULE_WEATHER 					//===================  MODULE WEATHER =============
+		String message;
+		if (millis() - mqtt_previousMillis > mqtt_intervalHist)
+		{
+			mqtt_previousMillis = millis();
+			if (!sendMeasuresMQTT())
+			{
+				setupMQTT(&message, 1);
+				sendMeasuresMQTT();
+			}
+		}
+		#endif 										//===============================================
+
+		client.loop();
+	}
+	// Check if MQTT is turned OFF because of too many tries
+	if ( mqttTempDown == 1 )
+	{
+		// We will wait mqttTempDownInt and try again
+		if ((millis() - lastmqttTempDownMillis > mqttTempDownInt))
+		{
+			lastmqttTempDownMillis = millis();
+
+			// Reset MQTT values
+			mqtt_start = 1;
+			mqttTempDown = 0;
+			#if (DEBUG == 1)
+			writeLogFile(F("Resetting MQTT"), 1, 1);
+			#endif
+		}
+	}
+}
+
 /*
 ======================================================================
 Function: setupMQTT
@@ -129,57 +177,63 @@ bool sendMQTT ( char* Topic, char* Payload, bool retain )
   return checkStat;
 }
 
-// Only for Switches
+// Only for Switches && Display
 #if defined( MODULE_SWITCH ) || defined( MODULE_DISPLAY )         //===============================================
-void callbackMQTT( char* topic, byte* payload, unsigned int length )
+void callbackMQTT(char *topic, byte *payload, unsigned int length)
 {
-  #ifdef MODULE_SWITCH
-    if ( String(topic) == String(mqtt_switch) )
-    {
-      if ( (char)payload[0] == '1' ) {          // Turn the Relay on/off
-        digitalWrite( RELAY, HIGH );
-        relay01State = true;
-      } 
-      if ( (char)payload[0] == '0' ) {
-        digitalWrite( RELAY, LOW );
-        relay01State = false;
-      }   
-    }
-    else if ( String(topic) == String(mqtt_switch2) )
-    {
-      // No current purpose Except for ESP8266 01S turning light onboard on/off
-      #ifdef LED2
-      if ((char)payload[0] == '1')  // Turn the LED on/off
-        digitalWrite( LED2, 0);  
-      else
-        digitalWrite( LED2, 1);
-      #endif
-    }
-  #endif
-  #ifdef MODULE_DISPLAY
-    if ( String(topic) == String(mqtt_displayON) )
-    { 
-      //displayON = (byte)payload[0];
-      if( (char)payload[0] == '1' )
-        displayON = 1;
-      if( (char)payload[0] == '0' )
-        displayON = 0;
-      
-    }
-    if ( String(topic) == String(mqtt_Brightness) )
-    {
-      payload[length] = '\0'; // Null-terminate the payload
-      maxBrightness = atoi((char*)payload);
-    }
-    if ( String(topic) == String(mqtt_Color) )
-    {
-      // Null-terminate the payload
-      payload[length] = '\0';
-      // Convert payload to String
-      String hexColor = String((char*)payload);
-      displayColor = strtol(&hexColor[1], NULL, 16);
-    }
-  #endif
+	#ifdef MODULE_SWITCH
+	if (String(topic) == String(mqtt_switch))
+	{
+		if ((char)payload[0] == '1')
+		{ // Turn the Relay on/off
+			digitalWrite(RELAY, HIGH);
+			relay01State = true;
+		}
+		if ((char)payload[0] == '0')
+		{
+			digitalWrite(RELAY, LOW);
+			relay01State = false;
+		}
+	}
+	else if (String(topic) == String(mqtt_switch2))
+	{
+		// No current purpose Except for ESP8266 01S turning light onboard on/off
+		#ifdef LED2
+		if ((char)payload[0] == '1') // Turn the LED on/off
+			digitalWrite(LED2, 0);
+		else
+			digitalWrite(LED2, 1);
+		#endif
+	}
+	#endif
+	#ifdef MODULE_DISPLAY
+	if (String(topic) == String(mqtt_displayON))
+	{
+		// displayON = (byte)payload[0];
+		if ((char)payload[0] == '1')
+			displayON = 1;
 
+		if ((char)payload[0] == '0')
+		{
+			FastLED.clearData();
+			displayON = 0;
+		}
+	}
+
+	if (String(topic) == String(mqtt_Brightness))
+	{
+		payload[length] = '\0'; // Null-terminate the payload
+		maxBrightness = atoi((char *)payload);
+	}
+
+	if (String(topic) == String(mqtt_Color))
+	{
+		// Null-terminate the payload
+		payload[length] = '\0';
+		// Convert payload to String
+		String hexColor = String((char *)payload);
+		displayColor = strtol(&hexColor[1], NULL, 16);
+	}
+	#endif
 }
-#endif                                                                 //===============================================
+#endif                                                            //===============================================

@@ -20,7 +20,7 @@
  * ESP8266 default 01S = 1   // v01
  * LOLIN D1 mini       = 2   // v02
  */
-#define STERGO_PROGRAM_BOARD 1
+#define STERGO_PROGRAM_BOARD 1    
 
 /*
  * STERGO_PLUG :
@@ -32,7 +32,7 @@
 #define STERGO_PLUG 1
 
 // Firmware Version always part of this file
-#define FW_VERSION "000.05.104"                 // Check releaseLog for details
+#define FW_VERSION "000.05.105"                 // Check releaseLog for details
 #define MODEL_FRENDLY_NAME "Stergo Smart"
 #define COMPANY_URL "http://www.stergo.hr"
 
@@ -41,7 +41,7 @@
 #define EXCLUDED_CODE 1
 
 // 1 true | 0 false  / Serial.print 
-#define DEBUG 1
+#define DEBUG 0
 
 //=================================================================
 #include <ESP8266WiFi.h>
@@ -85,6 +85,7 @@
     
 #if ( STERGO_SCREEN == 1 )
     #include "FastLED.h"
+    #include <vector>
     #define MODULE_DISPLAY
     #include "Display.h"
 #endif

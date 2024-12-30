@@ -1,4 +1,40 @@
 #ifdef MODULE_WEATHER
+/* ======================================================================
+Function: updateWeather
+Purpose : Main Loop handler for Weather
+Input   : 
+Output  : logic execution
+Comments: 
+TODO    : */
+void updateWeather()
+{
+	// If MODULE WEATHER is detected on Setup
+	if ( detectModule )
+	{
+		if ( ( millis() - lastMeasureInterval > measureInterval ) || measureFirstRun )
+		{
+			lastMeasureInterval = millis();
+			measureFirstRun = false;
+
+			// read Weather Sensor based on MODULE
+			readWeather();
+			
+			MainSensorConstruct();
+		}
+
+		if ( webLoc_start == 1 )
+		{
+			if ( millis() - webLoc_previousMillis > webLoc_intervalHist )
+			{	
+				#if ( DEBUG == 1 )                      // -------------------------------------------
+					writeLogFile(F("Inside true webLoc loop"), 1, 1);
+				#endif
+				webLoc_previousMillis = millis();
+				sendMeasuresWebhook();
+			}
+			}
+	}
+}
 
 //Feet to Meter conversion
 float Meter( float feet ) { return feet * 0.3048; }
@@ -73,6 +109,13 @@ bool updateHistory( int z = 0 )
     return true;
 }
 
+/* ======================================================================
+Function: sendMeasuresMQTT
+Purpose : Publish measures to MQTT
+Input   : 
+Output  : Return true / false
+Comments: 
+TODO    : */
 bool sendMeasuresMQTT()
 {
 	bool checkStat = true;
@@ -110,6 +153,13 @@ bool sendMeasuresMQTT()
     return checkStat;
 }
 
+/* ======================================================================
+Function: sendMeasuresWebhook
+Purpose : Publish measures to Webhook
+Input   : 
+Output  : 
+Comments: 
+TODO    : */
 void sendMeasuresWebhook()
 {
 	char* localURL;
@@ -132,10 +182,9 @@ void sendMeasuresWebhook()
 	sendWebhook( localURL, data );
 }
 
-
 /* ======================================================================
 Function: sendMeasures
-Purpose : 
+Purpose : Publish temperature, humidity, air pressure to JSON HTTP
 Input   : -
 Output  : HTTP JSON
 Comments: -  */
