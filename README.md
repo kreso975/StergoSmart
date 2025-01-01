@@ -27,13 +27,15 @@ tested with Sonoff S26, T4EU1C
 - Tic Tac Toe winners Publish as Webhook (Discord channel)
   
 > [!IMPORTANT]
-> **Works with SPIFF**  
+> **Works with SPIFF <= v000.001.104**  
 > Works only in old Arduino IDE 1.8  
 > SPIFF UPLOAD ( ESP8266 Scatch Data Upload )  
 >	Download https://github.com/esp8266/arduino-esp8266fs-plugin/releases - ESP8266FS  
-> Extract  to Home dir Arduino /tools  
->
+> Extract  to Home dir Arduino /tools 
 >   
+> **Works with LittleFS => v000.001.105**  
+>   
+>
 > **Libraries Needed**
 >   
 > NTPClient by Fabrice Weinberg  **v3.2.1**  
