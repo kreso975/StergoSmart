@@ -4,7 +4,7 @@
  * Smart Home IOT - Weather and Switches with GUI - ESP8266
  *
  *
- * ESP8266 + BME280 + DHT + DS18B20 + BOOTSTRAP + SPIFFS + APEX CHARTS + MQTT + WebHooks
+ * ESP8266 + BME280 + DHT + DS18B20 + BOOTSTRAP + LittleFS + APEX CHARTS + MQTT + WebHooks
  * + CAPTIVE PORTAL + SSDP + NTP + OTA + TicTacToe + LED Matrix Display 8x32 + Discord
  *
  *
@@ -98,7 +98,7 @@ void loop()
 
 	if ( WiFi.getMode() == WIFI_STA )
 	{
-		if ( timeClient.update() )
+		if ( timeClient.update() )					// Update time
 			setTime(timeClient.getEpochTime());
 		
 		#ifdef MODULE_DISPLAY						//=================  MODULE DISPLAY =============

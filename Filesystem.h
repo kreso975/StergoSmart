@@ -1,7 +1,7 @@
 // Declare function because of default param provided
 /* ======================================================================
 Function: writeLogFile
-Purpose : Print to Serial && Write SPIFF json LOG
+Purpose : Print to Serial && Write LittleFS json LOG
 Input   : message, newLine = for Serial.print (with or without NEW LINE), 
           output: default is 2 if not set. ( 1 only serial, 2 only LOG, 3 both )
 Output  : true / false

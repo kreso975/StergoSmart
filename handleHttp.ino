@@ -28,20 +28,20 @@ void setupHttpServer()
     server.onNotFound ( handleNotFound );
   }
 
-  server.serveStatic( "/favicon.ico", SPIFFS, "/img/favicon.ico");
+  server.serveStatic( "/favicon.ico", LittleFS, "/img/favicon.ico");
 
   server.on( "/css/dashboard.css", []() {
     if ( !handleFileRead("/css/dashboard.css") )            // send it if it exists
       server.send(404, "text/plain", "404: Not Found");     // otherwise, respond with a 404 (Not Found) error
   });
   
-  server.serveStatic( "/img", SPIFFS, "/img" );
+  server.serveStatic( "/img", LittleFS, "/img" );
 
-  server.serveStatic( "/config.json", SPIFFS, "/config.json" );
-  server.serveStatic( "/log.json", SPIFFS, "/log.json" );
+  server.serveStatic( "/config.json", LittleFS, "/config.json" );
+  server.serveStatic( "/log.json", LittleFS, "/log.json" );
 
   #ifdef MODULE_WEATHER                                             //===============================================
-    server.serveStatic( "/history.json", SPIFFS, "/history.json" );
+    server.serveStatic( "/history.json", LittleFS, "/history.json" );
     server.on( "/measures.json", sendMeasures );
   #endif                                                            //===============================================
   
@@ -102,7 +102,7 @@ void updateConfig()
   else if ( what == "updateSpiffs" )
   {
     // should return if successs
-    writeLogFile( F("Updateing Spiffs"), 1, 3 );
+    writeLogFile( F("Updateing LittleFS"), 1, 3 );
     message = firmwareOnlineUpdate(1);
     sendJSONheaderReply( 3, message );
   }

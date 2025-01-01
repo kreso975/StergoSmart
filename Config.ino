@@ -12,7 +12,7 @@
 
 /* ======================================================================
 Function: initConfig
-Purpose : read from SPIFF config.json 
+Purpose : read from LittleFS config.json 
 Input   : message
 Output  : true / false
 Comments: 
@@ -22,7 +22,7 @@ TODO    : FIX strcpy replace with strlcpy
           sizeof(config.hostname));          // <- destination's capacity */
 bool initConfig( String* message )
 {
-	File configfile = SPIFFS.open( configFile, "r" );
+	File configfile = LittleFS.open( configFile, "r" );
 	if (!configfile)
 	{
 		// Cannot open file - check if not exist to pull one from web or sim
@@ -146,7 +146,7 @@ bool initConfig( String* message )
 
  /* ======================================================================
 Function: writeToConfig
-Purpose : Write to SPIFF config.json | Update config.json
+Purpose : Write to LittleFS config.json | Update config.json
 Input   : message
 Output  : true / false
 Comments: 
@@ -156,7 +156,7 @@ bool writeToConfig( String* message )
 { 
 	writeLogFile( "Update Config", 1 );
 
-	File configfile = SPIFFS.open( configFile, "r" );
+	File configfile = LittleFS.open( configFile, "r" );
 	if ( !configfile )
 	{
 		// Cannot open file - check if not exist to pull one from web or sim
@@ -247,7 +247,7 @@ bool writeToConfig( String* message )
 	#endif 
   
 	
-	File file = SPIFFS.open( configFile, "w" );
+	File file = LittleFS.open( configFile, "w" );
 	if (!file)
 	{
 		writeLogFile( fWrite + String(configFile), 1 );

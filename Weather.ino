@@ -96,7 +96,7 @@ bool updateHistory( int z = 0 )
 {
 	String json;
 
-	File file = SPIFFS.open( HISTORY_FILE, "w" );
+	File file = LittleFS.open( HISTORY_FILE, "w" );
 	if ( !file )
 		return false;
 
@@ -230,7 +230,7 @@ bool MainSensorConstruct()
     //unsigned int Jsonlength = jsonDataBuffer.length();
     //writeLogFile( "Before load size: " + String(Jsonlength), 1 );
 
-	File file = SPIFFS.open( HISTORY_FILE, "r" );
+	File file = LittleFS.open( HISTORY_FILE, "r" );
 	if (!file)
 	{
 		//writeLogFile( fOpen + HISTORY_FILE, 1 );
@@ -293,7 +293,7 @@ bool MainSensorConstruct()
 							sensor.remove(0); // - remove first record / oldest
 						}
 
-						File file = SPIFFS.open( HISTORY_FILE, "w" );
+						File file = LittleFS.open( HISTORY_FILE, "w" );
 						if (!file)
 						{
 							//writeLogFile( fOpen + HISTORY_FILE, 1 );

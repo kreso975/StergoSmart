@@ -32,9 +32,12 @@
             "forcedInclude": [
                 "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\cores\\esp8266\\Arduino.h",
                 "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\cores\\esp8266\\FS.h",
+                "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\libraries\\LittleFS\\src\\LittleFS.h",
+                "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\libraries\\LittleFS\\src\\LittleFS.cpp",
                 "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\libraries\\ESP8266WiFi\\src\\ESP8266WiFi.h",
                 "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\libraries\\ESP8266WiFi\\src\\ESP8266WiFi.cpp",
                 "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\libraries\\ESP8266WiFi\\src\\ESP8266WiFiType.h",
+                "C:\\Users\\kreso\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\libraries\\ESP8266WebServer\\src\\ESP8266WebServer.h",
                 "C:\\Users\\kreso\\Documents\\Arduino\\libraries\\FastLED\\src\\FastLED.cpp",
                 "C:\\Users\\kreso\\Documents\\Arduino\\libraries\\NTPClient\\NTPClient.h",
                 "C:\\Users\\kreso\\Documents\\Arduino\\libraries\\NTPClient\\NTPClient.cpp",

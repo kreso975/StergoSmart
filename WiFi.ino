@@ -1,7 +1,7 @@
 /* ======================== OTA Manager ==============================
 Function: firmwareOnlineUpdate
 Purpose : brain of OTA behaviour
-Input   : byte what -> 1 == SPIFFS, 2 == Firmware
+Input   : byte what -> 1 == LittleFS, 2 == Firmware
 Output  : String Json message format 
 Comments: - Firmware Update Version Check done server side 
             http://192.168.1.101/StergoWeather/firmwareCheck.php

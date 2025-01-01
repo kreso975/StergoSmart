@@ -10,7 +10,7 @@ String GetMeFSinfo()
     size_t maxPathLength;   // max file name length (including one byte for zero termination)
   };
 
-  SPIFFS.info(fs_info);
+  LittleFS.info(fs_info);
   int Flashfree = ( fs_info.totalBytes - fs_info.usedBytes ) / 1000;
   MyOut = String( Flashfree );
   
@@ -19,15 +19,15 @@ String GetMeFSinfo()
 
 /* ======================================================================
 Function: setupFS
-Purpose : Setup SPIFFS Filesystem
+Purpose : Setup LittleFS Filesystem
 Input   : 
 Output  : 
-TODO    : Implement fail over if SPIFFS get corrupted - copy content 
+TODO    : Implement fail over if LittleFS get corrupted - copy content 
           from web loc or Upload or
           https://github.com/spacehuhn/esp8266_deauther/blob/master/esp8266_deauther/webfiles.h */
 bool setupFS()
 {
-  if ( SPIFFS.begin() )
+  if ( LittleFS.begin() )
     return true;
   else
     return false;
@@ -56,11 +56,11 @@ bool handleFileRead( String path )
   String contentType = getContentType(path);              // Get the MIME type
   String pathWithGz = path + ".gz";
   
-  if ( SPIFFS.exists( pathWithGz ) || SPIFFS.exists( path ) )
+  if ( LittleFS.exists( pathWithGz ) || LittleFS.exists( path ) )
   {                                                        // If the file exists, either as a compressed archive, or normal
-    if ( SPIFFS.exists( pathWithGz ) )                     // If there's a compressed version available
+    if ( LittleFS.exists( pathWithGz ) )                     // If there's a compressed version available
       path += ".gz";                                       // Use the compressed verion
-    File file = SPIFFS.open(path, "r");                    // Open the file
+    File file = LittleFS.open(path, "r");                    // Open the file
     server.streamFile(file, contentType);                  // Send it to the client
     file.close();                                          // Close the file again
     //writeLogFile( "\tSent file: " + path, 1 );
@@ -73,7 +73,7 @@ bool handleFileRead( String path )
 }
 
 void handleFileUpload()
-{ // upload a new file to the SPIFFS
+{ // upload a new file to the LittleFS
 
   HTTPUpload& upload = server.upload();
   String filename = upload.filename;
@@ -83,7 +83,7 @@ void handleFileUpload()
     if( !filename.startsWith("/") )
       filename = "/"+filename;
          
-    fsUploadFile = SPIFFS.open(filename, "w");            // Open the file for writing in SPIFFS (create if it doesn't exist)
+    fsUploadFile = LittleFS.open(filename, "w");            // Open the file for writing in LittleFS (create if it doesn't exist)
     filename = String();
   }
   else if(  upload.status == UPLOAD_FILE_WRITE )
@@ -119,7 +119,7 @@ bool saveLogFile( int z = 0 )
 { 
   String json;
   
-  File file = SPIFFS.open( LOG_FILE, "w" );
+  File file = LittleFS.open( LOG_FILE, "w" );
   if ( !file )
     return false;
 
@@ -134,7 +134,7 @@ bool saveLogFile( int z = 0 )
 
  /* ======================================================================
 Function: writeLogFile
-Purpose : Print to Serial && Write SPIFF json LOG
+Purpose : Print to Serial && Write LittleFS json LOG
 Input   : message, newLine = for Serial.print (with or without NEW LINE), 
           output: default is 2 if not set. ( 1 only serial, 2 only LOG, 3 both )
 Output  : true / false
@@ -161,7 +161,7 @@ bool writeLogFile( String message, int newLine, int output )
   {
     DynamicJsonDocument  jsonBuffer(6000);
 
-	  File file = SPIFFS.open( LOG_FILE, "r" );
+	  File file = LittleFS.open( LOG_FILE, "r" );
 	  if (!file)
 	  {
 		  writeLogFile( fOpen + LOG_FILE, 1 );
@@ -206,7 +206,7 @@ bool writeLogFile( String message, int newLine, int output )
 					    logData.remove(0); 			// - remove first record / oldest
 
 				    //Let's now write Fresh log input
-				    File file = SPIFFS.open( LOG_FILE, "w" );
+				    File file = LittleFS.open( LOG_FILE, "w" );
 				    if (!file)
 				    {
 					    writeLogFile( fOpen + LOG_FILE, 1 );

@@ -11,6 +11,7 @@
 - cleanUP Main Loop - moved logic to each owner  
 - WiFiManager moved to Class and new file WiFiManager.h  
 - Update in WiFiManager added checkAPRestart()  
+- Migrate from SPIFFS to LittleFS
   
 **000.05.104**  
 - wifiScanJSON() rewritten, using asyn method WiFi.scanNetworksAsync(wifiScanResult)  

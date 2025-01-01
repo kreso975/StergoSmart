@@ -52,7 +52,7 @@
 #include "ESP8266httpUpdate.h"
 #include <DNSServer.h>
 #include <ESP8266mDNS.h>
-#include <FS.h>
+#include <LittleFS.h>
 #include <TimeLib.h>
 #include <NTPClient.h>
 #include "ArduinoJson.h"    // v6.21.5
@@ -144,7 +144,7 @@ String fWrite = "Fail to write ";
  * hostname (wifi_hostname) for mDNS. Should work at least on windows. Try http://stergoweather.local *
  * Set these to your desired softAP credentials. They are not configurable at runtime                 *
  ******************************************************************************************************/
-char softAP_ssid[20] = "StergoSmart_ap";  //This value shows only if SPIFFS not loaded
+char softAP_ssid[20] = "StergoSmart_ap";  //This value shows only if LittleFS not loaded
 char softAP_pass[20] = "123456789";       //
 #define DNS_PORT 53
 
