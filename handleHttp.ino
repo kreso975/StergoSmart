@@ -22,8 +22,8 @@ void setupHttpServer()
     dnsServer.start( DNS_PORT, "*", WiFi.softAPIP() ) ;
 
     server.on( "/", handleRoot );
-    server.on( "/generate_204", handleRoot );  //Android captive portal. <= Android 6.0.1
-    server.on( "/fwlink", handleRoot );  //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
+    server.on( "/generate_204", handleRoot ); //Android captive portal. <= Android 6.0.1
+    server.on( "/fwlink", handleRoot );       //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
     
     server.onNotFound ( handleNotFound );
   }
@@ -201,7 +201,6 @@ void handleNotFound()
   
   server.send ( 404, "text/plain", "Not Found" );
 }
-
 
 /* ======================================================================
 Function: sendWebhook

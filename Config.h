@@ -5,7 +5,7 @@
  *
  * PowerSwitch                  = 0
  * StergoWeather BME280         = 1
- * ticTacToe                    = 2
+ * TicTacToe                    = 2
  * StergoWeather+PowerSwitch    = 3
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
@@ -19,6 +19,7 @@
  * 
  * ESP8266 default 01S = 1   // v01
  * LOLIN D1 mini       = 2   // v02
+ * ESP32               = 3   // v03
  */
 #define STERGO_PROGRAM_BOARD 1    
 
@@ -147,10 +148,6 @@ char softAP_ssid[20] = "StergoSmart_ap";  //This value shows only if SPIFFS not 
 char softAP_pass[20] = "123456789";       //
 #define DNS_PORT 53
 
-// Interval For restart device if in AP mode and pass & Gateway are set in config.json
-#define ap_intervalHist 1000 * 60 * 5            // 1000 * 60 * 5 = 5min
-unsigned long ap_previousMillis = millis();      // time of last point added
-
 /** Should I connect to W LAN asap? */
 bool connect;
 
@@ -225,5 +222,3 @@ time_t adjustedTime;
 
 ESP8266WebServer server(WEBSERVER_PORT);
  
-// Buffer for ArduinoJson
-//String jsonLogBuffer = "{\"log\":[]}";                      // JSON log export buffer

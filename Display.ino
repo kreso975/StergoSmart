@@ -162,7 +162,7 @@ void drawDate( CRGB *buffer, int x, int y, CRGB colorDate )
 		drawLetterBuf(buffer, posX, y, months / 10 + '0', colorDate);
 		posX += FontWidth + 1;
 		drawLetterBuf(buffer, posX - 2, y + 1, '.', colorDate);
-		posX += 4;
+		posX += 3;
 		drawLetterBuf(buffer, posX, y, days % 10 + '0', colorDate);
 		posX += FontWidth + 1;
 		drawLetterBuf(buffer, posX, y, days / 10 + '0', colorDate);

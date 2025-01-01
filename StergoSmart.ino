@@ -22,9 +22,9 @@ void setup()
 
 	#if ( DEBUG == 1 )
 	Serial.begin ( SERIAL_BAUDRATE );
-	delay(1000);
 	//Serial.setDebugOutput(true);
 	#endif
+	delay(1000);
 	
 	if ( !setupFS() )
 		writeLogFile( F("No Filesystem"), 1, 3 );
@@ -51,7 +51,7 @@ void setup()
 
 	wifiManager.manageWiFi();
 
-	if ( WiFi.getMode() == 1 )
+	if ( WiFi.getMode() == WIFI_STA )
 	{
 		MDNS.begin( wifi_hostname );
 
@@ -76,7 +76,6 @@ void setup()
 	}
 	else
 	{
-    	ap_previousMillis = millis();
 		setupHttpServer();
 	}
 	
@@ -88,27 +87,20 @@ void loop()
 {
 	// WiFi AP mode
 	// IN AP MODE we don't have Date & Time so we don't do anything except setup Device
-	if ( WiFi.getMode() == 2 )
+	if ( WiFi.getMode() == WIFI_AP )
 	{
 		dnsServer.processNextRequest();
-
-		//IF AP is running for 5 min and we have in cofig setup Password and Gateway
-		//We will restart device and try to connect to WiFi STA again
-		if ( ( millis() - ap_previousMillis > ap_intervalHist ) && strcmp( wifi_ssid, "" )  && strcmp( wifi_password, "" ) )
-		{
-			writeLogFile( F("AP 5min restart"), 1, 3 );
-			delay(500);
-			ESP.restart();
-		}
+		// If in AP mode we will check if we need to restart the device
+		wifiManager.checkAPRestart();
 	}
 		
 	server.handleClient();
 
-	if ( WiFi.getMode() == 1 )
+	if ( WiFi.getMode() == WIFI_STA )
 	{
-		//timeClient.update();
-		//if ( timeClient.getEpochTime() != now() )
-		//	setTime(timeClient.getEpochTime());
+		if ( timeClient.update() )
+			setTime(timeClient.getEpochTime());
+		
 		#ifdef MODULE_DISPLAY						//=================  MODULE DISPLAY =============
 		if ( !messageWinON )
 		{

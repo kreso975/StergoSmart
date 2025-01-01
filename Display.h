@@ -5,13 +5,13 @@
 #define MAX_POWER_MILLIAMPS 700     // set Milliamps
 
 byte  maxBrightness = 35;
+// Display ON/OFF
 byte displayON = 1;
 
 // Params for width and height
 const uint8_t kMatrixWidth = 32;
 const uint8_t kMatrixHeight = 8;
 #define NUM_LEDS (kMatrixWidth * kMatrixHeight)
-
 
 // Param for different pixel layouts
 const bool kMatrixSerpentineLayout = true;
@@ -22,6 +22,7 @@ CRGB* const leds( leds_plus_safety_pixel + 1);
 
 CRGB displayColor = CRGB(255, 0 , 0);         // Red default
 
+// TimeZone is adjustable in config.json
 int timeZone = 1; 
 long timeZoneOffset;                          // Adjust for your timezone +1 - in Setup after config
 
@@ -36,7 +37,7 @@ CRGB tempBufferText[NUM_LEDS];            // Buffer for text
 CRGB tempBufferParticles[NUM_LEDS];       // Buffer for particles
 CRGB tempBufferDate[NUM_LEDS];            // Buffer for date
 
-CRGB *displayBuffer = nullptr; // Pointer to store the SCROLL MESSAGE buffer
+CRGB *displayBuffer = nullptr;            // Pointer to store the SCROLL MESSAGE buffer
 int bufferSize = 0;
 //CRGB tempBufferMessage[NUM_LEDS];       // Buffer for message - not in use
 
@@ -45,8 +46,8 @@ int bufferSize = 0;
 // Global variables for initial velocity, gradual deceleration, and other parameters
 const float INITIAL_VELOCITY = 1.5;
 const float DECELERATION_FACTOR = 0.75;
-const int PARTICLE_LIFE = 70;
-const int PARTICLE_COUNT = 10;
+const int PARTICLE_LIFE = 50;
+const int PARTICLE_COUNT = 9;
 const int EXPLOSION_FREQUENCY = 1;
 const int UPDATE_RATE = 50;
 
@@ -54,7 +55,7 @@ const int UPDATE_RATE = 50;
 const char* messageDisplay = "";
 static int scrollPosition = 0;              // Make scrollPosition static
 bool messageON = false;
-bool messageWinON = false;
+bool messageWinON = false;                  // Use for Enter WIN and Fireworks
 bool renderWIN = false;                     // Set renderWIN to false
 const long intervalMessage = 30;            // Update rate for displayMessage in milliseconds
 unsigned long previousMillisMessage = 0;

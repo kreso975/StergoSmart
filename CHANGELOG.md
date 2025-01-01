@@ -6,24 +6,25 @@
  <br><br>
  
 ## **CHANGES:**
-**000.05.105** - in development
-- added CPU Frequency(MHz) in deviceinfo.json
-- cleanUP Main Loop - moved logic to each owner
-- WiFiManager moved to Class and new file WiFiManager.h
-
+**000.05.105** - in development  
+- added CPU Frequency(MHz) in deviceinfo.json  
+- cleanUP Main Loop - moved logic to each owner  
+- WiFiManager moved to Class and new file WiFiManager.h  
+- Update in WiFiManager added checkAPRestart()  
+  
 **000.05.104**  
-- wifiScanJSON() rewritten, using asyn method WiFi.scanNetworksAsync(wifiScanResult)
-- firmwareOnlineUpdate() updated
-- code CleanUP
-- Fixed Interval For restart device if in AP mode and pass & Gateway are set in config.json | default 5min
-- Prep for Display 8x32 WS2812B using FastLed.h with DHT22. Time, date, Temperature and Humidity
-- Moved Switch button functionality from Main Loop to Switch.ino - checkSwitchButton()
-- adjusted Time Handling overall
-- New GUI design
-- added send Text message to display
-- fix NTP rare 2036 date problem
-- MQTT for controling display ( On/Off, Brightness, RGB )
-- Temp display color and Brightnes and Permanent save in config
+- wifiScanJSON() rewritten, using asyn method WiFi.scanNetworksAsync(wifiScanResult)  
+- firmwareOnlineUpdate() updated  
+- code CleanUP  
+- Fixed Interval For restart device if in AP mode and pass & Gateway are set in config.json | default 5min  
+- Prep for Display 8x32 WS2812B using FastLed.h with DHT22. Time, date, Temperature and Humidity  
+- Moved Switch button functionality from Main Loop to Switch.ino - checkSwitchButton()  
+- adjusted Time Handling overall  
+- New GUI design  
+- added send Text message to display  
+- fix NTP rare 2036 date problem  
+- MQTT for controling display ( On/Off, Brightness, RGB )  
+- Temp display color and Brightnes and Permanent save in config  
 
 **000.05.103**  
 - added support for DHT sensors DHT11, DHT12, DHT21, DHT22  
