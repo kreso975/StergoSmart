@@ -36,7 +36,7 @@ tested with Sonoff S26, T4EU1C
 > **Works with LittleFS => v000.01.105**  
 >   
 >
-> **Libraries Needed:**
+> **Libraries Needed:**  
 > NTPClient by Fabrice Weinberg  **v3.2.1**  
 > Adafruit BME280 Library by Adafruit **v2.2.4**  
 > Adafruit Unified Sensor by Adafruit **v1.1.14**  
