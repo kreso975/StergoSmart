@@ -42,11 +42,10 @@
 #define EXCLUDED_CODE 1
 
 // 1 true | 0 false  / Serial.print 
-#define DEBUG 0
+#define DEBUG 1
 
 //=================================================================
 #include <ESP8266WiFi.h>
-#include "WiFiManager.h"
 #include <ESP8266HTTPClient.h>
 #include "ESP8266WebServer.h"
 #include "ESP8266httpUpdate.h"
@@ -60,6 +59,7 @@
 #include <PubSubClient.h>
 #include <ESP8266SSDP.h>    // SSDP (Simple Service Discovery Protocol) service
 #include "Filesystem.h"     //
+#include "WiFiManager.h"
 
 #if ( STERGO_PROGRAM == 0 )  // Power Plug | Switch
     #define MODULE_SWITCH

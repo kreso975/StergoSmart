@@ -1,4 +1,25 @@
 /* ======================================================================
+Function: updateSSDP
+Purpose : Main updateSSDP Constructor ( called from Loop )
+Input   : 
+Output  : 
+Comments: 
+TODO    : */
+void updateSSDP()
+{
+	// Search for Devices in LAN
+	if ( (millis() - previousSSDP > intervalSSDP ) || measureSSDPFirstRun )
+	{
+		previousSSDP = millis();
+		measureSSDPFirstRun = false;
+		requestSSDP(1); // This request should be done periodicaly / every 10min
+	}
+
+	// Init M-SEARCH over UDP , SSDP Discovery Listen for TicTacToe
+	handleSSDP(); // WE DON'T NEED SSDP in WiFi AP mode
+}
+
+/* ======================================================================
 Function: setupSSDP
 Purpose : Initialize SSDP (Simple Service Discovery Protocol) Service
 Input   : 

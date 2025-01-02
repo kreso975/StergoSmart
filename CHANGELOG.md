@@ -12,6 +12,7 @@
 - WiFiManager moved to Class and new file WiFiManager.h  
 - Update in WiFiManager added checkAPRestart()  
 - Migrate from SPIFFS to LittleFS
+- Moved to SSDP.ino functionality from TicTacToe update - new function updateSSDP() 
   
 **000.05.104**  
 - wifiScanJSON() rewritten, using asyn method WiFi.scanNetworksAsync(wifiScanResult)  

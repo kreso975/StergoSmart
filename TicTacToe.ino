@@ -32,16 +32,7 @@ void updateTicTacToe()
 	// We Have config setting for manualy start/stop Tic Tac Toe
 	if ( tictac_start == 1 )
 	{
-		// Search for Devices in LAN
-		if ( (millis() - previousSSDP > intervalSSDP ) || measureSSDPFirstRun )
-		{
-			previousSSDP = millis();
-			measureSSDPFirstRun = false;
-			requestSSDP(1); // This request should be done periodicaly / every 10min
-		}
-
-		// Init M-SEARCH over UDP , SSDP Discovery Listen for TicTacToe
-		handleSSDP(); // WE DON'T NEED SSDP in WiFi AP mode
+		updateSSDP();
 
 		// Time interval to ask net devices to play tic tac toe
 		if ((millis() - ticCallLMInterval > ticTacCallInterval) || ticCallFirstRun)
@@ -49,7 +40,7 @@ void updateTicTacToe()
 			ticCallLMInterval = millis();
 			ticCallFirstRun = false;
 			#if (DEBUG == 1)
-			Serial.println("Inside TicTac Invite");
+			writeLogFile(F("Inside TicTac Invite"), 1, 1);
 			#endif
 			// Init Game
 			inviteDeviceTicTacToe();
