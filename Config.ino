@@ -1,25 +1,10 @@
-/* defConf ="deviceID": "1", "deviceType": "1", "deviceName": "", "moduleName": "", 
-			"t_measure": 0, "p_measure": 0, "p_adjust": 0, "pa_unit": 0, "pl_adj": 0, "wifi_runAS": 1,
-    		"wifi_hideAP": 0, "softAP_ssid": "StergoSmart", "softAP_pass": "123456789", "wifi_hostname": "StergoSmart",
-    		"wifi_static": 0, "wifi_StaticIP": "", "wifi_SSID": "", "wifi_password": "", "wifi_gateway": "", "wifi_subnet": "",
-    		"wifi_DNS": "", "mqtt_start": 0, "mqtt_interval": 60, "webLoc_start": 0, "webLoc_interval": 60, "tictac_start": 0,
-    		"tictac_interval": 80, "tictac_webhook": 0, "tictac_discord": 0, "webLoc_server": "", "discord_url": "", "discord_avatar": "",
-    		"mqtt_server": "", "mqtt_port": "", "mqtt_clientName": "", "mqtt_clientUsername": "", "mqtt_clientPassword": "",
-    		"mqtt_myTopic": "", "mqtt_Humidity": "", "mqtt_Temperature": "", "mqtt_Pressure": "", "mqtt_switch": "",
-    		"mqtt_switch2": ""
-*/
-
-
 /* ======================================================================
 Function: initConfig
 Purpose : read from LittleFS config.json 
 Input   : message
 Output  : true / false
 Comments: 
-TODO    : FIX strcpy replace with strlcpy
-		  strlcpy(config.hostname,           // <- destination
-          root["hostname"] | "example.com",  // <- source
-          sizeof(config.hostname));          // <- destination's capacity */
+TODO    : */
 bool initConfig( String* message )
 {
 	File configfile = LittleFS.open( configFile, "r" );
@@ -52,15 +37,15 @@ bool initConfig( String* message )
 	mqtt_previousMillis = mqtt_intervalHist;     // time of last point added
 
 	mqtt_port = jsonConfig["mqtt_port"];
-	strcpy(mqtt_server, jsonConfig["mqtt_server"]);
-	strcpy(mqtt_clientName, jsonConfig["mqtt_clientName"]);
-	strcpy(mqtt_clientUsername, jsonConfig["mqtt_clientUsername"]);
-	strcpy(mqtt_clientPassword, jsonConfig["mqtt_clientPassword"]);
-	strcpy(mqtt_myTopic, jsonConfig["mqtt_myTopic"]);
+	strlcpy(mqtt_server, jsonConfig["mqtt_server"].as<String>().c_str(), sizeof(mqtt_server));
+	strlcpy(mqtt_clientName, jsonConfig["mqtt_clientName"].as<String>().c_str(), sizeof(mqtt_clientName));
+	strlcpy(mqtt_clientUsername, jsonConfig["mqtt_clientUsername"].as<String>().c_str(), sizeof(mqtt_clientUsername));
+	strlcpy(mqtt_clientPassword, jsonConfig["mqtt_clientPassword"].as<String>().c_str(), sizeof(mqtt_clientPassword));
+	strlcpy(mqtt_myTopic, jsonConfig["mqtt_myTopic"].as<String>().c_str(), sizeof(mqtt_myTopic));
  	
 	//---
 	webLoc_start = jsonConfig["webLoc_start"];
-	strcpy(webLoc_server, jsonConfig["webLoc_server"]);
+	strlcpy(webLoc_server, jsonConfig["webLoc_server"].as<String>().c_str(), sizeof(webLoc_server));
 	// WebHook updates for Void loop to take in account Config interval
 	webLoc_interval = jsonConfig["webLoc_interval"];
 	webLoc_intervalHist = 1000 * webLoc_interval;
@@ -68,12 +53,13 @@ bool initConfig( String* message )
  	//---
 
 	// Discord
-	strcpy(discord_url, jsonConfig["discord_url"]);
-	strcpy(discord_avatar, jsonConfig["discord_avatar"]);
+	strlcpy(discord_url, jsonConfig["discord_url"].as<String>().c_str(), sizeof(discord_url));
+	strlcpy(discord_avatar, jsonConfig["discord_avatar"].as<String>().c_str(), sizeof(discord_avatar));
+
 	//---
-	strcpy(_deviceType,  jsonConfig["deviceType"]);
+	strlcpy(_deviceType, jsonConfig["deviceType"].as<String>().c_str(), sizeof(_deviceType));
 	
-	strcpy(deviceName,  jsonConfig["deviceName"]);
+	strlcpy(deviceName, jsonConfig["deviceName"].as<String>().c_str(), sizeof(deviceName));
 	// This must be placed somwhere else
 	String _tmp = deviceName;
 	_tmp.replace(' ', '-');
@@ -82,26 +68,26 @@ bool initConfig( String* message )
 	_tmp.toCharArray(_devicename, sizeof(_devicename));
 	// -----
 	
-	strcpy(moduleName, jsonConfig["moduleName"]);
+	strlcpy(moduleName, jsonConfig["moduleName"].as<String>().c_str(), sizeof(moduleName));
 
 	wifi_runAS = jsonConfig["wifi_runAS"];
-	strcpy( wifi_hostname, jsonConfig["wifi_hostname"] );
-	strcpy( softAP_ssid, jsonConfig["softAP_ssid"] );
-	strcpy( softAP_pass, jsonConfig["softAP_pass"] );
-	strcpy( wifi_ssid, jsonConfig["wifi_SSID"] );
-	strcpy( wifi_password, jsonConfig["wifi_password"] );
+	strlcpy(wifi_hostname, jsonConfig["wifi_hostname"].as<String>().c_str(), sizeof(wifi_hostname));
+	strlcpy(softAP_ssid, jsonConfig["softAP_ssid"].as<String>().c_str(), sizeof(softAP_ssid));
+	strlcpy(softAP_pass, jsonConfig["softAP_pass"].as<String>().c_str(), sizeof(softAP_pass));
+	strlcpy(wifi_ssid, jsonConfig["wifi_SSID"].as<String>().c_str(), sizeof(wifi_ssid));
+	strlcpy(wifi_password, jsonConfig["wifi_password"].as<String>().c_str(), sizeof(wifi_password));
 	wifi_static = jsonConfig["wifi_static"];
-	strcpy( wifi_StaticIP, jsonConfig["wifi_StaticIP"] );
-	strcpy( wifi_gateway, jsonConfig["wifi_gateway"] );
-	strcpy( wifi_subnet, jsonConfig["wifi_subnet"] );
-	strcpy( wifi_DNS, jsonConfig["wifi_DNS"] );
+	strlcpy(wifi_StaticIP, jsonConfig["wifi_StaticIP"].as<String>().c_str(), sizeof(wifi_StaticIP));
+	strlcpy(wifi_gateway, jsonConfig["wifi_gateway"].as<String>().c_str(), sizeof(wifi_gateway));
+	strlcpy(wifi_subnet, jsonConfig["wifi_subnet"].as<String>().c_str(), sizeof(wifi_subnet));
+	strlcpy(wifi_DNS, jsonConfig["wifi_DNS"].as<String>().c_str(), sizeof(wifi_DNS));
     
 	#ifdef MODULE_WEATHER     								  //=============== Weather Station  ==============
 		t_measure = jsonConfig["t_measure"];
-		strcpy(mqtt_Temperature, jsonConfig["mqtt_Temperature"]);
+		strlcpy(mqtt_Temperature, jsonConfig["mqtt_Temperature"].as<String>().c_str(), sizeof(mqtt_Temperature));
 		
 		#if defined( MODULE_DHT ) || defined( MODULE_BME280 ) //=============== MODULE DHT && BME  =============
-			strcpy(mqtt_Humidity, jsonConfig["mqtt_Humidity"]);
+			strlcpy(mqtt_Humidity, jsonConfig["mqtt_Humidity"].as<String>().c_str(), sizeof(mqtt_Humidity));
 		#endif
 		
 		#ifdef MODULE_BME280								  //=============== MODULE BME  ===================
@@ -109,13 +95,13 @@ bool initConfig( String* message )
 			p_adjust = jsonConfig["p_adjust"];
 			pa_unit = jsonConfig["pa_unit"];
 			pl_adj = jsonConfig["pl_adj"];
-			strcpy(mqtt_Pressure, jsonConfig["mqtt_Pressure"]);
+			strlcpy(mqtt_Pressure, jsonConfig["mqtt_Pressure"].as<String>().c_str(), sizeof(mqtt_Pressure));
 		#endif
 	#endif                                                    //================================================
 
     #ifdef MODULE_SWITCH      								  //=============== Power Switch ===================
-		strcpy(mqtt_switch, jsonConfig["mqtt_switch"]);
-		strcpy(mqtt_switch2, jsonConfig["mqtt_switch2"]);
+		strlcpy(mqtt_switch, jsonConfig["mqtt_switch"].as<String>().c_str(), sizeof(mqtt_switch));
+		strlcpy(mqtt_switch2, jsonConfig["mqtt_switch2"].as<String>().c_str(), sizeof(mqtt_switch2));
 	#endif           										  //================================================
 
 	#ifdef MODULE_TICTACTOE									  //=============== Tic Tac Toe  ===================
@@ -136,9 +122,10 @@ bool initConfig( String* message )
 		
 		String hexColor = String(jsonConfig["displayColor"]);
 		displayColor = strtol(&hexColor[1], NULL, 16);
-		strcpy(mqtt_displayON, jsonConfig["mqtt_displayON"]);
-		strcpy(mqtt_Brightness, jsonConfig["mqtt_Brightness"]);
-		strcpy(mqtt_Color, jsonConfig["mqtt_Color"]);
+		strlcpy(mqtt_displayON, jsonConfig["mqtt_displayON"].as<String>().c_str(), sizeof(mqtt_displayON));
+		strlcpy(mqtt_Brightness, jsonConfig["mqtt_Brightness"].as<String>().c_str(), sizeof(mqtt_Brightness));
+		strlcpy(mqtt_Color, jsonConfig["mqtt_Color"].as<String>().c_str(), sizeof(mqtt_Color));
+
 	#endif           										  //================================================
 
 	return true;
@@ -150,8 +137,7 @@ Purpose : Write to LittleFS config.json | Update config.json
 Input   : message
 Output  : true / false
 Comments: 
-TODO    : 
-====================================================================== */
+TODO    : */
 bool writeToConfig( String* message )
 { 
 	writeLogFile( "Update Config", 1 );
@@ -182,17 +168,15 @@ bool writeToConfig( String* message )
 	String stringArray[] = { "deviceType", "deviceName", "deviceID", "moduleName", "wifi_password", "wifi_StaticIP", "wifi_gateway", "wifi_subnet", "wifi_DNS",
   					"softAP_ssid", "softAP_pass", "wifi_SSID", "wifi_hostname", "mqtt_server", "mqtt_port", "mqtt_clientName", "mqtt_clientUsername", 
   					"mqtt_clientPassword", "mqtt_myTopic", "webLoc_server", "discord_url", "discord_avatar" };
-	const byte NAMES_IN_USE_1 = 22;
+	for (const auto& name : stringArray)
+   	if ( server.hasArg(name) )
+      	jsonConfig[name] = server.arg(name);
 	
 	String intArray[] = { "wifi_runAS", "wifi_static", "mqtt_start", "mqtt_interval", "webLoc_start", "webLoc_interval", 
 						"tictac_start", "tictac_interval", "tictac_webhook", "tictac_discord" };
-	const byte NAMES_IN_USE_2 = 10;
-
-	for ( byte i = 0; i < NAMES_IN_USE_1; i++ )
-		if ( server.hasArg(stringArray[i]) )  jsonConfig[stringArray[i]] = server.arg(stringArray[i]);
-
-	for ( byte i = 0; i < NAMES_IN_USE_2; i++ )
-		if ( server.hasArg(intArray[i]) )  jsonConfig[intArray[i]] = server.arg(intArray[i]).toInt();
+	for (const auto& name : intArray)
+   	if ( server.hasArg(name) )
+      	jsonConfig[name] = server.arg(name).toInt();
 
 	
 	#ifdef MODULE_WEATHER     											//=============== Weather Station ==============
@@ -228,22 +212,21 @@ bool writeToConfig( String* message )
 
 	#ifdef	MODULE_SWITCH     											//=============== Power Switch ==============
 		String stringArray_3[] = {"mqtt_switch", "mqtt_switch2"};
-		const byte NAMES_IN_USE_5 = 2;
-		
-		for ( byte i = 0; i < NAMES_IN_USE_5; i++ )
-			if ( server.hasArg(stringArray_3[i]) )  jsonConfig[stringArray_3[i]] = server.arg(stringArray_3[i]);
+		for ( const auto& name : stringArray_3 )
+			if ( server.hasArg(name) )
+				jsonConfig[name] = server.arg(name);
 	#endif
 
 	#ifdef	MODULE_DISPLAY     											//=============== Display Clock ==============
 		String stringArray_4[] = {"mqtt_displayON", "mqtt_Brightness", "mqtt_Color", "displayColor"};
-		const byte NAMES_IN_USE_6 = 4;
+		for ( const auto& name : stringArray_4 )
+			if ( server.hasArg(name) )
+				jsonConfig[name] = server.arg(name);
+				
 		String intArray_3[] = { "maxBrightness", "timeZone", "displayON" };
-		const byte NAMES_IN_USE_7 = 3;
-		
-		for ( byte i = 0; i < NAMES_IN_USE_6; i++ )
-			if ( server.hasArg(stringArray_4[i]) )  jsonConfig[stringArray_4[i]] = server.arg(stringArray_4[i]);
-		for ( byte i = 0; i < NAMES_IN_USE_7; i++ )
-			if ( server.hasArg(intArray_3[i]) )  jsonConfig[intArray_3[i]] = server.arg(intArray_3[i]).toInt();
+		for (const auto& name : intArray_3)
+			if ( server.hasArg(name) )
+				jsonConfig[name] = server.arg(name).toInt();
 	#endif 
   
 	

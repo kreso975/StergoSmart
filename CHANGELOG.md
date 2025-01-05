@@ -13,6 +13,7 @@
 - Update in WiFiManager added checkAPRestart()  
 - Migrate from SPIFFS to LittleFS
 - Moved to SSDP.ino functionality from TicTacToe update - new function updateSSDP() 
+- Config.ino cleanUp , changed strcpy to strlcpy
   
 **000.05.104**  
 - wifiScanJSON() rewritten, using asyn method WiFi.scanNetworksAsync(wifiScanResult)  

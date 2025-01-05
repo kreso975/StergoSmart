@@ -101,6 +101,7 @@ void loop()
 		if ( timeClient.update() )					// Update time
 			setTime(timeClient.getEpochTime());
 		
+		// We will not run anything if we are in WIN message mode
 		#ifdef MODULE_DISPLAY						//=================  MODULE DISPLAY =============
 		if ( !messageWinON )
 		{

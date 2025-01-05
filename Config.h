@@ -42,7 +42,7 @@
 #define EXCLUDED_CODE 1
 
 // 1 true | 0 false  / Serial.print 
-#define DEBUG 1
+#define DEBUG 0
 
 //=================================================================
 #include <ESP8266WiFi.h>
