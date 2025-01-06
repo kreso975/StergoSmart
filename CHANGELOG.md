@@ -9,7 +9,7 @@
 **000.05.105** - in development  
 - added CPU Frequency(MHz) in deviceinfo.json  
 - cleanUP Main Loop - moved logic to each owner  
-- WiFiManager moved to Class and new file WiFiManager.h  
+- WiFiManager moved to Class and new file WiFiManager.h, fix  &wifi_static;
 - Update in WiFiManager added checkAPRestart()  
 - Migrate from SPIFFS to LittleFS
 - Moved to SSDP.ino functionality from TicTacToe update - new function updateSSDP() 

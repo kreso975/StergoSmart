@@ -31,7 +31,7 @@ void setup()
 
 	// We will Init config to load needed data and choose next steps based on that config
 	initConfig ( &message );
-  
+	
 	deviceType = atoi(_deviceType);
 
 	#ifdef MODULE_WEATHER
