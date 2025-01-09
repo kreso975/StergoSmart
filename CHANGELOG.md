@@ -6,6 +6,9 @@
  <br><br>
  
 ## **CHANGES:**
+**000.05.106** - todo  
+- add support for ESP32  
+
 **000.05.105** - in development  
 - added CPU Frequency(MHz) in deviceinfo.json  
 - cleanUP Main Loop - moved logic to each owner  
