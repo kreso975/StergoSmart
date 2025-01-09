@@ -404,15 +404,37 @@ void drawWIN( const byte coords[][2], int size, CRGB *buffer, CRGB color )
 
 void drawText( CRGB *buffer )
 {
-	static uint8_t brightness = maxBrightness;
+	static uint8_t brightness = 30;
+	static bool increasing = true;
+
 	// Draw flipped "WIN" in the center with varying brightness
-	CRGB color = CRGB(255, 0, 0);
-	color.nscale8(brightness);
+	static CRGB color = CRGB(255, 0, 0);
+	static uint8_t lastBrightness = 30;
+	if ( brightness != lastBrightness )
+	{
+		color = CRGB(255, 0, 0);
+		color.nscale8(brightness);
+		lastBrightness = brightness;
+	}
 
 	// Draw letters using the optimized function
 	drawWIN(W_coords, sizeof(W_coords) / sizeof(W_coords[0]), buffer, color);
 	drawWIN(I_coords, sizeof(I_coords) / sizeof(I_coords[0]), buffer, color);
 	drawWIN(N_coords, sizeof(N_coords) / sizeof(N_coords[0]), buffer, color);
+
+	// Adjust brightness
+	if ( increasing )
+	{
+		brightness += 40;
+		if ( brightness >= 255 )
+			increasing = false;
+	}
+	else
+	{
+		brightness -= 40;
+		if ( brightness <= 40 )
+			increasing = true;
+	}
 }
 
 void renderDisplayWin( unsigned long currentMillis )
@@ -420,10 +442,19 @@ void renderDisplayWin( unsigned long currentMillis )
 	FastLED.clearData();
 	// DRAW WIN WITH FIREWORKS
 	if ( renderWIN )
-	{
+	{/*
+		if ( currentMillis - previousMillisText >= intervalText )
+		{
+			previousMillisText = currentMillis;
+			memset( tempBufferText, 0, sizeof(tempBufferText) ); // Clear temp buffer
+			drawText(tempBufferText); // Update temp buffer
+		}
+		*/
+		
 		memset( tempBufferText, 0, sizeof(tempBufferText) ); 	// Clear temp buffer
 		drawText(tempBufferText); 										// Update temp buffer
 		renderWIN = false;
+		
 	}
 	
 	// Update addParticles at its own interval
@@ -489,6 +520,8 @@ void displayState()
 			messageDisplay = server.arg("messageDisplay").c_str();
 			// writeLogFile( F("Updated messageDisplay to ") + String(messageDisplay), 1, 1 );
 			messageON = true;
+      messageWinON = true;                  // Use for Enter WIN and Fireworks
+      renderWIN = true; 
 			server.stop(); // Stopping webServer because it scrambles scroll buffer if accessed during scroll
 			prevMilMesLife = millis();
 		}

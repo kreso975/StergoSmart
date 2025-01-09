@@ -4,6 +4,8 @@
     "C_Cpp.inlayHints.autoDeclarationTypes.enabled": true,
     "C_Cpp.errorSquiggles": "disabled",
     "editor.inlayHints.enabled": "on",
+    "editor.folding": true,
+    "editor.showFoldingControls": "always",
     "files.associations": {
         "*.embeddedhtml": "html",
         "*.ino": "cpp",

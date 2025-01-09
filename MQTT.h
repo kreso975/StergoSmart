@@ -9,6 +9,7 @@ byte mqttTempDown = 0; // If we coudn't reconnect, mqtt_start is set to 0, and m
 #define mqttTempDownInt 1000 * 60 * 15                                 // 4 measures / hours - orig 1000 * 60 * 15 - 15 min
 unsigned long lastmqttTempDownMillis = mqttTempDownInt;                // time of last point added
 
+byte mqtt_start = 0;
 char mqtt_server[20];
 int mqtt_port;
 char mqtt_clientName[23];

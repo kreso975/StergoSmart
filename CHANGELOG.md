@@ -13,7 +13,11 @@
 - Update in WiFiManager added checkAPRestart()  
 - Migrate from SPIFFS to LittleFS
 - Moved to SSDP.ino functionality from TicTacToe update - new function updateSSDP() 
-- Config.ino cleanUp , changed strcpy to strlcpy
+- Config.ino cleanUp , changed strcpy to strlcpy & proper handle of byte and int in ArdunoJSon (.as<byte>())
+- fixed parseUDP() was crashing ESP32
+- renamed handleUDP() to receiveUDP()
+- cleanUP handleHttp. restructure etc.
+- moved byte mqtt_start = 0; to MQTT.h
   
 **000.05.104**  
 - wifiScanJSON() rewritten, using asyn method WiFi.scanNetworksAsync(wifiScanResult)  

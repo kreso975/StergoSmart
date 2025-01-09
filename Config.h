@@ -10,7 +10,7 @@
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 2
+#define STERGO_PROGRAM 1
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
 #define STERGO_SCREEN 0
@@ -21,7 +21,7 @@
  * LOLIN D1 mini       = 2   // v02
  * ESP32               = 3   // v03
  */
-#define STERGO_PROGRAM_BOARD 1    
+#define STERGO_PROGRAM_BOARD 2    
 
 /*
  * STERGO_PLUG :
@@ -30,7 +30,7 @@
  * Sonoff S26         = 2   // Plug Switch  - PS
  * Sonoff T4EU1C      = 3   // Light Switch - LS
  */
-#define STERGO_PLUG 1
+#define STERGO_PLUG 3
 
 // Firmware Version always part of this file
 #define FW_VERSION "000.05.105"                 // Check releaseLog for details
@@ -151,7 +151,7 @@ char softAP_pass[20] = "123456789";       //
 /** Should I connect to W LAN asap? */
 bool connect;
 
-byte mqtt_start, webLoc_start, wifi_runAS, wifi_static, deviceType;
+byte webLoc_start, wifi_runAS, wifi_static, deviceType;
 byte randNumber;
 
 char _deviceType[2] = "1";  // Module device number - like BME280 = 1, Dalas = 2 and similar CHANGED SHOULD SWITCH TO MODEL_NAME + MODEL_NUMBER

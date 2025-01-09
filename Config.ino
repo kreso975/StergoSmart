@@ -30,13 +30,13 @@ bool initConfig( String* message )
 		return false;
 	}
 
-	mqtt_start = jsonConfig["mqtt_start"];
+	mqtt_start = jsonConfig["mqtt_start"].as<byte>();
   	// MQTT updates for Void loop to take in account Config interval
-	mqtt_interval = jsonConfig["mqtt_interval"];
+	mqtt_interval = jsonConfig["mqtt_interval"].as<int>();
 	mqtt_intervalHist = 1000 * mqtt_interval;
 	mqtt_previousMillis = mqtt_intervalHist;     // time of last point added
 
-	mqtt_port = jsonConfig["mqtt_port"];
+	mqtt_port = jsonConfig["mqtt_port"].as<int>();
 	strlcpy(mqtt_server, jsonConfig["mqtt_server"].as<String>().c_str(), sizeof(mqtt_server));
 	strlcpy(mqtt_clientName, jsonConfig["mqtt_clientName"].as<String>().c_str(), sizeof(mqtt_clientName));
 	strlcpy(mqtt_clientUsername, jsonConfig["mqtt_clientUsername"].as<String>().c_str(), sizeof(mqtt_clientUsername));
@@ -44,10 +44,10 @@ bool initConfig( String* message )
 	strlcpy(mqtt_myTopic, jsonConfig["mqtt_myTopic"].as<String>().c_str(), sizeof(mqtt_myTopic));
  	
 	//---
-	webLoc_start = jsonConfig["webLoc_start"];
+	webLoc_start = jsonConfig["webLoc_start"].as<byte>();
 	strlcpy(webLoc_server, jsonConfig["webLoc_server"].as<String>().c_str(), sizeof(webLoc_server));
 	// WebHook updates for Void loop to take in account Config interval
-	webLoc_interval = jsonConfig["webLoc_interval"];
+	webLoc_interval = jsonConfig["webLoc_interval"].as<int>();
 	webLoc_intervalHist = 1000 * webLoc_interval;
 	webLoc_previousMillis = webLoc_intervalHist;     // time of last point added
  	//---
@@ -58,7 +58,6 @@ bool initConfig( String* message )
 
 	//---
 	strlcpy(_deviceType, jsonConfig["deviceType"].as<String>().c_str(), sizeof(_deviceType));
-	
 	strlcpy(deviceName, jsonConfig["deviceName"].as<String>().c_str(), sizeof(deviceName));
 	// This must be placed somwhere else
 	String _tmp = deviceName;
@@ -70,20 +69,20 @@ bool initConfig( String* message )
 	
 	strlcpy(moduleName, jsonConfig["moduleName"].as<String>().c_str(), sizeof(moduleName));
 
-	wifi_runAS = jsonConfig["wifi_runAS"];
+	wifi_runAS = jsonConfig["wifi_runAS"].as<byte>();
 	strlcpy(wifi_hostname, jsonConfig["wifi_hostname"].as<String>().c_str(), sizeof(wifi_hostname));
 	strlcpy(softAP_ssid, jsonConfig["softAP_ssid"].as<String>().c_str(), sizeof(softAP_ssid));
 	strlcpy(softAP_pass, jsonConfig["softAP_pass"].as<String>().c_str(), sizeof(softAP_pass));
 	strlcpy(wifi_ssid, jsonConfig["wifi_SSID"].as<String>().c_str(), sizeof(wifi_ssid));
 	strlcpy(wifi_password, jsonConfig["wifi_password"].as<String>().c_str(), sizeof(wifi_password));
-	wifi_static = jsonConfig["wifi_static"];
+	wifi_static = jsonConfig["wifi_static"].as<byte>();
 	strlcpy(wifi_StaticIP, jsonConfig["wifi_StaticIP"].as<String>().c_str(), sizeof(wifi_StaticIP));
 	strlcpy(wifi_gateway, jsonConfig["wifi_gateway"].as<String>().c_str(), sizeof(wifi_gateway));
 	strlcpy(wifi_subnet, jsonConfig["wifi_subnet"].as<String>().c_str(), sizeof(wifi_subnet));
 	strlcpy(wifi_DNS, jsonConfig["wifi_DNS"].as<String>().c_str(), sizeof(wifi_DNS));
     
 	#ifdef MODULE_WEATHER     								  //=============== Weather Station  ==============
-		t_measure = jsonConfig["t_measure"];
+		t_measure = jsonConfig["t_measure"].as<byte>();
 		strlcpy(mqtt_Temperature, jsonConfig["mqtt_Temperature"].as<String>().c_str(), sizeof(mqtt_Temperature));
 		
 		#if defined( MODULE_DHT ) || defined( MODULE_BME280 ) //=============== MODULE DHT && BME  =============
@@ -91,10 +90,10 @@ bool initConfig( String* message )
 		#endif
 		
 		#ifdef MODULE_BME280								  //=============== MODULE BME  ===================
-			p_measure = jsonConfig["p_measure"];
-			p_adjust = jsonConfig["p_adjust"];
-			pa_unit = jsonConfig["pa_unit"];
-			pl_adj = jsonConfig["pl_adj"];
+			p_measure = jsonConfig["p_measure"].as<byte>();
+			p_adjust = jsonConfig["p_adjust"].as<byte>();
+			pa_unit = jsonConfig["pa_unit"].as<byte>();
+			pl_adj = jsonConfig["pl_adj"].as<int>();
 			strlcpy(mqtt_Pressure, jsonConfig["mqtt_Pressure"].as<String>().c_str(), sizeof(mqtt_Pressure));
 		#endif
 	#endif                                                    //================================================
@@ -106,19 +105,19 @@ bool initConfig( String* message )
 
 	#ifdef MODULE_TICTACTOE									  //=============== Tic Tac Toe  ===================
 		// Tic Tac Toe config
-		tictac_start  = jsonConfig["tictac_start"];
-		tictac_interval = jsonConfig["tictac_interval"];
+		tictac_start  = jsonConfig["tictac_start"].as<byte>();
+		tictac_interval = jsonConfig["tictac_interval"].as<byte>();
 		ticTacCallInterval = 1000 * 60 * tictac_interval;	// 1000 * 60 * 60 - 60min
 		ticCallLMInterval = ticTacCallInterval;     // time of last point added
-		tictac_webhook = jsonConfig["tictac_webhook"];
-		tictac_discord = jsonConfig["tictac_discord"];
+		tictac_webhook = jsonConfig["tictac_webhook"].as<byte>();
+		tictac_discord = jsonConfig["tictac_discord"].as<byte>();
 	#endif													  //================================================
 
 	#ifdef MODULE_DISPLAY									  //===============   Display   ====================
 		// Display config
-		displayON = jsonConfig["displayON"];
-		maxBrightness = jsonConfig["maxBrightness"];
-		timeZone = jsonConfig["timeZone"];
+		displayON = jsonConfig["displayON"].as<byte>();
+		maxBrightness = jsonConfig["maxBrightness"].as<byte>();
+		timeZone = jsonConfig["timeZone"].as<int>();
 		
 		String hexColor = String(jsonConfig["displayColor"]);
 		displayColor = strtol(&hexColor[1], NULL, 16);
