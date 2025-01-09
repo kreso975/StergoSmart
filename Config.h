@@ -10,10 +10,10 @@
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 1
+#define STERGO_PROGRAM 4
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
-#define STERGO_SCREEN 0
+#define STERGO_SCREEN 1
 /*
  * STERGO_PROGRAM_BOARD :
  * 
@@ -21,7 +21,7 @@
  * LOLIN D1 mini       = 2   // v02
  * ESP32               = 3   // v03
  */
-#define STERGO_PROGRAM_BOARD 2    
+#define STERGO_PROGRAM_BOARD 1
 
 /*
  * STERGO_PLUG :
@@ -42,7 +42,7 @@
 #define EXCLUDED_CODE 1
 
 // 1 true | 0 false  / Serial.print 
-#define DEBUG 1
+#define DEBUG 0
 
 //=================================================================
 #include <ESP8266WiFi.h>
@@ -86,8 +86,6 @@
 #endif
     
 #if ( STERGO_SCREEN == 1 )
-    #include "FastLED.h"
-    #include <vector>
     #define MODULE_DISPLAY
     #include "Display.h"
 #endif

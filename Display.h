@@ -1,10 +1,13 @@
+#include "FastLED.h"
+#include <vector>
+
 #define LED_PIN 0
 #define COLOR_ORDER GRB
 #define CHIPSET WS2812B
 #define POWER_VOLTAGE 5             // set Voltage
 #define MAX_POWER_MILLIAMPS 700     // set Milliamps
 
-byte  maxBrightness = 35;
+byte maxBrightness = 35;
 // Display ON/OFF
 byte displayON = 1;
 
@@ -46,9 +49,9 @@ int bufferSize = 0;
 // Global variables for initial velocity, gradual deceleration, and other parameters
 const float INITIAL_VELOCITY = 1.5;
 const float DECELERATION_FACTOR = 0.75;
-const int PARTICLE_LIFE = 50;
-const int PARTICLE_COUNT = 9;
-const int EXPLOSION_FREQUENCY = 1;
+const int PARTICLE_LIFE = 70;
+const int PARTICLE_COUNT = 20;
+const int EXPLOSION_FREQUENCY = 2; // 0 - 9 : 0 = no explosion, 9 = explosion every time
 const int UPDATE_RATE = 50;
 
 
@@ -64,7 +67,7 @@ unsigned long prevMilMesLife = 0;
 
 unsigned long previousMillisText = 0;
 unsigned long previousMillisParticles = 0;
-const long intervalText = 10000;            // Update rate for drawText in milliseconds
+const long intervalText = 50;            // Update rate for drawText in milliseconds
 const long intervalParticles = UPDATE_RATE; // Update rate for addParticles in milliseconds
 
 //MQTT Topics used from config.json

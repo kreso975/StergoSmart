@@ -338,6 +338,9 @@ public:
 
 	void draw( CRGB* buffer )
 	{
+		// adjust Particle brightness - 0 to 255
+		color.nscale8(min(maxBrightness * 5, 255));
+
 		// Ensure particles stay within bounds
 		if ( x >= 0 && x < kMatrixWidth && y >= 0 && y < kMatrixHeight )
 		{
@@ -425,14 +428,14 @@ void drawText( CRGB *buffer )
 	// Adjust brightness
 	if ( increasing )
 	{
-		brightness += 40;
-		if ( brightness >= 255 )
+		brightness += 30;
+		if ( brightness >= min(maxBrightness*5, 255) )
 			increasing = false;
 	}
 	else
 	{
-		brightness -= 40;
-		if ( brightness <= 40 )
+		brightness -= 30;
+		if ( brightness <= 30 )
 			increasing = true;
 	}
 }
@@ -442,24 +445,20 @@ void renderDisplayWin( unsigned long currentMillis )
 	FastLED.clearData();
 	// DRAW WIN WITH FIREWORKS
 	if ( renderWIN )
-	{/*
+	{
 		if ( currentMillis - previousMillisText >= intervalText )
 		{
+			writeLogFile( "renderWIN", 1, 1 );
 			previousMillisText = currentMillis;
 			memset( tempBufferText, 0, sizeof(tempBufferText) ); // Clear temp buffer
 			drawText(tempBufferText); // Update temp buffer
 		}
-		*/
-		
-		memset( tempBufferText, 0, sizeof(tempBufferText) ); 	// Clear temp buffer
-		drawText(tempBufferText); 										// Update temp buffer
-		renderWIN = false;
-		
 	}
 	
 	// Update addParticles at its own interval
 	if ( currentMillis - previousMillisParticles >= intervalParticles )
 	{
+		writeLogFile( "render Particle", 1, 1 );
 		previousMillisParticles = currentMillis;
 		memset( tempBufferParticles, 0, sizeof(tempBufferParticles) ); // Clear temp buffer
 		addParticles( tempBufferParticles ); 									// Update temp buffer
@@ -475,8 +474,8 @@ void renderDisplayWin( unsigned long currentMillis )
 		memset( tempBufferText, 0, sizeof(tempBufferText) ); // Clear temp buffer
 		memset( tempBufferParticles, 0, sizeof(tempBufferParticles) ); // Clear temp buffer
 		messageON = false; // Set messageON to false after 10 seconds
-		//messageWinON = false;
-		//renderWIN = true;
+		messageWinON = false;
+		renderWIN = true;
 		resetParticles(); // Clear the particles vector
 		server.begin(); // We have stop it when set messageON = true in displayState()
 	}
@@ -520,8 +519,6 @@ void displayState()
 			messageDisplay = server.arg("messageDisplay").c_str();
 			// writeLogFile( F("Updated messageDisplay to ") + String(messageDisplay), 1, 1 );
 			messageON = true;
-      	messageWinON = true;                  // Use for Enter WIN and Fireworks
-      	renderWIN = true; 
 			server.stop(); // Stopping webServer because it scrambles scroll buffer if accessed during scroll
 			prevMilMesLife = millis();
 		}

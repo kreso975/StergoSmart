@@ -6,10 +6,10 @@
  <br><br>
  
 ## **CHANGES:**
-**000.05.106** - todo  
+**000.05.106** - TODO  
 - add support for ESP32  
 
-**000.05.105** - in development  
+**000.05.105**   
 - added CPU Frequency(MHz) in deviceinfo.json  
 - cleanUP Main Loop - moved logic to each owner  
 - WiFiManager moved to Class and new file WiFiManager.h, fix  &wifi_static;
@@ -21,6 +21,7 @@
 - renamed handleUDP() to receiveUDP()
 - cleanUP handleHttp. restructure etc.
 - moved byte mqtt_start = 0; to MQTT.h
+- adjusted Display.ino brightness handling
   
 **000.05.104**  
 - wifiScanJSON() rewritten, using asyn method WiFi.scanNetworksAsync(wifiScanResult)  
