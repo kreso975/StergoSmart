@@ -1,13 +1,15 @@
 ## **TODO:**
   - Filesystem/setupFS() - Implement fail over if SPIFFS get corrupted - copy content from web loc or Upload or 
     https://github.com/spacehuhn/esp8266_deauther/blob/master/esp8266_deauther/webfiles.h or start updateOTA for SPIFFS
-  - Firmware update OTA, with more info - Your firmware is up to date, Firmware XXX available etc
+  - Firmware update OTA, with more info - Your firmware is up to date, Firmware XXX available etc  
+  - add support for ESP32  
+  - start moving *.ino to .h and .cpp and plce them to src folder  
  
  <br><br>
  
-## **CHANGES:**
-**000.05.106** - TODO  
-- add support for ESP32  
+## **CHANGES:**  
+**000.05.106** - in development  
+- 
 
 **000.05.105**   
 - added CPU Frequency(MHz) in deviceinfo.json  
