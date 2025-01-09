@@ -475,8 +475,8 @@ void renderDisplayWin( unsigned long currentMillis )
 		memset( tempBufferText, 0, sizeof(tempBufferText) ); // Clear temp buffer
 		memset( tempBufferParticles, 0, sizeof(tempBufferParticles) ); // Clear temp buffer
 		messageON = false; // Set messageON to false after 10 seconds
-		messageWinON = false;
-		renderWIN = true;
+		//messageWinON = false;
+		//renderWIN = true;
 		resetParticles(); // Clear the particles vector
 		server.begin(); // We have stop it when set messageON = true in displayState()
 	}
@@ -520,8 +520,8 @@ void displayState()
 			messageDisplay = server.arg("messageDisplay").c_str();
 			// writeLogFile( F("Updated messageDisplay to ") + String(messageDisplay), 1, 1 );
 			messageON = true;
-      messageWinON = true;                  // Use for Enter WIN and Fireworks
-      renderWIN = true; 
+      	messageWinON = true;                  // Use for Enter WIN and Fireworks
+      	renderWIN = true; 
 			server.stop(); // Stopping webServer because it scrambles scroll buffer if accessed during scroll
 			prevMilMesLife = millis();
 		}
