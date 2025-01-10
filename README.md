@@ -8,6 +8,7 @@ Smart Home IOT - Weather and Switches with GUI
   
 [![Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://paypal.me/kreso975)
 
+**ESP32**  
 **ESP-8266-01S , minimum 1M**  
 **BME280**  
 tested with Sonoff S26, T4EU1C
@@ -27,13 +28,14 @@ tested with Sonoff S26, T4EU1C
 - Tic Tac Toe winners Publish as Webhook (Discord channel)
   
 > [!IMPORTANT]
+> **Works with LittleFS v => v000.01.105**  
+>  
 > **Works with SPIFF <= v000.01.104**  
 > Works only in old Arduino IDE 1.8  
 > SPIFF UPLOAD ( ESP8266 Scatch Data Upload )  
 >	Download https://github.com/esp8266/arduino-esp8266fs-plugin/releases - ESP8266FS  
 > Extract  to Home dir Arduino /tools 
->   
-> **Works with LittleFS => v000.01.105**  
+>     
 >   
 >
 > **Libraries Needed:**  
