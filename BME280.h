@@ -1,3 +1,5 @@
+#include <Adafruit_BME280.h>
+
 // BME280 GPIOs 2 (SDA),0 (SCL) are used for BME280
 #define GPIO_SDA 2
 #define GPIO_SCL 0

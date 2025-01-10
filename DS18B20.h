@@ -1,3 +1,6 @@
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
 // GPIO where the DS18B20 is connected to
 #define ONE_WIRE_BUS 2     
 

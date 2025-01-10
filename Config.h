@@ -19,9 +19,9 @@
  * 
  * ESP8266 default 01S = 1   // v01
  * LOLIN D1 mini       = 2   // v02
- * ESP32               = 3   // v03
+ * ESP32C6             = 3   // v03
  */
-#define STERGO_PROGRAM_BOARD 1
+#define STERGO_PROGRAM_BOARD 3
 
 /*
  * STERGO_PLUG :
@@ -33,7 +33,7 @@
 #define STERGO_PLUG 3
 
 // Firmware Version always part of this file
-#define FW_VERSION "000.05.106"                 // Check releaseLog for details
+#define FW_VERSION "000.06.000"                 // Check releaseLog for details
 #define MODEL_FRENDLY_NAME "Stergo Smart"
 #define COMPANY_URL "http://www.stergo.hr"
 
@@ -42,22 +42,50 @@
 #define EXCLUDED_CODE 1
 
 // 1 true | 0 false  / Serial.print 
-#define DEBUG 0
+#define DEBUG 1
 
-//=================================================================
-#include <ESP8266WiFi.h>
-#include <ESP8266HTTPClient.h>
-#include "ESP8266WebServer.h"
-#include "ESP8266httpUpdate.h"
+#if defined(ESP8266)                                                  // -----------------  ESP8266  -----------------
+  #include <ESP8266WiFi.h>
+  #include <ESP8266HTTPClient.h>
+  #include "ESP8266WebServer.h"
+  #include "ESP8266httpUpdate.h"
+  #include <ESP8266mDNS.h>
+  #include <ESP8266SSDP.h>  // SSDP (Simple Service Discovery Protocol) service
+  extern "C" {
+    #include "user_interface.h"
+  }
+  #include <pgmspace.h>
+  #define F(string_literal) (FPSTR(PSTR(string_literal)))
+#elif defined(ESP32)                                                     // -----------------  ESP32  -----------------
+  #include <WiFi.h>
+  #include <HTTPClient.h>
+  #include <FS.h>        // File System for Web Server Files
+  #include <WebServer.h>
+  #include <HTTPUpdate.h>
+  #include <ESPmDNS.h>
+  #include <ESP32SSDP.h> // 2.0.0 https://github.com/luc-github/ESP32SSDP/releases
+  #include "esp_system.h"
+  #include <esp_netif.h>
+  #include "esp_wifi.h"
+  #define F(string_literal) (string_literal)
+#endif                                                          // -------------------------------------------
+
 #include <DNSServer.h>
-#include <ESP8266mDNS.h>
 #include <LittleFS.h>
 #include <TimeLib.h>
 #include <NTPClient.h>
-#include "ArduinoJson.h"    // v6.21.5
+#include "ArduinoJson.h"  // 6.21.5
 #include <WiFiUdp.h>
+
 #include <PubSubClient.h>
-#include <ESP8266SSDP.h>    // SSDP (Simple Service Discovery Protocol) service
+
+#if defined(ESP8266)                                         // -----------------  ESP8266  -----------------
+  String chipID = String(ESP.getChipId());
+#elif defined(ESP32)                                         // -----------------  ESP32  -----------------
+  uint64_t chipIDmac = ESP.getEfuseMac();
+  String chipID = String((uint16_t)(chipIDmac >> 32), HEX) + String((uint32_t)chipIDmac, HEX);
+#endif                                                    // -------------------------------------------
+
 #include "Filesystem.h"     //
 #include "WiFiManager.h"
 
@@ -90,9 +118,6 @@
     #include "Display.h"
 #endif
 
-extern "C" {
-#include "user_interface.h"
-}
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -106,7 +131,7 @@ extern "C" {
 
 #define PRODUCT MODEL_NAME MODEL_NUMBER
 #define FIRMWARE PRODUCT "-" FW_VERSION
-String SERIAL_NUMBER = String(PRODUCT) + "-" + String(ESP.getChipId());
+String SERIAL_NUMBER = String(PRODUCT) + "-" + chipID;
 
 #define SERIAL_BAUDRATE 9600
 #define WEBSERVER_PORT 80
@@ -194,9 +219,6 @@ WiFiClient espClient;
 HTTPClient http;
 PubSubClient client(espClient);
 
-// Create an instance of the WiFiManager class
-WiFiManager wifiManager(wifi_ssid, wifi_password, wifi_StaticIP, wifi_gateway, wifi_subnet, wifi_DNS, wifi_hostname, wifi_static, softAP_ssid, softAP_pass);
-
 #if ( EXCLUDED_CODE == 9 )  //===============================================
 // TEST WITH SSL
 #define host "nas.local"
@@ -206,7 +228,12 @@ WiFiClientSecure wiFiClient;
 #endif  //===============================================
 
 DNSServer dnsServer;
-FSInfo fs_info;
+#if defined(ESP8266)                                          //====================== ESP8266 ================
+  FSInfo fs_info;
+#elif defined(ESP32)                                             //======================== ESP32 ================
+  size_t totalBytes = LittleFS.totalBytes();
+  size_t usedBytes = LittleFS.usedBytes();
+#endif                                                  //===============================================
 
 File fsUploadFile;
 
@@ -218,5 +245,11 @@ NTPClient timeClient(ntpUDP, NTPSERVER, 0, 36e5); // 60 * 60 * 1000 == 1 hour
 time_t startTime;
 time_t adjustedTime;
 
-ESP8266WebServer server(WEBSERVER_PORT);
- 
+#if defined(ESP8266)                                          //====================== ESP8266 ================
+  ESP8266WebServer server(WEBSERVER_PORT);
+#elif defined(ESP32)                                             //======================== ESP32 ================
+  WebServer server(WEBSERVER_PORT);
+#endif                                                  //===============================================
+
+// Create an instance of the WiFiManager class
+WiFiManager wifiManager(wifi_ssid, wifi_password, wifi_StaticIP, wifi_gateway, wifi_subnet, wifi_DNS, wifi_hostname, wifi_static, softAP_ssid, softAP_pass);

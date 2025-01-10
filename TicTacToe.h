@@ -1,7 +1,13 @@
 
 #if ( STERGO_PROGRAM == 2 )
 #define MODEL_NAME    "TT001"
-#define MODEL_NUMBER  "v01"
+#endif
+#if ( STERGO_PROGRAM_BOARD == 1 )
+  #define MODEL_NUMBER "v01"
+#elif ( STERGO_PROGRAM_BOARD == 2 )
+  #define MODEL_NUMBER "v02"
+#elif ( STERGO_PROGRAM_BOARD == 3 )
+  #define MODEL_NUMBER "v03"
 #endif
 
 // Config.ino

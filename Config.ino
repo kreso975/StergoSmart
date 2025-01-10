@@ -63,7 +63,7 @@ bool initConfig( String* message )
 	String _tmp = deviceName;
 	_tmp.replace(' ', '-');
 	_tmp += "-";
-	_tmp += ESP.getChipId();
+	_tmp += chipID;
 	_tmp.toCharArray(_devicename, sizeof(_devicename));
 	// -----
 	

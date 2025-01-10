@@ -10,8 +10,11 @@ void setupHttpServer()
 	{
 		server.on("/", handleIndex);
 		server.on("/index.html", handleIndex);
-		server.on("/description.xml", HTTP_GET, [&]()
-					 { SSDP.schema(server.client()); });
+    #if defined(ESP8266)
+    server.on( "/description.xml", HTTP_GET, [&]() { SSDP.schema(server.client()); });
+    #elif defined(ESP32)
+    server.on("/description.xml", HTTP_GET, []() { server.send(200, "text/xml", SSDP.getSchema());});
+    #endif
 	}
 	else
 	{ // IF SERVER AP
@@ -188,7 +191,7 @@ void sendDeviceInfo()
 {
 	char data[460];
 	int len = snprintf(data, sizeof(data), "{\"result\":[{\"Name\":\"Firmware\",\"Value\":\"%s\"},{\"Name\":\"Chip ID\",\"Value\":\"%u\"},{\"Name\":\"CPU Frequency(MHz)\",\"Value\":\"%u\"},{\"Name\":\"Free Heap\",\"Value\":\"%u\"},{\"Name\":\"DeviceName\",\"Value\":\"%s\"},{\"Name\":\"Uptime\",\"Value\":\"%s\"},{\"Name\":\"DeviceIP\",\"Value\":\"%s\"},{\"Name\":\"MAC address\",\"Value\":\"%s\"},{\"Name\":\"FreeSPIFFS\",\"Value\":\"%ld\"}]}",
-							 FIRMWARE, ESP.getChipId(), ESP.getCpuFreqMHz(), ESP.getFreeHeap(), deviceName, showDuration().c_str(), WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), GetMeFSinfo().toInt());
+							 FIRMWARE, chipID, ESP.getCpuFreqMHz(), ESP.getFreeHeap(), deviceName, showDuration().c_str(), WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), GetMeFSinfo().toInt());
 
 	// 3 is indicator of JSON already formated reply
 	sendJSONheaderReply(3, data);

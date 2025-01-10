@@ -242,7 +242,7 @@ void displayMessage( CRGB colorScroll, const char *message, int numSpaces )
 
 		previousMessage = convertedMessage; // Update the previous message
 		previousNumSpaces = numSpaces;		// Update the previous number of spaces
-		scrollPosition = 0;					// Reset the scroll position
+		scrollPosition = 0;						// Reset the scroll position
 	}
 
 	// Copy the relevant part of the buffer to the LED matrix
@@ -261,7 +261,7 @@ void displayMessage( CRGB colorScroll, const char *message, int numSpaces )
 		scrollPosition = 0;
 }
 
-void freeDisplayMessageBuffer() { if (displayBuffer != nullptr) { delete[] displayBuffer; displayBuffer = nullptr; } }
+// void freeDisplayMessageBuffer() { if (displayBuffer != nullptr) { delete[] displayBuffer; displayBuffer = nullptr; } }
 
 void renderDisplayMessage( unsigned long currentMillis )
 {
@@ -282,7 +282,7 @@ void renderDisplayMessage( unsigned long currentMillis )
 	{
 		server.begin(); // We have stop it when set messageON = true in displayState()
 		//memset( tempBufferMessage, 0, sizeof(tempBufferMessage) ); // Clear temp buffer
-		freeDisplayMessageBuffer();
+		//freeDisplayMessageBuffer(); 
 		messageON = false; // Set messageON to false after 10 seconds 
 	}
 }
@@ -339,7 +339,7 @@ public:
 	void draw( CRGB* buffer )
 	{
 		// adjust Particle brightness - 0 to 255
-		color.nscale8(min(maxBrightness * 5, 255));
+		color.nscale8(min(maxBrightness * 4, 255));
 
 		// Ensure particles stay within bounds
 		if ( x >= 0 && x < kMatrixWidth && y >= 0 && y < kMatrixHeight )
@@ -429,7 +429,7 @@ void drawText( CRGB *buffer )
 	if ( increasing )
 	{
 		brightness += 30;
-		if ( brightness >= min(maxBrightness*5, 255) )
+		if ( brightness >= min(maxBrightness*4, 255) )
 			increasing = false;
 	}
 	else

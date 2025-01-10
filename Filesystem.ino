@@ -1,6 +1,8 @@
 String GetMeFSinfo()
 {
 	String MyOut;
+
+	#if defined(ESP8266)
 	struct FSInfo
 	{
 		size_t totalBytes;	 // total size of useful data on the file system
@@ -13,8 +15,13 @@ String GetMeFSinfo()
 
 	LittleFS.info(fs_info);
 	int Flashfree = (fs_info.totalBytes - fs_info.usedBytes) / 1000;
-	MyOut = String(Flashfree);
+	#elif defined(ESP32)
+	size_t totalBytes = LittleFS.totalBytes();
+	size_t usedBytes = LittleFS.usedBytes();
+	int Flashfree = (totalBytes - usedBytes) / 1000;
+	#endif
 
+	MyOut = String(Flashfree);
 	return MyOut;
 }
 

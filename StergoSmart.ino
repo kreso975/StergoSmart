@@ -43,8 +43,8 @@ void setup()
 
 	#ifdef MODULE_DISPLAY
 	FastLED.addLeds<CHIPSET, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
-   FastLED.setMaxPowerInVoltsAndMilliamps(POWER_VOLTAGE, MAX_POWER_MILLIAMPS); // check config
-   FastLED.setBrightness(maxBrightness);
+  FastLED.setMaxPowerInVoltsAndMilliamps(POWER_VOLTAGE, MAX_POWER_MILLIAMPS); // check config
+  FastLED.setBrightness(maxBrightness);
 
 	timeZoneOffset = 3600 * timeZone;
 	#endif
@@ -100,7 +100,7 @@ void loop()
 	{
 		if ( timeClient.update() )					// Update time
 			setTime(timeClient.getEpochTime());
-		
+
 		// We will not run anything if we are in WIN message mode
 		#ifdef MODULE_DISPLAY						//=================  MODULE DISPLAY =============
 		if ( !messageWinON )

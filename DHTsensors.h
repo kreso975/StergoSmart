@@ -1,3 +1,5 @@
+#include <DHT.h>
+
 //Constants
 #define DHTPIN 2            // what pin we're connected to
 //#define DHTTYPE DHT11     // DHT 11

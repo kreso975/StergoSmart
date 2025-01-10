@@ -33,10 +33,17 @@ public:
 
 	bool startWPS()
 	{
+		#if defined(ESP32)							//=============== ESP32  =======================
+		WiFi.beginSmartConfig();
+		while (!WiFi.smartConfigDone())	// Never tested
+			delay(500);
+		#elif defined(ESP8266)							//=============== ESP8266  =======================
 		if (WiFi.beginWPSConfig())
 			return true;
 		else
 			return false;
+		#endif									//================================================
+
 	}
 
 	bool startSTA(int STAmode = 0)
@@ -82,7 +89,7 @@ public:
 	bool startAP()
 	{
 		WiFi.mode(WIFI_AP);
-		String tmp = String(softAP_ssid) + "_" + String(ESP.getChipId());
+		String tmp = String(softAP_ssid) + "_" + chipID;
 		WiFi.softAP(tmp.c_str(), softAP_pass);
 		delay(500);
 
@@ -97,8 +104,12 @@ public:
 
 	void manageWiFi()
 	{
+		#if defined(ESP32)								//=============== ESP32  =======================
+		WiFi.setHostname(wifi_hostname);
+		#elif defined(ESP8266)								//=============== ESP8266  =======================
 		wifi_station_set_hostname(wifi_hostname);
 		WiFi.hostname(wifi_hostname);
+		#endif										//================================================
 
 		if (strcmp(wifi_ssid, "") && strcmp(wifi_password, ""))
 		{

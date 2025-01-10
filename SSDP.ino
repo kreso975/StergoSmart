@@ -106,7 +106,8 @@ void requestSSDP(int what)
 		char ReplyBuffer[] = "M-SEARCH * HTTP/1.1\r\nHost:239.255.255.250:1900\r\nMan:\"ssdp:discover\"\r\nST:ssdp:all\r\nMX:1\r\n\r\n";
 
 		ntpUDP.beginPacket(IPAddress(SSDPADRESS), SSDPPORT);
-		ntpUDP.write(ReplyBuffer);
+		//ntpUDP.write(ReplyBuffer);
+    ntpUDP.write((uint8_t*)ReplyBuffer, strlen(ReplyBuffer));
 		ntpUDP.endPacket();
 	}
 }
@@ -176,7 +177,8 @@ TODO    :
 void sendUDP(String payloadUDP, IPAddress ssdpDeviceIP, int udpPort)
 {
 	ntpUDP.beginPacket(ssdpDeviceIP, udpPort);
-	ntpUDP.write(payloadUDP.c_str());
+	//ntpUDP.write(payloadUDP.c_str());
+  ntpUDP.write((uint8_t*)payloadUDP.c_str(), payloadUDP.length());
 	ntpUDP.endPacket();
 	return;
 }

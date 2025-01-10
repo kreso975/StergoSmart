@@ -8,9 +8,14 @@
  <br><br>
  
 ## **CHANGES:**  
-**000.05.106** - in development  
-- 
-
+**000.06.001** - in development  
+-  
+  
+**000.06.000**  
+- fix clear buffer for scroll causing same text to crash  
+- some includes moved to owner .h
+- ESP32 support  
+  
 **000.05.105**   
 - added CPU Frequency(MHz) in deviceinfo.json  
 - cleanUP Main Loop - moved logic to each owner  
