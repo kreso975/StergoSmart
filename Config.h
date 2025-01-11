@@ -87,7 +87,7 @@
 #endif                                                    // -------------------------------------------
 
 #include "Filesystem.h"     //
-#include "WiFiManager.h"
+#include "./src/WiFiManager/WiFiManager.h"
 
 #if ( STERGO_PROGRAM == 0 )  // Power Plug | Switch
     #define MODULE_SWITCH
@@ -252,4 +252,4 @@ time_t adjustedTime;
 #endif                                                  //===============================================
 
 // Create an instance of the WiFiManager class
-WiFiManager wifiManager(wifi_ssid, wifi_password, wifi_StaticIP, wifi_gateway, wifi_subnet, wifi_DNS, wifi_hostname, wifi_static, softAP_ssid, softAP_pass);
+WiFiManager wifiManager(wifi_ssid, wifi_password, wifi_StaticIP, wifi_gateway, wifi_subnet, wifi_DNS, wifi_hostname, wifi_static, softAP_ssid, softAP_pass, chipID);

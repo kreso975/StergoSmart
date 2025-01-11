@@ -2,14 +2,18 @@
   - Filesystem/setupFS() - Implement fail over if SPIFFS get corrupted - copy content from web loc or Upload or 
     https://github.com/spacehuhn/esp8266_deauther/blob/master/esp8266_deauther/webfiles.h or start updateOTA for SPIFFS
   - Firmware update OTA, with more info - Your firmware is up to date, Firmware XXX available etc  
-  - add support for ESP32  
+  - implement httpupdate LittleFS
+  - implement firmware update ESP32
   - start moving *.ino to .h and .cpp and plce them to src folder  
  
  <br><br>
  
 ## **CHANGES:**  
 **000.06.001** - in development  
--  
+- WiFiManager first to moved from ino to structure .h .cpp
+- moved WiFiManager into /src/WiFiManager/ folder  
+- moved String wifiScanJSON(); from WiFi.ino to WiFiManager class
+- moved String firmwareOnlineUpdate(byte what) from WiFi.ino to handleHttp.ino
   
 **000.06.000**  
 - fix clear buffer for scroll causing same text to crash  
