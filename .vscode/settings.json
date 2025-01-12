@@ -30,6 +30,8 @@
         "unordered_map": "cpp",
         "vector": "cpp",
         "initializer_list": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "*.all-contributorsrc": "cpp",
+        "cstddef": "cpp"
     }
 }

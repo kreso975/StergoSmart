@@ -1,3 +1,4 @@
+#ifdef MODULE_DHT
 #include "DHTsensors.h"
 
 bool detectModule = false;
@@ -78,5 +79,6 @@ void getWeatherDHT()
 	
 	    float T = Kelvin(t); // Kelvin             
   	}
-  
 }
+
+#endif

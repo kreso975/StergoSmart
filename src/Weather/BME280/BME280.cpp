@@ -1,3 +1,4 @@
+#ifdef MODULE_BME280
 #include "BME280.h"
 #include <Wire.h>
 
@@ -115,3 +116,4 @@ void getWeatherBME()
             P0 = iNHg(P0);
     }
 }
+#endif

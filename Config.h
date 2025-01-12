@@ -116,9 +116,8 @@
 #if ( STERGO_SCREEN == 1 )
     #define MODULE_DISPLAY
     #include "Display.h"
+    //#include "./src/Display/WS2812B/WS2812B_Matrix.cpp"
 #endif
-
-
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
