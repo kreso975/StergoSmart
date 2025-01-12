@@ -27,7 +27,8 @@ Methods :
 	 - bool startAP(): Starts AP mode
 	 - void manageWiFi(): Manages the WiFi connection based on the configuration
 	 - void checkAPRestart(): Check if AP needs auto restart after 5 min 
-     - void wifiScanJSON(): Scan WiFi networks and return JSON code */
+     - void startWiFiScan(ScanCompleteCallback callback): Start the asynchronous scan with a callback */
+     
 WiFiManager::WiFiManager(char *ssid, char *password, char *staticIP, char *gateway, char *subnet, char *DNS, char *hostname, byte &useStatic, char *ap_ssid, char *ap_pass, String chipID)
     : wifi_ssid(ssid), wifi_password(password), wifi_StaticIP(staticIP), wifi_gateway(gateway), wifi_subnet(subnet), wifi_DNS(DNS), wifi_hostname(hostname), wifi_static(useStatic), softAP_ssid(ap_ssid), softAP_pass(ap_pass), chipID(chipID), ap_previousMillis(0), ap_intervalHist(300000), scanCompleteCallback(nullptr) {}
 

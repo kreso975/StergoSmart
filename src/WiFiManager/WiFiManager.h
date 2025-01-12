@@ -24,7 +24,7 @@ Methods :
 	 - bool startAP(): Starts AP mode
 	 - void manageWiFi(): Manages the WiFi connection based on the configuration
 	 - void checkAPRestart(): Check if AP needs auto restart after 5 min
-	 - void wifiScanJSON(): Scan WiFi networks and return JSON code */
+	 - void startWiFiScan(ScanCompleteCallback callback): Start the asynchronous scan with a callback */
 class WiFiManager
 {
 public:
@@ -37,7 +37,7 @@ public:
 	bool startAP();
 	void manageWiFi();
 	void checkAPRestart();
-	void startWiFiScan(ScanCompleteCallback callback); // Start the asynchronous scan with a callback
+	void startWiFiScan(ScanCompleteCallback callback);
 	String getScanResult();
 
 

@@ -43,12 +43,13 @@ void setup()
 
 	#ifdef MODULE_DISPLAY
 	FastLED.addLeds<CHIPSET, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
-  FastLED.setMaxPowerInVoltsAndMilliamps(POWER_VOLTAGE, MAX_POWER_MILLIAMPS); // check config
-  FastLED.setBrightness(maxBrightness);
+	FastLED.setMaxPowerInVoltsAndMilliamps(POWER_VOLTAGE, MAX_POWER_MILLIAMPS); // check config
+	FastLED.setBrightness(maxBrightness);
 
 	timeZoneOffset = 3600 * timeZone;
 	#endif
 
+	// Start WiFi
 	wifiManager.manageWiFi();
 
 	if ( WiFi.getMode() == WIFI_STA )

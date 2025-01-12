@@ -21,7 +21,7 @@
  * LOLIN D1 mini       = 2   // v02
  * ESP32C6             = 3   // v03
  */
-#define STERGO_PROGRAM_BOARD 3
+#define STERGO_PROGRAM_BOARD 1
 
 /*
  * STERGO_PLUG :
@@ -42,7 +42,7 @@
 #define EXCLUDED_CODE 1
 
 // 1 true | 0 false  / Serial.print 
-#define DEBUG 1
+#define DEBUG 0
 
 #if defined(ESP8266)                                                  // -----------------  ESP8266  -----------------
   #include <ESP8266WiFi.h>
@@ -117,6 +117,7 @@
     #define MODULE_DISPLAY
     #include "Display.h"
 #endif
+
 
 
 #define STRINGIFY(x) #x
