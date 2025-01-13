@@ -1,20 +1,21 @@
-#ifndef MODULE_BME280
-#define MODULE_BME280
+#ifndef MODULE_DHT_H
+#define MODULE_DHT_H
 
 #include <Arduino.h> // Include the Arduino core header file
-#include <Adafruit_BME280.h>
+#include <DHT.h>
 
-// BME280 GPIOs 2 (SDA),0 (SCL) are used for BME280
-#define GPIO_SDA 2
-#define GPIO_SCL 0
-#define BMEaddr 0x76 //BME280 address not all running on same address 0x76 || 0x77
+#define DHTPIN 2            // what pin we're connected to
+//#define DHTTYPE DHT11     // DHT 11
+#define DHTTYPE DHT22       // DHT 22 (AM2302), AM2321
+//#define DHTTYPE DHT21     // DHT 21 (AM2301)
 
 extern bool measureFirstRun;
 extern bool detectModule;
 
-extern byte pa_unit, t_measure, p_measure, p_adjust;
-extern int pl_adj;
-extern float h, t, p, dp, P0;
+extern byte t_measure;
+extern float h;
+extern float t;
+extern float dp;
 
 #define measureInterval 30e3                                // in miliseconds = 30 * 1000 (e3 = 3 zeros) = 15sec
 extern unsigned long lastMeasureInterval;
@@ -22,13 +23,12 @@ extern unsigned long lastMeasureInterval;
 #define intervalHist 1000 * 60 * 15                         // 4 measures / hours - orig 1000 * 60 * 15 - 15min
 extern unsigned long previousMillis;
 
-
 extern char mqtt_Humidity[120];
 extern char mqtt_Temperature[120];
-extern char mqtt_Pressure[120];
-extern Adafruit_BME280 bme;
 
-bool setupBME280();
-void getWeatherBME();
+//DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor
+
+extern bool setupDHT();
+extern void getWeatherDHT();
 
 #endif

@@ -22,3 +22,6 @@ HTML/
 
 # Webstorm
 .idea
+
+# Ignore testDir
+tmpSRC/

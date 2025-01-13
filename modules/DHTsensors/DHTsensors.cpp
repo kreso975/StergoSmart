@@ -1,4 +1,27 @@
 #ifdef MODULE_DHT
+#include "DHTsensors.h"
+
+bool detectModule = false;
+bool measureFirstRun = true;
+
+byte t_measure;
+float h;
+float t;
+float dp;
+unsigned long lastMeasureInterval = measureInterval;
+unsigned long previousMillis = intervalHist;
+
+char mqtt_Temperature[120];
+char mqtt_Humidity[120];
+
+DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor
+
+extern bool writeLogFile(String message, int newLine, int output);
+extern float Fahrenheit( float celsius );
+extern float Kelvin( float celsius );
+extern float iNHg( float hpa );
+extern float Meter( float feet );
+
 
 /* ======================================================================
 Function: setupDHT
@@ -58,6 +81,6 @@ void getWeatherDHT()
 	
 	    float T = Kelvin(t); // Kelvin             
   	}
-  
 }
+
 #endif

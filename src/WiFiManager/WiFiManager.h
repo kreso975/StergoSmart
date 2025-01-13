@@ -1,8 +1,6 @@
 #ifndef WIFIMANAGER_H
 #define WIFIMANAGER_H
 
-#include <Arduino.h> // Include the Arduino core header file
-
 /* ======================== WiFiManager ==============================
 Class   : WiFiManager
 Purpose : Brain of WiFi behaviour

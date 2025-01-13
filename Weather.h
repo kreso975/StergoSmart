@@ -21,7 +21,8 @@
   //#define MODEL_NAME "WS001"
   #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "1"
   #define MODULE_BME280
-  #include "BME280.h"
+  #include "./modules/BME280/BME280.h"
+  #include "./modules/BME280/BME280.cpp"
 #endif
 #if ( STERGO_PROGRAM_BOARD == 1 )
   #define MODEL_NUMBER "v01"
@@ -34,11 +35,13 @@
 #if ( STERGO_PROGRAM == 3 )
     #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "2"
     #define MODULE_BME280
-    #include "BME280.h"
+    #include "./modules/BME280/BME280.h"
+    #include "./modules/BME280/BME280.cpp"
 #elif ( STERGO_PROGRAM == 4 )
     #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "4"
     #define MODULE_DHT
-    #include "DHTsensors.h"
+    #include "./modules/DHTsensors/DHTsensors.h"
+    #include "./modules/DHTsensors/DHTsensors.cpp"
 #elif ( STERGO_PROGRAM == 5 )
     #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "5"
     #define MODULE_DS18B20
