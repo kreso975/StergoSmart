@@ -22,16 +22,6 @@
   #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "1"
 #endif                                              //===============================================
 
-// ESP8266 01S        = 1
-// LOLIN d1 Mini      = 2
-#if ( STERGO_PROGRAM_BOARD == 1 )                   //===============================================
-  #define MODEL_NUMBER "v01"
-#elif ( STERGO_PROGRAM_BOARD == 2 )                 //===============================================
-  #define MODEL_NUMBER "v02"
-#elif ( STERGO_PROGRAM_BOARD == 3 )                 //===============================================
-  #define MODEL_NUMBER "v03"
-#endif                                              //===============================================
-
 #if ( STERGO_PLUG == 1 )                  //===============================================
   #define LED  1
   #define LED2 2

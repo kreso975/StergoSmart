@@ -1,5 +1,27 @@
 #ifdef MODULE_DS18B20
 
+#include "DS18B20.h"
+
+bool detectModule = false;
+bool measureFirstRun = true;
+
+byte t_measure;
+float t;
+unsigned long lastMeasureInterval = measureInterval;
+unsigned long previousMillis = intervalHist;
+
+char mqtt_Temperature[120];
+
+// Setup a oneWire instance to communicate with any OneWire devices
+OneWire oneWire(ONE_WIRE_BUS);
+
+// Pass our oneWire reference to Dallas Temperature sensor 
+DallasTemperature sensors(&oneWire);
+
+extern bool writeLogFile(String message, int newLine, int output);
+extern float Fahrenheit( float celsius );
+extern float Kelvin( float celsius );
+
 /* ======================================================================
 Function: setupDS18B20
 Purpose : Initialize DS18B20

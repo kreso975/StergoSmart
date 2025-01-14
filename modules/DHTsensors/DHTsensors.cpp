@@ -19,8 +19,6 @@ DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor
 extern bool writeLogFile(String message, int newLine, int output);
 extern float Fahrenheit( float celsius );
 extern float Kelvin( float celsius );
-extern float iNHg( float hpa );
-extern float Meter( float feet );
 
 
 /* ======================================================================

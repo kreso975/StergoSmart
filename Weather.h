@@ -24,13 +24,6 @@
   #include "./modules/BME280/BME280.h"
   #include "./modules/BME280/BME280.cpp"
 #endif
-#if ( STERGO_PROGRAM_BOARD == 1 )
-  #define MODEL_NUMBER "v01"
-#elif ( STERGO_PROGRAM_BOARD == 2 )
-  #define MODEL_NUMBER "v02"
-#elif ( STERGO_PROGRAM_BOARD == 3 )
-  #define MODEL_NUMBER "v03"
-#endif
 
 #if ( STERGO_PROGRAM == 3 )
     #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "2"
@@ -45,7 +38,8 @@
 #elif ( STERGO_PROGRAM == 5 )
     #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "5"
     #define MODULE_DS18B20
-    #include "DS18B20.h"
+    #include "./modules/DS18B20/DS18B20.h"
+    #include "./modules/DS18B20/DS18B20.cpp"
 #endif
 
 #define HISTORY_FILE "/history.json"

@@ -30,7 +30,7 @@
  * Sonoff S26         = 2   // Plug Switch  - PS
  * Sonoff T4EU1C      = 3   // Light Switch - LS
  */
-#define STERGO_PLUG 3
+#define STERGO_PLUG 1
 
 // Firmware Version always part of this file
 #define FW_VERSION "000.06.000"                 // Check releaseLog for details
@@ -42,7 +42,7 @@
 #define EXCLUDED_CODE 1
 
 // 1 true | 0 false  / Serial.print 
-#define DEBUG 1
+#define DEBUG 0
 
 #if defined(ESP8266)                                                  // -----------------  ESP8266  -----------------
   #include <ESP8266WiFi.h>
@@ -76,7 +76,6 @@
 #include <NTPClient.h>
 #include "ArduinoJson.h"  // 6.21.5
 #include <WiFiUdp.h>
-
 #include <PubSubClient.h>
 
 #if defined(ESP8266)                                         // -----------------  ESP8266  -----------------
@@ -128,6 +127,11 @@
  *                    Check if MQTT Broker is available, Check if MQTT is set - give alerts (graphic)
  *********************************************************************************************************/
 #include "MQTT.h"
+
+// Macro generate model version number based on STERGO_PROGRAM_BOARD
+#define MODEL_NUMBER_HELPER(x) "v0" #x
+#define MODEL_NUMBER_HELPER2(x) MODEL_NUMBER_HELPER(x)
+#define MODEL_NUMBER MODEL_NUMBER_HELPER2(STERGO_PROGRAM_BOARD)
 
 #define PRODUCT MODEL_NAME MODEL_NUMBER
 #define FIRMWARE PRODUCT "-" FW_VERSION
@@ -228,9 +232,9 @@ WiFiClientSecure wiFiClient;
 #endif  //===============================================
 
 DNSServer dnsServer;
-#if defined(ESP8266)                                          //====================== ESP8266 ================
+#if defined(ESP8266)                                    //====================== ESP8266 ================
   FSInfo fs_info;
-#elif defined(ESP32)                                             //======================== ESP32 ================
+#elif defined(ESP32)                                    //======================== ESP32 ================
   size_t totalBytes = LittleFS.totalBytes();
   size_t usedBytes = LittleFS.usedBytes();
 #endif                                                  //===============================================
@@ -238,16 +242,15 @@ DNSServer dnsServer;
 File fsUploadFile;
 
 WiFiUDP ntpUDP;
-
 NTPClient timeClient(ntpUDP, NTPSERVER, 0, 36e5); // 60 * 60 * 1000 == 1 hour
 
 // startTime - When Device Started
 time_t startTime;
 time_t adjustedTime;
 
-#if defined(ESP8266)                                          //====================== ESP8266 ================
+#if defined(ESP8266)                                    //====================== ESP8266 ================
   ESP8266WebServer server(WEBSERVER_PORT);
-#elif defined(ESP32)                                             //======================== ESP32 ================
+#elif defined(ESP32)                                    //======================== ESP32 ================
   WebServer server(WEBSERVER_PORT);
 #endif                                                  //===============================================
 

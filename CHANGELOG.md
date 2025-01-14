@@ -13,7 +13,10 @@
 - WiFiManager first to moved from ino to structure .h .cpp
 - moved WiFiManager into /src/WiFiManager/ folder  
 - moved String wifiScanJSON(); from WiFi.ino to WiFiManager class
+- moved DS18B20, DHTsensors, BME280 to folder: /modules/ and converted them to .h .cpp
 - moved String firmwareOnlineUpdate(byte what) from WiFi.ino to handleHttp.ino
+- Errors with ESP32 <OneWire.h>
+- fixed ChipID in sendDeviceInfo() , set to %s
   
 **000.06.000**  
 - fix clear buffer for scroll causing same text to crash  

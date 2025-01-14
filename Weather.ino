@@ -32,7 +32,7 @@ void updateWeather()
 				webLoc_previousMillis = millis();
 				sendMeasuresWebhook();
 			}
-			}
+		}
 	}
 }
 
@@ -129,10 +129,10 @@ bool sendMeasuresMQTT()
 	if ( !sendMQTT( mqtt_Temperature, (char*) String(t).c_str(), true ) )
 	{
     	//writeLogFile( F("Publish Temperature: failed"), 1 );
-    	//checkStat = false;
+    	checkStat = false;
   	}
 
-    #if defined( MODULE_DHT ) || defined( MODULE_BME280 )
+   #if defined( MODULE_DHT ) || defined( MODULE_BME280 )
 	char humidityString[6];
 	dtostrf(h, 5, 1, humidityString);
     
@@ -142,20 +142,20 @@ bool sendMeasuresMQTT()
   		//writeLogFile( F("Publish Humidity: failed"), 1 );
     	checkStat = false;
 	}
-    #endif
+   #endif
     
 	#ifdef MODULE_BME280
 	char pressureString[7];
 	dtostrf(P0, 6, 1, pressureString);
     
 	// Let's try to publish Pressure
-    if ( !sendMQTT( mqtt_Pressure, pressureString, true ) )
-    {
-    	//writeLogFile( F("Publish Pressure: failed"), 1 );
+   if ( !sendMQTT( mqtt_Pressure, pressureString, true ) )
+   {
+   	//writeLogFile( F("Publish Pressure: failed"), 1 );
     	checkStat = false;
-    }
-    #endif
-    return checkStat;
+   }
+   #endif
+   return checkStat;
 }
 
 /* ======================================================================
@@ -173,17 +173,17 @@ void sendMeasuresWebhook()
     
 	localURL = webLoc_server;
     
-    #ifdef MODULE_DS18B20
-    sprintf(data2, "{\"t\":\"%.2f\"}",t);
-    #endif
-    #ifdef MODULE_DHT
-    sprintf(data2, "{\"t\":\"%.2f\",\"h\":\"%.2f\"}",t,h);
-    #endif
-    #ifdef MODULE_BME280
+   #ifdef MODULE_DS18B20
+   sprintf(data2, "{\"t\":\"%.2f\"}",t);
+   #endif
+   #ifdef MODULE_DHT
+   sprintf(data2, "{\"t\":\"%.2f\",\"h\":\"%.2f\"}",t,h);
+   #endif
+   #ifdef MODULE_BME280
 	sprintf(data2, "{\"t\":\"%.2f\",\"h\":\"%.2f\",\"p\":\"%.2f\"}",t,h,P0);
-    #endif
+   #endif
 	
-    data = String(data2);
+   data = String(data2);
 	sendWebhook( localURL, data );
 }
 
@@ -195,11 +195,6 @@ Output  : HTTP JSON
 Comments: -  */
 void sendMeasures()
 {
-	/*
-	String json = "{\"t\":\"" + String(t) + "\",";
-           json += "\"h\":\"" + String(h) + "\",";
-           json += "\"p\":\"" + String(P0) + "\"}";
-    */
 	char data[40];
 
     #ifdef MODULE_DS18B20
@@ -214,7 +209,6 @@ void sendMeasures()
 
 	// 3 is indicator of JSON already formated reply
 	sendJSONheaderReply( 3, data );
-	//Serial.println( F("Sent measures") );
 }
 
 /* ======================================================================
@@ -226,14 +220,9 @@ Comments: -
 ToDo	: -  */
 bool MainSensorConstruct()
 {
-    //writeLogFile( F("In MainSensorConstruct"), 0 );
-    //unsigned int Jsonlength = jsonDataBuffer.length();
-    //writeLogFile( "Before load size: " + String(Jsonlength), 1 );
-
 	File file = LittleFS.open( HISTORY_FILE, "r" );
 	if (!file)
 	{
-		//writeLogFile( fOpen + HISTORY_FILE, 1 );
 		if ( updateHistory( 1 ) ) // Create proper initial History File
 			writeLogFile( F("Delete History 1"), 1, 3 );
 	}
@@ -245,23 +234,23 @@ bool MainSensorConstruct()
 			if ( updateHistory( 1 ) ) // Create proper initial History File
 				writeLogFile( F("Delete History 2"), 1, 3 );
 		}
-        else
-        {
+      else
+      {
 			std::unique_ptr<char[]> buf (new char[size]);
 			file.readBytes(buf.get(), size);
 			file.close();
 			
 			DynamicJsonDocument  jsonBuffer(12000);
       		DeserializationError error = deserializeJson( jsonBuffer, buf.get());
-			//JsonObject& root = jsonBuffer.parseObject(buf.get());
 
 			if ( error )
 			{
-				writeLogFile( faParse HISTORY_FILE, 1 );
+				//writeLogFile( faParse HISTORY_FILE, 1 );
+				writeLogFile( error.c_str(), 1 );
 				return false;
 			}
 			else
-      		{
+      	{
 				JsonArray sensor = jsonBuffer["sensor"];
         		JsonArray Sensordata = sensor.createNestedArray();	
 				
@@ -269,29 +258,26 @@ bool MainSensorConstruct()
 				// should add on startup to insert record
 				if ( currentMillis - previousMillis > intervalHist )
 				{
-					//writeLogFile( F("In check intervalHist - 1st: "), 0 );
 					long int tps = now();
 					previousMillis = currentMillis;
 
-					// Check if we have any record and if maybe record is false: 1.1.2036
+					// Check tps - if we have any record and if maybe record is false: 1.1.2036
 					if ( tps > 0 && tps < 2085974400 )
 					{
-						Sensordata.add(tps);  // Timestamp
+						Sensordata.add(tps);  			// Timestamp
 						Sensordata.add(round2(t));    // Temperature
 
-            			#if defined( MODULE_DHT ) || defined( MODULE_BME280 )
+            		#if defined( MODULE_DHT ) || defined( MODULE_BME280 )
 						Sensordata.add(round2(h));    // Humidity
-            			#endif
+            		#endif
 
-            			#ifdef MODULE_BME280
+            		#ifdef MODULE_BME280
 						Sensordata.add(round2(P0));   // Pressure
-            			#endif
+            		#endif
 
+						// Check if we have more than 100 records
 						if ( sensor.size() > sizeHist )
-						{
-							//writeLogFile( F("tps - Root size greater then sizeHist"), 0 );
 							sensor.remove(0); // - remove first record / oldest
-						}
 
 						File file = LittleFS.open( HISTORY_FILE, "w" );
 						if (!file)
@@ -302,23 +288,20 @@ bool MainSensorConstruct()
 						}
 						else
 						{
-							//if ( root.printTo(file) == 0 )
-              				if ( serializeJson( jsonBuffer, file ) == 0 )
+              			if ( serializeJson( jsonBuffer, file ) == 0 )
 							{
-								// Should do something if this happened!!!!
 								writeLogFile( fWrite + HISTORY_FILE, 1 );
-								//*message = fWrite + HISTORY_FILE;
 								file.close();
 								return false;
-							}
+							}	// Should do something if else happened!!!!
 						}
-            		}  // END of tps
+            	}  // END of tps
         		}
 			}
 		}
 		file.close();
-    }
-    return true;
+	}
+   return true;
 }
 
 #endif

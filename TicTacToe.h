@@ -2,13 +2,6 @@
 #if ( STERGO_PROGRAM == 2 )
 #define MODEL_NAME    "TT001"
 #endif
-#if ( STERGO_PROGRAM_BOARD == 1 )
-  #define MODEL_NUMBER "v01"
-#elif ( STERGO_PROGRAM_BOARD == 2 )
-  #define MODEL_NUMBER "v02"
-#elif ( STERGO_PROGRAM_BOARD == 3 )
-  #define MODEL_NUMBER "v03"
-#endif
 
 // Config.ino
 byte tictac_start, tictac_interval, tictac_webhook, tictac_discord;

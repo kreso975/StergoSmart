@@ -177,8 +177,7 @@ TODO    :
 void sendUDP(String payloadUDP, IPAddress ssdpDeviceIP, int udpPort)
 {
 	ntpUDP.beginPacket(ssdpDeviceIP, udpPort);
-	//ntpUDP.write(payloadUDP.c_str());
-  ntpUDP.write((uint8_t*)payloadUDP.c_str(), payloadUDP.length());
+	ntpUDP.write((uint8_t*)payloadUDP.c_str(), payloadUDP.length());
 	ntpUDP.endPacket();
 	return;
 }
