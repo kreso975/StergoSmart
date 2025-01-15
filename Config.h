@@ -10,10 +10,10 @@
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 1
+#define STERGO_PROGRAM 4
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
-#define STERGO_SCREEN 0
+#define STERGO_SCREEN 1
 /*
  * STERGO_PROGRAM_BOARD :
  * 
@@ -93,12 +93,10 @@
     #include "Switch.h"
     #include "SSDP.h"
     #define MODULE_TICTACTOE
-    #include "TicTacToe.h"
 #elif ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 4 || STERGO_PROGRAM == 5 )  // Weather Station BME280 | DHT | DS18B20
     #define MODULE_WEATHER
     #include "Weather.h"
     #define MODULE_TICTACTOE
-    #include "TicTacToe.h"
     #include "SSDP.h"
 #elif ( STERGO_PROGRAM == 3 )  // Weather Station and Switch BME280
     #define MODULE_WEATHER
@@ -108,14 +106,11 @@
     #include "Switch.h"
 #elif ( STERGO_PROGRAM == 2 )  // TicTacToe
     #define MODULE_TICTACTOE
-    #include "TicTacToe.h"
     #include "SSDP.h"
 #endif
     
 #if ( STERGO_SCREEN == 1 )
     #define MODULE_DISPLAY
-    #include "Display.h"
-    //#include "./src/Display/WS2812B/WS2812B_Matrix.cpp"
 #endif
 
 #define STRINGIFY(x) #x
@@ -155,6 +150,7 @@ int actualSSDPdevices = 0;
 byte logOutput = 0;  // 0 = Serial, 1 = LogFile
 #define sizeLog 30   // Log size = nr of records
 
+#define SUCCESS_MSG F("{\"success\":\"")
 String fOpen = "Fail to open ";
 String fWrite = "Fail to write ";
 #define nLOG "New Log file"
@@ -256,3 +252,21 @@ time_t adjustedTime;
 
 // Create an instance of the WiFiManager class
 WiFiManager wifiManager(wifi_ssid, wifi_password, wifi_StaticIP, wifi_gateway, wifi_subnet, wifi_DNS, wifi_hostname, wifi_static, softAP_ssid, softAP_pass, chipID);
+
+
+// Load Modules
+
+
+#ifdef MODULE_DISPLAY                             //====================== MODULE_DISPLAY ================
+  //#include "Display.h"
+  #include "./modules/myFonts.h"
+  #include "./modules/WS2812B_Matrix/WS2812B_Matrix.h"
+  #include "./modules/WS2812B_Matrix/WS2812B_Matrix.cpp"
+#endif                                            //======================================================
+
+// TicTacToe after Display because it setup some variables. Also possible to include .h but that is going to 2nd phase
+#ifdef MODULE_TICTACTOE                           //==================== MODULE_TICTACTOE ================
+  //#include "TicTacToe.h"
+  #include "./modules/TicTacToe/TicTacToe.h"
+  #include "./modules/TicTacToe/TicTacToe.cpp"
+#endif                                            //======================================================

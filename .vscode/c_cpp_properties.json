@@ -55,20 +55,12 @@
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\MQTT.ino",
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\Display.h",
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\Display.ino",
-                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\WiFiManager.h",
-                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\WiFi.ino",
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\TicTacToe.h",
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\TicTacToe.ino",
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\Switch.h",
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\Switch.ino",
                 "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\SSDP.h",
-                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\SSDP.ino",
-                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\DS18B20.h",
-                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\DS18B20.ino",
-                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\DHTsensors.h",
-                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\DHTsensors.ino",
-                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\BME280.h",
-                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\BME280.ino"
+                "D:\\Downloads\\codeRepo\\ESP8266\\StergoSmart\\SSDP.ino"
             ],
             
             "browse": {

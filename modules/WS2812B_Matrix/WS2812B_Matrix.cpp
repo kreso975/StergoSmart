@@ -1,4 +1,73 @@
 #ifdef MODULE_DISPLAY
+#include "WS2812B_Matrix.h"
+
+byte maxBrightness = 35;
+// Display ON/OFF
+byte displayON = 1;
+
+// Params for width and height
+const uint8_t kMatrixWidth = 32;
+const uint8_t kMatrixHeight = 8;
+#define NUM_LEDS (kMatrixWidth * kMatrixHeight)
+
+// Param for different pixel layouts
+const bool kMatrixSerpentineLayout = true;
+const bool kMatrixVertical = true;
+
+CRGB leds_plus_safety_pixel[ NUM_LEDS + 1];
+CRGB* const leds( leds_plus_safety_pixel + 1);
+
+CRGB displayColor = CRGB(255, 0 , 0);         // Red default
+
+// TimeZone is adjustable in config.json
+int timeZone = 1; 
+long timeZoneOffset;                          // Adjust for your timezone +1 - in Setup after config
+
+unsigned long displayInterval = 1000;         // Interval for display - default
+unsigned long dispPrevMils = displayInterval;
+
+unsigned long displayRotateInterval = 10000;  // Interval for rotating display - default
+unsigned long lastDisplayChange = 0;
+byte displayMode = 0;
+
+CRGB tempBufferText[NUM_LEDS];            // Buffer for text
+CRGB tempBufferParticles[NUM_LEDS];       // Buffer for particles
+CRGB tempBufferDate[NUM_LEDS];            // Buffer for date
+
+CRGB *displayBuffer = nullptr;            // Pointer to store the SCROLL MESSAGE buffer
+int bufferSize = 0;
+CRGB tempBufferMessage[NUM_LEDS];       // Buffer for message - not in use
+
+
+// PARTICLES for FIREWORKS
+// Global variables for initial velocity, gradual deceleration, and other parameters
+const float INITIAL_VELOCITY = 1.5;
+const float DECELERATION_FACTOR = 0.75;
+const int PARTICLE_LIFE = 70;
+const int PARTICLE_COUNT = 20;
+const int EXPLOSION_FREQUENCY = 2; // 0 - 9 : 0 = no explosion, 9 = explosion every time
+const int UPDATE_RATE = 50;
+
+
+const char* messageDisplay = "";
+static int scrollPosition = 0;              // Make scrollPosition static
+bool messageON = false;
+bool messageWinON = false;                  // Use for Enter WIN and Fireworks
+bool renderWIN = false;                     // Set renderWIN to false
+const long intervalMessage = 30;            // Update rate for displayMessage in milliseconds
+unsigned long previousMillisMessage = 0;
+unsigned long displayMessageLife = 10000;   // Interval for Message Life
+unsigned long prevMilMesLife = 0;
+
+unsigned long previousMillisText = 0;
+unsigned long previousMillisParticles = 0;
+const long intervalText = 50;            // Update rate for drawText in milliseconds
+const long intervalParticles = UPDATE_RATE; // Update rate for addParticles in milliseconds
+
+//MQTT Topics used from config.json
+char mqtt_Brightness[120];
+char mqtt_Color[120];
+char mqtt_displayON[120];
 
 /* ======================================================================
 Function: updateDisplay
@@ -185,9 +254,11 @@ Input   : buffer: buffer where to write,
 Output  : Scroll
 Comments: 
 TODO    : */
-void displayMessage( CRGB colorScroll, const char *message, int numSpaces )
+void displayMessage( CRGB *buffer, CRGB colorScroll, const char *message, int numSpaces )
 {
 	static bool bufferInitialized = false;
+	static CRGB *displayBuffer = nullptr; // Pointer to store the buffer
+	static int bufferSize = 0;
 	static String previousMessage = "";
 	static int previousNumSpaces = 0;
 	colorScroll.nscale8(maxBrightness);
@@ -252,7 +323,7 @@ void displayMessage( CRGB colorScroll, const char *message, int numSpaces )
 		{
 			int bufferIndex = (scrollPosition + x) % ((convertedMessage.length() + numSpaces) * 6) + (y * (convertedMessage.length() + numSpaces) * 6);
 			if ( bufferIndex < bufferSize )
-				leds[XYsafe(kMatrixWidth - 1 - x, y)] += displayBuffer[bufferIndex]; // Use buffer instead of leds
+				buffer[XYsafe(kMatrixWidth - 1 - x, y)] += displayBuffer[bufferIndex]; // Use buffer instead of leds
 		}
 	}
 
@@ -261,7 +332,7 @@ void displayMessage( CRGB colorScroll, const char *message, int numSpaces )
 		scrollPosition = 0;
 }
 
-// void freeDisplayMessageBuffer() { if (displayBuffer != nullptr) { delete[] displayBuffer; displayBuffer = nullptr; } }
+void freeDisplayMessageBuffer() { if (displayBuffer != nullptr) { delete[] displayBuffer; displayBuffer = nullptr; } }
 
 void renderDisplayMessage( unsigned long currentMillis )
 {
@@ -271,18 +342,18 @@ void renderDisplayMessage( unsigned long currentMillis )
 	{
 		FastLED.clearData();
 		previousMillisMessage = currentMillis;
-		//memset( tempBufferMessage, 0, sizeof(tempBufferMessage) ); // Clear temp buffer
-		displayMessage( CRGB::Red, messageDisplay, 6); // Update temp buffer | using buffer if we want add something over / effect
+		memset( tempBufferMessage, 0, sizeof(tempBufferMessage) ); // Clear temp buffer
+		displayMessage( tempBufferMessage, displayColor, messageDisplay, 6); // Update temp buffer | using buffer if we want add something over / effect
 		
-		//for (int i = 0; i < NUM_LEDS; i++)	// Fill LEDS from buffer
-		//	leds[i] = tempBufferMessage[i];
+		for (int i = 0; i < NUM_LEDS; i++)	// Fill LEDS from buffer
+			leds[i] = tempBufferMessage[i];
 	}
 	
 	if ( currentMillis - prevMilMesLife >= displayMessageLife )
 	{
 		server.begin(); // We have stop it when set messageON = true in displayState()
-		//memset( tempBufferMessage, 0, sizeof(tempBufferMessage) ); // Clear temp buffer
-		//freeDisplayMessageBuffer(); 
+		memset( tempBufferMessage, 0, sizeof(tempBufferMessage) ); // Clear temp buffer
+		freeDisplayMessageBuffer(); 
 		messageON = false; // Set messageON to false after 10 seconds 
 	}
 }
@@ -309,62 +380,49 @@ Comments:
     - The draw method ensures the particle stays within bounds and updates its position.
     - The isDead method checks if the particle's life has ended.
     - The slowDown method reduces the particle's velocity using a global deceleration factor. */
-class Particle
-{
-public:
-	float x, y;
-	CRGB color;
-	float xvel, yvel;
-	int life;
 
-	Particle(float x, float y, CRGB color)
-	{
-		this->x = x;
-		this->y = y;
-		this->color = color;
-		float velocityFactor = 100.0 / INITIAL_VELOCITY;
-		this->xvel = random(-100, 100) / velocityFactor; // Use global initial velocity
-		this->yvel = random(-100, 100) / velocityFactor; // Use global initial velocity
-		this->life = PARTICLE_LIFE;					       // Use global particle life
-	}
+Particle::Particle(float x, float y, CRGB color) {
+    this->x = x;
+    this->y = y;
+    this->color = color;
+    float velocityFactor = 100.0 / INITIAL_VELOCITY;
+    this->xvel = random(-100, 100) / velocityFactor; // Use global initial velocity
+    this->yvel = random(-100, 100) / velocityFactor; // Use global initial velocity
+    this->life = PARTICLE_LIFE; // Use global particle life
+}
 
-	void update(CRGB* buffer)
-	{
-		draw(buffer);
-		slowDown();
-		life -= 5;
-	}
+void Particle::update(CRGB* buffer) {
+    draw(buffer);
+    slowDown();
+    life -= 5;
+}
 
+void Particle::draw(CRGB* buffer) {
+    // Adjust Particle brightness - 0 to 255
+    color.nscale8(min(maxBrightness * 4, 255));
 
-	void draw( CRGB* buffer )
-	{
-		// adjust Particle brightness - 0 to 255
-		color.nscale8(min(maxBrightness * 4, 255));
+    // Ensure particles stay within bounds
+    if (x >= 0 && x < kMatrixWidth && y >= 0 && y < kMatrixHeight) {
+        int index = XYsafe(static_cast<uint8_t>(x), static_cast<uint8_t>(y));
+        if (index != -1)
+            buffer[index] += color; // Use additive blending
+    }
+    x += xvel;
+    y += yvel;
 
-		// Ensure particles stay within bounds
-		if ( x >= 0 && x < kMatrixWidth && y >= 0 && y < kMatrixHeight )
-		{
-			int index = XYsafe(static_cast<uint8_t>(x), static_cast<uint8_t>(y));
-			if ( index != -1 )
-				buffer[index] += color; // Use additive blending
-		}
-		x += xvel;
-		y += yvel;
+    // Mark particle as dead if out of bounds
+    if (x < 0 || x >= kMatrixWidth || y < 0 || y >= kMatrixHeight)
+        life = -1;
+}
 
-		// Mark particle as dead if out of bounds
-		if ( x < 0 || x >= kMatrixWidth || y < 0 || y >= kMatrixHeight )
-			life = -1;
-	}
+bool Particle::isDead() {
+    return life < 0;
+}
 
-	bool isDead() {
-		return life < 0;
-	}
-
-	void slowDown() {
-		xvel *= DECELERATION_FACTOR; // Use global deceleration factor
-		yvel *= DECELERATION_FACTOR; // Use global deceleration factor
-	}
-};
+void Particle::slowDown() {
+    xvel *= DECELERATION_FACTOR; // Use global deceleration factor
+    yvel *= DECELERATION_FACTOR; // Use global deceleration factor
+}
 
 std::vector<Particle> particles;
 

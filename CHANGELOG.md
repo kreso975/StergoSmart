@@ -4,7 +4,8 @@
   - Firmware update OTA, with more info - Your firmware is up to date, Firmware XXX available etc  
   - implement httpupdate LittleFS
   - implement firmware update ESP32
-  - start moving *.ino to .h and .cpp and plce them to src folder  
+  - start moving *.ino to .h and .cpp and place them to src folder  
+  - start moving non core to /modules/ require include both .h and .cpp / temp solution untill full migration
  
  <br><br>
  
@@ -14,6 +15,9 @@
 - moved WiFiManager into /src/WiFiManager/ folder  
 - moved String wifiScanJSON(); from WiFi.ino to WiFiManager class
 - moved DS18B20, DHTsensors, BME280 to folder: /modules/ and converted them to .h .cpp
+- moved TicTacToe, Display to folder /modules/ amd converted them to .h .cpp 
+- renamed Display into WS2812B_Matrix
+- Fonts moved to separate file modules/myFonts.h
 - moved String firmwareOnlineUpdate(byte what) from WiFi.ino to handleHttp.ino
 - Errors with ESP32 <OneWire.h>
 - fixed ChipID in sendDeviceInfo() , set to %s

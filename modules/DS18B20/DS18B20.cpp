@@ -27,8 +27,7 @@ Function: setupDS18B20
 Purpose : Initialize DS18B20
 Input   : 
 Output  : 
-Comments: -
-====================================================================== */
+Comments: - */
 bool setupDS18B20()
 {
 	// Init DHT - need to find a way to know is it running properly
@@ -53,8 +52,7 @@ Function: getWeatherDS18B20
 Purpose : Read Sensor data
 Input   : 
 Output  : 
-Comments: 
-====================================================================== */
+Comments:  */
 void getWeatherDS18B20()
 {
     sensors.requestTemperatures();

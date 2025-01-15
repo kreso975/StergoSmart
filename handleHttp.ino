@@ -121,10 +121,7 @@ void handleUpdateFirmware()
 	String message = firmwareOnlineUpdate(2);
 	sendJSONheaderReply(3, message);
 	if (message.indexOf("success") != -1)
-	{
-		delay(500);
-		ESP.restart();
-	}
+		handleRestart();
 }
 
 void handleUpdateSpiffs()
@@ -281,7 +278,7 @@ void sendJSONheaderReply(byte type, String message)
 		output = F("{\"Error\":\"") + message + F("\"}");
 		break;
 	case 1:
-		output = F("{\"success\":\"") + message + F("\"}");
+		output = SUCCESS_MSG + message + F("\"}");
 		break;
 	case 2:
 		output = F("{\"Info\":\"") + message + F("\"}");
@@ -401,4 +398,3 @@ String firmwareOnlineUpdate(byte what)
 
 	return message;
 }
-

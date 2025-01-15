@@ -23,7 +23,7 @@ extern char mqtt_Humidity[120];
 
 //DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor
 
-extern bool setupDHT();
-extern void getWeatherDHT();
+extern bool setupDS18B20();
+extern void getWeatherDS18B20();
 
 #endif

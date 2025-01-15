@@ -108,7 +108,6 @@ void loop()
 		{
 		#endif											//===============================================
 			
-			
 			#ifdef MODULE_WEATHER   				//===================  MODULE WEATHER ===========
 			updateWeather();
 			#endif   									//===============================================
@@ -120,7 +119,7 @@ void loop()
 			#endif										//===============================================
 
 		
-		#ifdef MODULE_DISPLAY						//=================  MODULE DISPLAY =============
+			#ifdef MODULE_DISPLAY					//=================  MODULE DISPLAY =============
 			updateDisplay();
 		}
 		else
@@ -132,5 +131,5 @@ void loop()
 
 	#if ( defined( MODULE_SWITCH ) && ( STERGO_PLUG == 2 || STERGO_PLUG == 3 ) )  //===============================================
 	checkSwitchButton();	// Check Button State - long press
-	#endif                                                                   	  //===============================================
+	#endif                                                                   	   //===============================================
 }

@@ -45,8 +45,7 @@ Function: setupBME280
 Purpose : Initialize BME280
 Input   : 
 Output  : 
-Comments: -
-====================================================================== */
+Comments: - */
 bool setupBME280()
 {
     Wire.begin(GPIO_SDA, GPIO_SCL); // 0, 2  
@@ -69,8 +68,7 @@ Function: getWeatherBME
 Purpose : Read Sensor data
 Input   : 
 Output  : 
-Comments: 
-====================================================================== */
+Comments: */
 void getWeatherBME()
 {
     float h_tmp, t_tmp;

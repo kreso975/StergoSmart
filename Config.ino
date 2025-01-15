@@ -81,7 +81,7 @@ bool initConfig( String* message )
 	strlcpy(wifi_subnet, jsonConfig["wifi_subnet"].as<String>().c_str(), sizeof(wifi_subnet));
 	strlcpy(wifi_DNS, jsonConfig["wifi_DNS"].as<String>().c_str(), sizeof(wifi_DNS));
     
-	#ifdef MODULE_WEATHER     								  //=============== Weather Station  ==============
+	#ifdef MODULE_WEATHER										//=============== Weather Station  ==============
 		t_measure = jsonConfig["t_measure"].as<byte>();
 		strlcpy(mqtt_Temperature, jsonConfig["mqtt_Temperature"].as<String>().c_str(), sizeof(mqtt_Temperature));
 		
@@ -89,31 +89,31 @@ bool initConfig( String* message )
 			strlcpy(mqtt_Humidity, jsonConfig["mqtt_Humidity"].as<String>().c_str(), sizeof(mqtt_Humidity));
 		#endif
 		
-		#ifdef MODULE_BME280								  //=============== MODULE BME  ===================
+		#ifdef MODULE_BME280								  		//=============== MODULE BME  ===================
 			p_measure = jsonConfig["p_measure"].as<byte>();
 			p_adjust = jsonConfig["p_adjust"].as<byte>();
 			pa_unit = jsonConfig["pa_unit"].as<byte>();
 			pl_adj = jsonConfig["pl_adj"].as<int>();
 			strlcpy(mqtt_Pressure, jsonConfig["mqtt_Pressure"].as<String>().c_str(), sizeof(mqtt_Pressure));
 		#endif
-	#endif                                                    //================================================
+	#endif                                             //================================================
 
-    #ifdef MODULE_SWITCH      								  //=============== Power Switch ===================
+    #ifdef MODULE_SWITCH      								//=============== Power Switch ===================
 		strlcpy(mqtt_switch, jsonConfig["mqtt_switch"].as<String>().c_str(), sizeof(mqtt_switch));
 		strlcpy(mqtt_switch2, jsonConfig["mqtt_switch2"].as<String>().c_str(), sizeof(mqtt_switch2));
-	#endif           										  //================================================
+	#endif           										  		//================================================
 
-	#ifdef MODULE_TICTACTOE									  //=============== Tic Tac Toe  ===================
+	#ifdef MODULE_TICTACTOE									  	//=============== Tic Tac Toe  ===================
 		// Tic Tac Toe config
 		tictac_start  = jsonConfig["tictac_start"].as<byte>();
 		tictac_interval = jsonConfig["tictac_interval"].as<byte>();
 		ticTacCallInterval = 1000 * 60 * tictac_interval;	// 1000 * 60 * 60 - 60min
-		ticCallLMInterval = ticTacCallInterval;     // time of last point added
+		ticCallLMInterval = ticTacCallInterval;     			// time of last point added
 		tictac_webhook = jsonConfig["tictac_webhook"].as<byte>();
 		tictac_discord = jsonConfig["tictac_discord"].as<byte>();
-	#endif													  //================================================
+	#endif													  		//================================================
 
-	#ifdef MODULE_DISPLAY									  //===============   Display   ====================
+	#ifdef MODULE_DISPLAY									  	//===============   Display   ====================
 		// Display config
 		displayON = jsonConfig["displayON"].as<byte>();
 		maxBrightness = jsonConfig["maxBrightness"].as<byte>();
@@ -125,7 +125,7 @@ bool initConfig( String* message )
 		strlcpy(mqtt_Brightness, jsonConfig["mqtt_Brightness"].as<String>().c_str(), sizeof(mqtt_Brightness));
 		strlcpy(mqtt_Color, jsonConfig["mqtt_Color"].as<String>().c_str(), sizeof(mqtt_Color));
 
-	#endif           										  //================================================
+	#endif           										  		//================================================
 
 	return true;
 }
@@ -185,28 +185,30 @@ bool writeToConfig( String* message )
 		
 		#ifdef MODULE_DS18B20 
 		// stringArray_2 - use only 1st
-		const byte NAMES_IN_USE_3 = 1;
+		const byte NAMES_IN_USE_1 = 1;
 		// intArray_2
-		const byte NAMES_IN_USE_4 = 1;
+		const byte NAMES_IN_USE_2 = 1;
 		#endif
 		#ifdef MODULE_DHT
 		// stringArray_2 - use first 2
-		const byte NAMES_IN_USE_3 = 2;
+		const byte NAMES_IN_USE_1 = 2;
 		// intArray_2
-		const byte NAMES_IN_USE_4 = 1;
+		const byte NAMES_IN_USE_2 = 1;
 		#endif
 		#ifdef MODULE_BME280
 		// stringArray_2 - Use all
-		const byte NAMES_IN_USE_3 = 3;
+		const byte NAMES_IN_USE_1 = 3;
 		// intArray_2
-		const byte NAMES_IN_USE_4 = 5;
+		const byte NAMES_IN_USE_2 = 5;
 		#endif
 
-		for ( byte i = 0; i < NAMES_IN_USE_3; i++ )
-			if ( server.hasArg(stringArray_2[i]) )  jsonConfig[stringArray_2[i]] = server.arg(stringArray_2[i]);
+		for ( byte i = 0; i < NAMES_IN_USE_1; i++ )
+			if ( server.hasArg(stringArray_2[i]) )
+				jsonConfig[stringArray_2[i]] = server.arg(stringArray_2[i]);
 
-		for ( byte i = 0; i < NAMES_IN_USE_4; i++ )
-			if ( server.hasArg(intArray_2[i]) )  jsonConfig[intArray_2[i]] = server.arg(intArray_2[i]).toInt();
+		for ( byte i = 0; i < NAMES_IN_USE_2; i++ )
+			if ( server.hasArg(intArray_2[i]) )
+				jsonConfig[intArray_2[i]] = server.arg(intArray_2[i]).toInt();
 	#endif
 
 	#ifdef	MODULE_SWITCH     											//=============== Power Switch ==============
@@ -284,7 +286,7 @@ bool writeToConfig( String* message )
 			webLoc_start = 1;
 			msg = F("Success WebHook Start");
 			writeLogFile( msg, 1, 3 );
-    		*message = F("{\"success\":\"") + msg + F("\"}");
+    		*message = SUCCESS_MSG + msg + F("\"}");
 			return true;
 		}
 		else if ( server.arg("WhookStateOn") == "0" )
@@ -292,7 +294,7 @@ bool writeToConfig( String* message )
 			webLoc_start = 0;
 			msg = F("Success WebHook Stop");
 			writeLogFile( msg, 1, 3 );
-    		*message = F("{\"success\":\"") + msg + F("\"}");
+    		*message = SUCCESS_MSG + msg + F("\"}");
 			webLoc_previousMillis = webLoc_intervalHist;     // time of last point added
 			return true;
 		}
@@ -308,7 +310,7 @@ bool writeToConfig( String* message )
 			tictac_start = 1;
 			msg = F("Success Tic Tac Toe Start");
 			writeLogFile( msg, 1, 3 );
-    		*message = F("{\"success\":\"") + msg + F("\"}");
+    		*message = SUCCESS_MSG + msg + F("\"}");
 			return true;
 		}
 		else if ( server.arg("TicTacStateOn") == "0" )
@@ -316,7 +318,7 @@ bool writeToConfig( String* message )
 			tictac_start = 0;
 			msg = F("Success Tic Tac Toe Stop");
 			writeLogFile( msg, 1, 3 );
-    		*message = F("{\"success\":\"") + msg + F("\"}");
+    		*message = SUCCESS_MSG + msg + F("\"}");
 			ticCallLMInterval = ticTacCallInterval;
 			return true;
 		}
@@ -339,7 +341,7 @@ bool writeToConfig( String* message )
 			itoa(displayON, payload, 10); // Convert byte to string
 			msg = F("Success Display ON");
 			writeLogFile(msg, 1, 3);
-			*message = F("{\"success\":\"") + msg + F("\"}");
+			*message = SUCCESS_MSG + msg + F("\"}");
 
 			if (mqtt_start == 1)
 				if (!sendMQTT(mqtt_displayON, payload, true))
@@ -355,7 +357,7 @@ bool writeToConfig( String* message )
 			itoa(displayON, payload, 10); // Convert byte to string
 			msg = F("Success Display OFF");
 			writeLogFile(msg, 1, 3);
-			*message = F("{\"success\":\"") + msg + F("\"}");
+			*message = SUCCESS_MSG + msg + F("\"}");
 
 			if (mqtt_start == 1)
 				if (!sendMQTT(mqtt_displayON, payload, true))
@@ -376,7 +378,7 @@ bool writeToConfig( String* message )
 	else
 	{
 		msg = F("Saved and init Config");
-    	*message = F("{\"success\":\"") + msg + F("\"}");
+		*message = SUCCESS_MSG + msg + F("\"}");
 		return true;
 	}
 

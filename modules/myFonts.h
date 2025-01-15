@@ -1,79 +1,7 @@
-#include "FastLED.h"
-#include <vector>
+#ifndef MY_FONTS_H
+#define MY_FONTS_H
 
-#define LED_PIN 0
-#define COLOR_ORDER GRB
-#define CHIPSET WS2812B
-#define POWER_VOLTAGE 5             // set Voltage
-#define MAX_POWER_MILLIAMPS 700     // set Milliamps
-
-byte maxBrightness = 35;
-// Display ON/OFF
-byte displayON = 1;
-
-// Params for width and height
-const uint8_t kMatrixWidth = 32;
-const uint8_t kMatrixHeight = 8;
-#define NUM_LEDS (kMatrixWidth * kMatrixHeight)
-
-// Param for different pixel layouts
-const bool kMatrixSerpentineLayout = true;
-const bool kMatrixVertical = true;
-
-CRGB leds_plus_safety_pixel[ NUM_LEDS + 1];
-CRGB* const leds( leds_plus_safety_pixel + 1);
-
-CRGB displayColor = CRGB(255, 0 , 0);         // Red default
-
-// TimeZone is adjustable in config.json
-int timeZone = 1; 
-long timeZoneOffset;                          // Adjust for your timezone +1 - in Setup after config
-
-unsigned long displayInterval = 1000;         // Interval for display - default
-unsigned long dispPrevMils = displayInterval;
-
-unsigned long displayRotateInterval = 10000;  // Interval for rotating display - default
-unsigned long lastDisplayChange = 0;
-byte displayMode = 0;
-
-CRGB tempBufferText[NUM_LEDS];            // Buffer for text
-CRGB tempBufferParticles[NUM_LEDS];       // Buffer for particles
-CRGB tempBufferDate[NUM_LEDS];            // Buffer for date
-
-CRGB *displayBuffer = nullptr;            // Pointer to store the SCROLL MESSAGE buffer
-int bufferSize = 0;
-//CRGB tempBufferMessage[NUM_LEDS];       // Buffer for message - not in use
-
-
-// PARTICLES for FIREWORKS
-// Global variables for initial velocity, gradual deceleration, and other parameters
-const float INITIAL_VELOCITY = 1.5;
-const float DECELERATION_FACTOR = 0.75;
-const int PARTICLE_LIFE = 70;
-const int PARTICLE_COUNT = 20;
-const int EXPLOSION_FREQUENCY = 2; // 0 - 9 : 0 = no explosion, 9 = explosion every time
-const int UPDATE_RATE = 50;
-
-
-const char* messageDisplay = "";
-static int scrollPosition = 0;              // Make scrollPosition static
-bool messageON = false;
-bool messageWinON = false;                  // Use for Enter WIN and Fireworks
-bool renderWIN = false;                     // Set renderWIN to false
-const long intervalMessage = 30;            // Update rate for displayMessage in milliseconds
-unsigned long previousMillisMessage = 0;
-unsigned long displayMessageLife = 10000;   // Interval for Message Life
-unsigned long prevMilMesLife = 0;
-
-unsigned long previousMillisText = 0;
-unsigned long previousMillisParticles = 0;
-const long intervalText = 50;            // Update rate for drawText in milliseconds
-const long intervalParticles = UPDATE_RATE; // Update rate for addParticles in milliseconds
-
-//MQTT Topics used from config.json
-char mqtt_Brightness[120];
-char mqtt_Color[120];
-char mqtt_displayON[120];
+#include <Arduino.h>
 
 const byte W_coords[][2] = {
   {23, 1}, {23, 2}, {23, 3}, {23, 4}, {23, 5}, {23, 6},
@@ -357,3 +285,5 @@ const static uint8_t PROGMEM Font[256][6]={
 {0x00,0x00,0x00,0x00,0x00,0x00} 	// 0xFF
 };
 
+
+#endif // MY_FONTS_H

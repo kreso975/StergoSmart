@@ -26,8 +26,7 @@ Function: setupDHT
 Purpose : Initialize DHT 11, 12, 22, 21
 Input   : 
 Output  : 
-Comments: -
-====================================================================== */
+Comments: - */
 bool setupDHT()
 {
 	// Init DHT - need to find a way to know is it running properly
@@ -50,8 +49,7 @@ Function: getWeatherDHT
 Purpose : Read Sensor data
 Input   : 
 Output  : 
-Comments: 
-====================================================================== */
+Comments: */
 void getWeatherDHT()
 {
 	float h_tmp, t_tmp;
