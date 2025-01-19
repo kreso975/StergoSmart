@@ -10,14 +10,8 @@ extern String parseString( String str, String found, int what );
 extern void sendWebhook(char *localURL, String data);
 
 
-
-
-
-
-
-
 #if ( STERGO_PROGRAM == 2 )
-#define MODEL_NAME    "TT001"
+   #define MODEL_NAME "TT001"
 #endif
 
 // Config.ino
@@ -38,13 +32,13 @@ extern byte player;  // Select Who Plays first 1=X, 2=O
 extern byte turn;    // Value of current Turn in game
 
 //We will use this to auto reset Game because there is no play and it hangs
-extern const long ticTacLastPlayedInterval;     //30 sec              // 1000 * 60 * 2 - 120 sec
+extern const long ticTacLastPlayedInterval;     // 1000 * 60 * 2 - 120 sec
 extern unsigned long ticTacLastPlayed;
 
 // Interval timer for sending Invitations
 extern byte maxRetryInviteEmptyIP;
 extern bool ticCallFirstRun;
-extern unsigned long ticTacCallInterval;                   // 1000 * 60 * 60 - 60min
+extern unsigned long ticTacCallInterval;        // 1000 * 60 * 60 - 60min
 extern unsigned long ticCallLMInterval;
 
 extern byte nrInvitationTry; 

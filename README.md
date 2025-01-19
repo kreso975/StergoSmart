@@ -12,7 +12,9 @@ Smart Home IOT - Weather and Switches with GUI
 **ESP-8266-01S , minimum 1M**  
 **BME280**  
 tested with Sonoff S26, T4EU1C
-
+  
+GUI editor : [Smart Stergo GUI project](https://github.com/kreso975/StergoSmartGUI)
+  
 - Bootstrap 5.3 | old UI Bootstrap 3.4
 - jQuery
 - GUI Interface: Dashboard, Configuration

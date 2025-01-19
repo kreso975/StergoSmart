@@ -46,7 +46,7 @@ void setup()
 	FastLED.setMaxPowerInVoltsAndMilliamps(POWER_VOLTAGE, MAX_POWER_MILLIAMPS); // check config
 	FastLED.setBrightness(maxBrightness);
 
-	timeZoneOffset = 3600 * timeZone;
+	timeZoneOffset = 3600 * timeZone;	// Used for accurate display of local Time
 	#endif
 
 	// Start WiFi
@@ -99,7 +99,7 @@ void loop()
 
 	if ( WiFi.getMode() == WIFI_STA )
 	{
-		if ( timeClient.update() )					// Update time
+		if ( timeClient.update() )					// check for Update time
 			setTime(timeClient.getEpochTime());
 
 		// We will not run anything if we are in WIN message mode
