@@ -220,11 +220,13 @@ void callbackMQTT(char *topic, byte *payload, unsigned int length)
 		}
 	}
 
+	/*
 	if (String(topic) == String(mqtt_Brightness))
 	{
 		payload[length] = '\0'; // Null-terminate the payload
 		maxBrightness = atoi((char *)payload);
 	}
+	*/
 
 	if (String(topic) == String(mqtt_Color))
 	{
@@ -232,8 +234,43 @@ void callbackMQTT(char *topic, byte *payload, unsigned int length)
 		payload[length] = '\0';
 		// Convert payload to String
 		String hexColor = String((char *)payload);
-		displayColor = strtol(&hexColor[1], NULL, 16);
-	}
+		unsigned long tempDisplayColor;  // Temporary variable for calculations
+  
+		// Check if hexColor has a '#' in front and convert to long integer
+		if (hexColor.charAt(0) == '#')
+		{
+			 tempDisplayColor = strtol(&hexColor[1], NULL, 16);
+		} else {
+			 tempDisplayColor = strtol(hexColor.c_str(), NULL, 16);
+		}
+  
+		// Set the global displayColor variable
+		displayColor = tempDisplayColor;
+  
+		// Convert the hexColor to a C string for MQTT publish
+		char hexColorChar[hexColor.length() + 1];
+		hexColor.toCharArray(hexColorChar, sizeof(hexColorChar));
+  
+		// Extract individual red, green, and blue components using bitwise operations
+		int red = (tempDisplayColor >> 16) & 0xFF;
+		int green = (tempDisplayColor >> 8) & 0xFF;
+		int blue = tempDisplayColor & 0xFF;
+  
+		// Create a CRGB object with the extracted color value
+		CRGB rgbColor = CRGB(red, green, blue);
+  
+		// Calculate the brightness as the maximum of the red, green, and blue components
+		maxBrightness = max(max(red, green), blue);
+  
+		// Convert the brightness to a string for MQTT payload
+		char brightnessBuffer[10];
+		itoa(maxBrightness, brightnessBuffer, 10);
+  
+		// Send the brightness value via MQTT
+		if (mqtt_start == 1)
+			 if (!sendMQTT(mqtt_Brightness, brightnessBuffer, true))
+				  writeLogFile(F("Publish Brightness: failed"), 1);
+ 	}  
 	#endif
 }
 #endif                                                            //===============================================

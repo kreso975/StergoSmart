@@ -150,25 +150,23 @@ void drawLetterBuf( CRGB *buffer, int posx, int posy, char letter, CRGB color )
 void drawTempHum( int x, int y, CRGB colorText, bool isTemperature )
 {
 	char tmpStr[10];
-	CRGB temperatureColor = CRGB(255, 0, 0);
-	CRGB humidityColor = CRGB(0, 0, 255);
-	temperatureColor.nscale8(maxBrightness);
-	humidityColor.nscale8(maxBrightness);
-	colorText.nscale8(maxBrightness);
+	//colorText.nscale8(maxBrightness);
 
 	x = 4;
 	if (isTemperature)
 	{
 		dtostrf(t, 3, 0, tmpStr);
-		drawLetter(x, 0, 'C', temperatureColor);
+		drawLetter(x, 0, 'C', colorText);
+		
 		x += FontWidth - 3;
-		drawLetter(x, -5, '.', temperatureColor); // Drawing '.' but move it up -5
+		drawLetter(x, -5, '.', colorText); // Drawing '.' but move it up -5
+		
 		x += 6;
 	}
 	else
 	{
 		dtostrf(h, 3, 0, tmpStr);
-		drawLetter(x, 1, '%', humidityColor);
+		drawLetter(x, 1, '%', colorText);
 		x += FontWidth + 1;
 	}
 
@@ -187,7 +185,7 @@ void drawTime( int x, int y, CRGB colorTime, bool colon, bool seconds )
     int minutes = minute(adjustedTime);
     int secs = second(adjustedTime);
 
-	 colorTime.nscale8(maxBrightness);
+	 //colorTime.nscale8(maxBrightness);
     
     // Display time on LED matrix with swapped positions
     x -= 0;
@@ -222,7 +220,7 @@ void drawDate( CRGB *buffer, int x, int y, CRGB colorDate )
 	{
 		// Update the buffer
 		memset(buffer, 0, sizeof(CRGB) * NUM_LEDS); // Clear the buffer
-		colorDate.nscale8(maxBrightness);
+		//colorDate.nscale8(maxBrightness);
 
 		// Display date on LED matrix
 		int posX = x;
@@ -261,7 +259,7 @@ void displayMessage( CRGB *buffer, CRGB colorScroll, const char *message, int nu
 	static int bufferSize = 0;
 	static String previousMessage = "";
 	static int previousNumSpaces = 0;
-	colorScroll.nscale8(maxBrightness);
+	//colorScroll.nscale8(maxBrightness);
 
 	String convertedMessage = convertToSingleByte(message);
 
@@ -538,6 +536,7 @@ void renderDisplayWin( unsigned long currentMillis )
 		server.begin(); // We have stop it when set messageON = true in displayState()
 	}
 }
+
 /* ======================================================================
 Function: displayState
 Purpose : fast update for Display Params - return JSON on status no save 
@@ -553,7 +552,7 @@ void displayState()
 	{
 		char data[90];
 		sprintf(buffer, "#%02X%02X%02X", displayColor.r, displayColor.g, displayColor.b);
-		sprintf(data, "{\"displayON\":%d,\"Brightness\":%d,\"displayColor\":\"%s\",\"timeZone\":%d}", displayON, maxBrightness, buffer, 1);
+		sprintf(data, "{\"displayON\":%d,\"Brightness\":%d,\"RGB\":\"%s\",\"timeZone\":%d}", displayON, maxBrightness, buffer, 1);
 
 		// 3 is indicator of JSON already formated reply
 		sendJSONheaderReply(3, data);
@@ -562,16 +561,20 @@ void displayState()
 	{
 		// Get arg/params posted and change settings
 		// timeZoneOffset, brightness, messageDisplay, displayMode
-		if (server.hasArg("brightness"))
-		{
-			maxBrightness = server.arg("brightness").toInt();
+		// WE WILL USE THIS FOR MAX BRIGHTNESS - For now not at all
+		/*
+		if (server.hasArg("Brightness"))
+		{	
+			maxBrightness = server.arg("Brightness").toInt();
 			itoa(maxBrightness, buffer, 10); // Convert
-			writeLogFile(F("Updated brightness to ") + String(maxBrightness), 1, 1);
+			writeLogFile(F("Updated Brightness to ") + String(maxBrightness), 1, 1);
 			if (mqtt_start == 1)
 				if (!sendMQTT(mqtt_Brightness, buffer, true))
 					writeLogFile(F("Publish Brightness: failed"), 1);
-		}
 
+			
+		}
+		*/
 		if (server.hasArg("messageDisplay"))
 		{
 			messageDisplay = server.arg("messageDisplay").c_str();
@@ -581,18 +584,46 @@ void displayState()
 			prevMilMesLife = millis();
 		}
 
-		if (server.hasArg("color"))
+		if (server.hasArg("RGB"))
 		{
-			String hexColor = server.arg("color");
-			// Example: "#A12345"
-			hexColor.toCharArray(buffer, sizeof(buffer));
-			hexColor.remove(0, 1); // Remove the '#'character
-			displayColor = strtoul(hexColor.c_str(), NULL, 16);
-			if (mqtt_start == 1)
-				if (!sendMQTT(mqtt_Color, buffer, true))
-					writeLogFile(F("Publish Color: failed"), 1);
-		}
-		sendJSONheaderReply(1, "Updated");
+			String hexColor = server.arg("RGB");
+			unsigned long tempDisplayColor;  // Temporary variable for calculations
+	  
+			// Check if hexColor has a '#' in front and convert to long integer
+			if (hexColor.charAt(0) == '#')
+				tempDisplayColor = strtol(&hexColor[1], NULL, 16);
+			else
+				tempDisplayColor = strtol(hexColor.c_str(), NULL, 16);
+	  
+			// Set the global displayColor variable
+			displayColor = tempDisplayColor;
+	  
+			// Convert the hexColor to a C string for MQTT publish
+			char hexColorChar[hexColor.length() + 1];
+			hexColor.toCharArray(hexColorChar, sizeof(hexColorChar));
+	  
+			// Extract individual red, green, and blue components using bitwise operations
+			int red = (tempDisplayColor >> 16) & 0xFF;
+			int green = (tempDisplayColor >> 8) & 0xFF;
+			int blue = tempDisplayColor & 0xFF;
+	  
+			// Calculate the brightness as the maximum of the red, green, and blue components
+			maxBrightness = max(max(red, green), blue);
+	  
+			// Convert the brightness to a string for MQTT payload
+			char brightnessBuffer[10];
+			itoa(maxBrightness, brightnessBuffer, 10);
+	  
+			// Send the color and brightness values via MQTT
+			if (mqtt_start == 1) {
+				 if (!sendMQTT(mqtt_Color, hexColorChar, true))
+					  writeLogFile(F("Publish Color: failed"), 1);
+				 if (!sendMQTT(mqtt_Brightness, brightnessBuffer, true))
+					  writeLogFile(F("Publish Brightness: failed"), 1);
+			}
+	  
+			sendJSONheaderReply(1, "Updated");
+	  	}
 	}
 }
 

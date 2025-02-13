@@ -10,7 +10,9 @@
  <br><br>
  
 ## **CHANGES:**  
-**000.06.001** - in development  
+**000.06.002** - in development  
+
+**000.06.001**  
 - WiFiManager first to moved from ino to structure .h .cpp
 - moved WiFiManager into /src/WiFiManager/ folder  
 - moved String wifiScanJSON(); from WiFi.ino to WiFiManager class

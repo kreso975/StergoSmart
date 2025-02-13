@@ -12,7 +12,7 @@ extern bool sendMQTT ( char* Topic, char* Payload, bool retain );
 // external variables
 extern time_t adjustedTime;
 
-#define LED_PIN 2
+#define LED_PIN 0
 #define COLOR_ORDER GRB
 #define CHIPSET WS2812B
 #define POWER_VOLTAGE 5             // set Voltage
