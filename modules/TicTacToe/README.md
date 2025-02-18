@@ -1,9 +1,11 @@
 <span align="center">
 
- # Tic Tac Toe 
 ❌⭕❌  
 ⭕❌⭕  
-❌⭕❌
+❌⭕❌  
+  
+ # Tic Tac Toe 
+
 
 </span>
   
