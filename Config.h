@@ -10,7 +10,7 @@
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 4
+#define STERGO_PROGRAM 1
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
 #define STERGO_SCREEN 1
@@ -21,7 +21,7 @@
  * LOLIN D1 mini       = 2   // v02
  * ESP32C6             = 3   // v03
  */
-#define STERGO_PROGRAM_BOARD 1
+#define STERGO_PROGRAM_BOARD 2
 
 /*
  * STERGO_PLUG :
@@ -33,7 +33,7 @@
 #define STERGO_PLUG 1
 
 // Firmware Version always part of this file
-#define FW_VERSION "000.06.001"                 // Check releaseLog for details
+#define FW_VERSION "000.06.002"                 // Check releaseLog for details
 #define MODEL_FRENDLY_NAME "Stergo Smart"
 #define COMPANY_URL "http://www.stergo.hr"
 
@@ -44,7 +44,7 @@
 // 1 true | 0 false  / Serial.print 
 #define DEBUG 0
 
-#if defined(ESP8266)                                                  // -----------------  ESP8266  -----------------
+#if defined(ESP8266)                                         // -----------------  ESP8266  -----------------
   #include <ESP8266WiFi.h>
   #include <ESP8266HTTPClient.h>
   #include "ESP8266WebServer.h"
@@ -56,7 +56,7 @@
   }
   #include <pgmspace.h>
   #define F(string_literal) (FPSTR(PSTR(string_literal)))
-#elif defined(ESP32)                                                     // -----------------  ESP32  -----------------
+#elif defined(ESP32)                                         // -----------------  ESP32  -----------------
   #include <WiFi.h>
   #include <HTTPClient.h>
   #include <FS.h>        // File System for Web Server Files
@@ -68,7 +68,7 @@
   #include <esp_netif.h>
   #include "esp_wifi.h"
   #define F(string_literal) (string_literal)
-#endif                                                          // -------------------------------------------
+#endif                                                       // -------------------------------------------
 
 #include <DNSServer.h>
 #include <LittleFS.h>
@@ -80,10 +80,10 @@
 
 #if defined(ESP8266)                                         // -----------------  ESP8266  -----------------
   String chipID = String(ESP.getChipId());
-#elif defined(ESP32)                                         // -----------------  ESP32  -----------------
+#elif defined(ESP32)                                         // -----------------  ESP32  -------------------
   uint64_t chipIDmac = ESP.getEfuseMac();
   String chipID = String((uint16_t)(chipIDmac >> 32), HEX) + String((uint32_t)chipIDmac, HEX);
-#endif                                                    // -------------------------------------------
+#endif                                                       // ---------------------------------------------
 
 #include "Filesystem.h"     //
 #include "./src/WiFiManager/WiFiManager.h"

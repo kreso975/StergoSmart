@@ -13,6 +13,7 @@ const uint8_t kMatrixHeight = 8;
 // Param for different pixel layouts
 const bool kMatrixSerpentineLayout = true;
 const bool kMatrixVertical = true;
+byte kMatrixOrientation = 1; // O = Normal, 1 = Diagonal flip (0 and 256 are on opposite diagonal side), 2 = Vertical flip, 3 = Horizontal flip 
 
 CRGB leds_plus_safety_pixel[ NUM_LEDS + 1];
 CRGB* const leds( leds_plus_safety_pixel + 1);
@@ -129,24 +130,35 @@ void updateDisplay()
 	FastLED.show();
 }
 
-void drawLetter( int posx, int posy, char letter, CRGB color )
+void drawLetter(int posx, int posy, char letter, CRGB color, int orientation, CRGB *buffer)
 {
-	if ((posx > -FontWidth) && (posx < kMatrixWidth))
-		for (int x = 0; x < FontWidth; x++)
-			for (int y = 0; y < FontHeight; y++)
-				if (bitRead(pgm_read_byte(&(Font[letter][FontWidth - 1 - x])), y) == 1)
-					leds[XYsafe(posx + x, posy + y)] = color;
-}
-
-void drawLetterBuf( CRGB *buffer, int posx, int posy, char letter, CRGB color )
-{
-	if ((posx > -FontWidth) && (posx < kMatrixWidth))
-		for (int x = 0; x < FontWidth; x++)
-			for (int y = 0; y < FontHeight; y++)
-				if (bitRead(pgm_read_byte(&(Font[letter][FontWidth - 1 - x])), y) == 1)
-					buffer[XYsafe(posx + x, posy + y)] = color;
-}
-
+	if ((posx > -FontWidth) && (posx < kMatrixWidth)) {
+	  for (int x = 0; x < FontWidth; x++) {
+		 for (int y = 0; y < FontHeight; y++) {
+			bool bit = bitRead(pgm_read_byte(&(Font[letter][FontWidth - 1 - x])), y);
+			int drawX = posx + x;
+			int drawY = posy + y;
+ 
+			// Handle different orientations
+			switch (orientation) {
+			  case 0: // Normal orientation
+				 if (bit == 1) (buffer ? buffer[XYsafe(drawX, drawY)] : leds[XYsafe(drawX, drawY)]) = color;
+				 break;
+			  case 1: // Diagonal flip (0 and 256 are on opposite diagonal side)
+				 if (bit == 1) (buffer ? buffer[XYsafe(kMatrixWidth - 1 - drawX, kMatrixHeight - 1 - drawY)] : leds[XYsafe(kMatrixWidth - 1 - drawX, kMatrixHeight - 1 - drawY)]) = color;
+				 break;
+			  case 2: // Vertical flip
+				 if (bit == 1) (buffer ? buffer[XYsafe(drawX, kMatrixHeight - 1 - drawY)] : leds[XYsafe(drawX, kMatrixHeight - 1 - drawY)]) = color;
+				 break;
+			  case 3: // Horizontal flip
+				 if (bit == 1) (buffer ? buffer[XYsafe(kMatrixWidth - 1 - drawX, drawY)] : leds[XYsafe(kMatrixWidth - 1 - drawX, drawY)]) = color;
+				 break;
+			}
+		 }
+	  }
+	}
+ }
+ 
 void drawTempHum( int x, int y, CRGB colorText, bool isTemperature )
 {
 	char tmpStr[10];
@@ -156,17 +168,17 @@ void drawTempHum( int x, int y, CRGB colorText, bool isTemperature )
 	if (isTemperature)
 	{
 		dtostrf(t, 3, 0, tmpStr);
-		drawLetter(x, 0, 'C', colorText);
+		drawLetter(x, 0, 'C', colorText, kMatrixOrientation);
 		
 		x += FontWidth - 3;
-		drawLetter(x, -5, '.', colorText); // Drawing '.' but move it up -5
+		drawLetter(x, -5, '.', colorText, kMatrixOrientation); // Drawing '.' but move it up -5
 		
 		x += 6;
 	}
 	else
 	{
 		dtostrf(h, 3, 0, tmpStr);
-		drawLetter(x, 1, '%', colorText);
+		drawLetter(x, 1, '%', colorText, kMatrixOrientation);
 		x += FontWidth + 1;
 	}
 
@@ -174,7 +186,7 @@ void drawTempHum( int x, int y, CRGB colorText, bool isTemperature )
 	for (int i = 0; i < length; i++)
 	{
 		char letter = tmpStr[length - 1 - i]; // Reverse order
-		drawLetter(x, y, letter, colorText);
+		drawLetter(x, y, letter, colorText, kMatrixOrientation);
 		x += FontWidth + 1; // Move to the next position
 	}
 }
@@ -189,19 +201,19 @@ void drawTime( int x, int y, CRGB colorTime, bool colon, bool seconds )
     
     // Display time on LED matrix with swapped positions
     x -= 0;
-    drawLetter(x, y, minutes % 10 + '0', colorTime);
+    drawLetter(x, y, minutes % 10 + '0', colorTime, kMatrixOrientation);
     x += FontWidth + 1;
-    drawLetter(x, y, minutes / 10 + '0', colorTime);
+    drawLetter(x, y, minutes / 10 + '0', colorTime, kMatrixOrientation);
     x += FontWidth;
     if ( colon )
     {
         if ( secs % 2 == 0 )
-            drawLetter(x - 1, y, ':', colorTime);
+            drawLetter(x - 1, y, ':', colorTime, kMatrixOrientation);
         x += 4;
     }
-    drawLetter(x, y, hours % 10 + '0', colorTime);
+    drawLetter(x, y, hours % 10 + '0', colorTime, kMatrixOrientation);
     x += FontWidth + 1;
-    drawLetter(x, y, hours / 10 + '0', colorTime);
+    drawLetter(x, y, hours / 10 + '0', colorTime, kMatrixOrientation);
 }
 
 void drawDate( CRGB *buffer, int x, int y, CRGB colorDate )
@@ -224,15 +236,15 @@ void drawDate( CRGB *buffer, int x, int y, CRGB colorDate )
 
 		// Display date on LED matrix
 		int posX = x;
-		drawLetterBuf(buffer, posX, y, months % 10 + '0', colorDate);
+		drawLetter(posX, y, months % 10 + '0', colorDate, kMatrixOrientation, buffer);
 		posX += FontWidth + 1;
-		drawLetterBuf(buffer, posX, y, months / 10 + '0', colorDate);
+		drawLetter(posX, y, months / 10 + '0', colorDate, kMatrixOrientation, buffer);
 		posX += FontWidth + 1;
-		drawLetterBuf(buffer, posX - 2, y + 1, '.', colorDate);
+		drawLetter(posX - 2, y + 1, '.', colorDate, kMatrixOrientation, buffer);
 		posX += 3;
-		drawLetterBuf(buffer, posX, y, days % 10 + '0', colorDate);
+		drawLetter(posX, y, days % 10 + '0', colorDate, kMatrixOrientation, buffer);
 		posX += FontWidth + 1;
-		drawLetterBuf(buffer, posX, y, days / 10 + '0', colorDate);
+		drawLetter(posX, y, days / 10 + '0', colorDate, kMatrixOrientation, buffer);
 
 		// Update the last known values
 		lastDays = days;
@@ -252,7 +264,7 @@ Input   : buffer: buffer where to write,
 Output  : Scroll
 Comments: 
 TODO    : */
-void displayMessage( CRGB *buffer, CRGB colorScroll, const char *message, int numSpaces )
+void displayMessage( CRGB *buffer, CRGB colorScroll, const char *message, int numSpaces, int orientation )
 {
 	static bool bufferInitialized = false;
 	static CRGB *displayBuffer = nullptr; // Pointer to store the buffer
@@ -291,27 +303,40 @@ void displayMessage( CRGB *buffer, CRGB colorScroll, const char *message, int nu
 			}
 		}
 
-		for (int i = 0; i < convertedMessage.length(); i++)
-		{
-			char charToDisplay = convertedMessage.charAt(i);
-			int charPosition = (i + numSpaces) * 6;
-			for (int x = 0; x < 6; x++)
-			{
-				for (int y = 0; y < 8; y++)
-				{
-					if (bitRead(pgm_read_byte(&(Font[charToDisplay][x])), y) == 1)
-					{
-						int bufferIndex = (charPosition + x) + (y * (convertedMessage.length() + numSpaces) * 6);
-						if (bufferIndex < bufferSize)
-							displayBuffer[bufferIndex] = colorScroll;
+		// Render message in the appropriate order
+		if (orientation == 1) {
+			for (int i = convertedMessage.length() - 1; i >= 0; i--) {
+			  char charToDisplay = convertedMessage.charAt(i);
+			  int charPosition = (convertedMessage.length() - 1 - i + numSpaces) * 6;
+			  for (int x = 0; x < 6; x++) {
+				 for (int y = 0; y < 8; y++) {
+					if (bitRead(pgm_read_byte(&(Font[charToDisplay][5 - x])), 7 - y) == 1) {  // Apply vertical and horizontal flip
+					  int bufferIndex = (charPosition + x) + (y * (convertedMessage.length() + numSpaces) * 6);
+					  if (bufferIndex < bufferSize)
+						 displayBuffer[bufferIndex] = colorScroll;
 					}
-				}
+				 }
+			  }
 			}
-		}
+		 } else {
+			for (int i = 0; i < convertedMessage.length(); i++) {
+			  char charToDisplay = convertedMessage.charAt(i);
+			  int charPosition = (i + numSpaces) * 6;
+			  for (int x = 0; x < 6; x++) {
+				 for (int y = 0; y < 8; y++) {
+					if (bitRead(pgm_read_byte(&(Font[charToDisplay][x])), y) == 1) {
+					  int bufferIndex = (charPosition + x) + (y * (convertedMessage.length() + numSpaces) * 6);
+					  if (bufferIndex < bufferSize)
+						 displayBuffer[bufferIndex] = colorScroll;
+					}
+				 }
+			  }
+			}
+		 }
 
 		previousMessage = convertedMessage; // Update the previous message
 		previousNumSpaces = numSpaces;		// Update the previous number of spaces
-		scrollPosition = 0;						// Reset the scroll position
+		scrollPosition = (orientation == 1) ? (convertedMessage.length() + numSpaces) * 6 - 1 : 0; // Set the scroll position based on orientation
 	}
 
 	// Copy the relevant part of the buffer to the LED matrix
@@ -325,9 +350,16 @@ void displayMessage( CRGB *buffer, CRGB colorScroll, const char *message, int nu
 		}
 	}
 
-	scrollPosition++;
-	if (scrollPosition >= (convertedMessage.length() + numSpaces) * 6)
-		scrollPosition = 0;
+	if (orientation == 1) {
+		scrollPosition--;
+		if (scrollPosition < 0)
+		  scrollPosition = (convertedMessage.length() + numSpaces) * 6 - 1;
+	 } else {
+		scrollPosition++;
+		if (scrollPosition >= (convertedMessage.length() + numSpaces) * 6)
+		  scrollPosition = 0;
+	 }
+	 
 }
 
 void freeDisplayMessageBuffer() { if (displayBuffer != nullptr) { delete[] displayBuffer; displayBuffer = nullptr; } }
@@ -341,7 +373,7 @@ void renderDisplayMessage( unsigned long currentMillis )
 		FastLED.clearData();
 		previousMillisMessage = currentMillis;
 		memset( tempBufferMessage, 0, sizeof(tempBufferMessage) ); // Clear temp buffer
-		displayMessage( tempBufferMessage, displayColor, messageDisplay, 6); // Update temp buffer | using buffer if we want add something over / effect
+		displayMessage( tempBufferMessage, displayColor, messageDisplay, 6, kMatrixOrientation); // Update temp buffer | using buffer if we want add something over / effect
 		
 		for (int i = 0; i < NUM_LEDS; i++)	// Fill LEDS from buffer
 			leds[i] = tempBufferMessage[i];
@@ -455,13 +487,33 @@ void addParticles( CRGB* buffer )
 	}
 }
 
-void drawWIN( const byte coords[][2], int size, CRGB *buffer, CRGB color )
+void drawWIN(const byte coords[][2], int size, CRGB *buffer, CRGB color, int orientation)
 {
 	for (int i = 0; i < size; i++)
-		buffer[XYsafe(coords[i][0], coords[i][1])] = color;
+	{
+		int x = coords[i][0];
+		int y = coords[i][1];
+
+		// Handle different orientations
+		switch (orientation)
+		{
+		case 0: // Normal orientation
+			buffer[XYsafe(x, y)] = color;
+			break;
+		case 1: // Diagonal flip
+			buffer[XYsafe(kMatrixWidth - 1 - x, kMatrixHeight - 1 - y)] = color;
+			break;
+		case 2: // Vertical flip
+			buffer[XYsafe(x, kMatrixHeight - 1 - y)] = color;
+			break;
+		case 3: // Horizontal flip
+			buffer[XYsafe(kMatrixWidth - 1 - x, y)] = color;
+			break;
+		}
+	}
 }
 
-void drawText( CRGB *buffer )
+void drawText(CRGB *buffer)
 {
 	static uint8_t brightness = 30;
 	static bool increasing = true;
@@ -469,7 +521,7 @@ void drawText( CRGB *buffer )
 	// Draw flipped "WIN" in the center with varying brightness
 	static CRGB color = CRGB(255, 0, 0);
 	static uint8_t lastBrightness = 30;
-	if ( brightness != lastBrightness )
+	if (brightness != lastBrightness)
 	{
 		color = CRGB(255, 0, 0);
 		color.nscale8(brightness);
@@ -477,21 +529,21 @@ void drawText( CRGB *buffer )
 	}
 
 	// Draw letters using the optimized function
-	drawWIN(W_coords, sizeof(W_coords) / sizeof(W_coords[0]), buffer, color);
-	drawWIN(I_coords, sizeof(I_coords) / sizeof(I_coords[0]), buffer, color);
-	drawWIN(N_coords, sizeof(N_coords) / sizeof(N_coords[0]), buffer, color);
+	drawWIN(W_coords, sizeof(W_coords) / sizeof(W_coords[0]), buffer, color, kMatrixOrientation);
+	drawWIN(I_coords, sizeof(I_coords) / sizeof(I_coords[0]), buffer, color, kMatrixOrientation);
+	drawWIN(N_coords, sizeof(N_coords) / sizeof(N_coords[0]), buffer, color, kMatrixOrientation);
 
 	// Adjust brightness
-	if ( increasing )
+	if (increasing)
 	{
 		brightness += 30;
-		if ( brightness >= min(maxBrightness*4, 255) )
+		if (brightness >= min(maxBrightness * 4, 255))
 			increasing = false;
 	}
 	else
 	{
 		brightness -= 30;
-		if ( brightness <= 30 )
+		if (brightness <= 30)
 			increasing = true;
 	}
 }
@@ -579,6 +631,8 @@ void displayState()
 		{
 			messageDisplay = server.arg("messageDisplay").c_str();
 			// writeLogFile( F("Updated messageDisplay to ") + String(messageDisplay), 1, 1 );
+			//renderWIN = true;
+			//messageWinON = true;
 			messageON = true;
 			server.stop(); // Stopping webServer because it scrambles scroll buffer if accessed during scroll
 			prevMilMesLife = millis();

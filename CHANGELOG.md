@@ -4,13 +4,13 @@
   - Firmware update OTA, with more info - Your firmware is up to date, Firmware XXX available etc  
   - implement httpupdate LittleFS
   - implement firmware update ESP32
-  - start moving *.ino to .h and .cpp and place them to src folder  
-  - start moving non core to /modules/ require include both .h and .cpp / temp solution untill full migration
+  - start moving *.ino to .h and .cpp and place them to src folder 
  
  <br><br>
  
 ## **CHANGES:**  
 **000.06.002** - in development  
+- add LedMatrix free orientation in settings - byte kMatrixOrientation = 1; // O = Normal, 1 = Diagonal flip (0 and 256 are on opposite diagonal side)
 
 **000.06.001**  
 - WiFiManager first to moved from ino to structure .h .cpp
