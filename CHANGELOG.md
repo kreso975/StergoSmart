@@ -11,6 +11,7 @@
 ## **CHANGES:**  
 **000.06.002** - in development  
 - add LedMatrix free orientation in settings - byte kMatrixOrientation = 1; // O = Normal, 1 = Diagonal flip (0 and 256 are on opposite diagonal side)
+- fixed compile for TicTacToe only module
 
 **000.06.001**  
 - WiFiManager first to moved from ino to structure .h .cpp

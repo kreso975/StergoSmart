@@ -9,11 +9,6 @@ extern String parseUDP(String input, int part);
 extern String parseString( String str, String found, int what );
 extern void sendWebhook(char *localURL, String data);
 
-
-#if ( STERGO_PROGRAM == 2 )
-   #define MODEL_NAME "TT001"
-#endif
-
 // Config.ino
 extern byte tictac_start, tictac_interval, tictac_webhook, tictac_discord;
 
