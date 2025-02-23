@@ -13,10 +13,10 @@ extern bool writeLogFile( String message, int newLine, int output);
 typedef std::function<void(char*, byte*, unsigned int)> CallbackType;
 
 /**
- * @class MQTThandler
+ * @class MQTTmanager
  * @brief This class manages MQTT communication and message handling.
  *
- * The MQTThandler class provides functionality to set up and manage MQTT connections,
+ * The MQTTmanager class provides functionality to set up and manage MQTT connections,
  * register and unregister message callbacks, and send and receive MQTT messages.
  * Each callback is associated with a unique ID. The class also offers methods to 
  * initialize the callback handling with a PubSubClient instance, invoke all registered 
@@ -24,51 +24,54 @@ typedef std::function<void(char*, byte*, unsigned int)> CallbackType;
  *
  * Example usage:
  * @code
- * MQTThandler mqttHandler;
+ * MQTTmanager mqttManager;
+;
  *
  * // Register callbacks
- * mqttHandler.registerCallback(exampleCallback1, 1);
- * mqttHandler.registerCallback(exampleCallback2, 2);
+ * mqttManager.registerCallback(exampleCallback1, 1);
+ * mqttManager.registerCallback(exampleCallback2, 2);
  *
  * // Initialize the MQTT client with the handler
- * mqttHandler.initCallback(client);
+ * mqttManager.initCallback(client);
  *
  * // Connect to the MQTT broker
  * String message;
  * boolean runState = true;
- * mqttHandler.setupMQTT(&message, runState);
+ * mqttManager.setupMQTT(&message, runState);
  *
  * // Send a message
  * char topic[] = "myTopic";
  * char payload[] = "myPayload";
- * mqttHandler.sendMQTT(topic, payload, false);
+ * mqttManager.sendMQTT(topic, payload, false);
  *
  * // Update MQTT periodically
- * mqttHandler.updateMQTT();
+ * mqttManager.updateMQTT();
  *
  * // List registered callbacks
- * mqttHandler.listCallbacks();
+ * mqttManager.listCallbacks();
  *
  * // Unregister a callback by ID
- * mqttHandler.unregisterCallback(1);
+ * mqttManager.unregisterCallback(1);
  *
  * // List registered callbacks again
- * mqttHandler.listCallbacks();
+ * mqttManager.listCallbacks();
  * @endcode
  */
-class MQTTmanager {
+class MQTTManager {
 public:
     void registerCallback(CallbackType callback, int id);
-    void unregisterCallback(int id);
-    void callbackMQTT(char* topic, byte* payload, unsigned int length);
     void initCallback(PubSubClient& client);
-    void listCallbacks() const;
     void updateMQTT();
     bool setupMQTT(String* message, boolean runState);
-    bool MQTTreconnect();
     bool sendMQTT(char* Topic, char* Payload, bool retain);
+    /*
+    void unregisterCallback(int id);
+    void listCallbacks() const;
+    */
 
 private:
+    void callbackMQTT(char* topic, byte* payload, unsigned int length);
+    bool MQTTreconnect();
     std::vector<std::pair<int, CallbackType>> callbacks;
 };
 

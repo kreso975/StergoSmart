@@ -47,7 +47,7 @@
 
 #include "Filesystem.h"     //
 #include "./src/WiFiManager/WiFiManager.h"
-#include "./src/MQTT/MQTT.h"
+#include "./src/MQTTManager/MQTTManager.h"
 
 
 #if ( STERGO_PROGRAM == 0 )  // Power Plug | Switch
@@ -174,7 +174,7 @@ char moduleName[20] = "Test";
 WiFiClient espClient;
 HTTPClient http;
 PubSubClient client(espClient);
-MQTTmanager mqttManager;
+MQTTManager mqttManager;
 
 #if ( EXCLUDED_CODE == 9 )  //===============================================
 // TEST WITH SSL

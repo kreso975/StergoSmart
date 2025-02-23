@@ -9,7 +9,10 @@
  <br><br>
  
 ## **CHANGES:**  
-**000.06.002** - in development  
+**000.06.003** - in development  
+- rename MQTT file and class into MQTTManager  
+  
+**000.06.002**
 - add LedMatrix free orientation in settings - byte kMatrixOrientation = 1; // O = Normal, 1 = Diagonal flip (0 and 256 are on opposite diagonal side)
 - fixed compile for TicTacToe only module
 - refactore MQTTcallback function into class MQTTcallbackHandler in order to easy extend listening functionalities. This should allow to register, unregister, and list callbacks flexibly.

@@ -70,15 +70,33 @@ String showDuration()
 
 /* ======================================================================
 Function: parseString
-Purpose : 
-Input   : str, found, 
-        : what :  deleteBeforeDelimiter = 1,
-                  deleteBeforeDelimiterTo = 2,
-                  selectToMarkerLast = 3,
-                  selectToMarker = 4
-Output  : String
-Comments: - NEED TO DESCRIBE BETTER WHAT IS DOING TO INPUT
-====================================================================== */
+Purpose : Process a given string based on a substring and an integer parameter
+Input   : str   : The original string to be processed
+          found : The substring to search for within str
+          what  : Operation type:
+                    1 - Delete Before Delimiter: Returns the part of str after the first occurrence of found
+                    2 - Delete Before Delimiter To: Returns the part of str starting from the first occurrence of found
+                    3 - Select To Marker Last: Returns the part of str after the last occurrence of found
+                    4 - Select To Marker: Returns the part of str before the first occurrence of found
+Output  : String - Processed substring based on the value of what
+Comments: Depending on the value of what, the function performs different types of substring extraction. 
+          If what doesn't match any specified case, it returns an empty string.
+          
+Example Usage:
+  String str = "Hello, this is a test string.";
+  String found = "test";
+
+  // Case 1: Delete Before Delimiter
+  String result1 = parseString(str, found, 1);  // " string."
+
+  // Case 2: Delete Before Delimiter To
+  String result2 = parseString(str, found, 2);  // "test string."
+
+  // Case 3: Select To Marker Last
+  String result3 = parseString(str, found, 3);  // " string."
+
+  // Case 4: Select To Marker
+  String result4 = parseString(str, found, 4);  // "Hello, this is a " */
 String parseString( String str, String found, int what )
 {
   if ( what == 2 || what == 4 )

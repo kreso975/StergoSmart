@@ -12,7 +12,7 @@
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 1
+#define STERGO_PROGRAM 4
 
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
@@ -25,7 +25,7 @@
  * LOLIN D1 mini       = 2   // v02
  * ESP32C6             = 3   // v03
  */
-#define STERGO_PROGRAM_BOARD 2
+#define STERGO_PROGRAM_BOARD 1
 
 /*
  * STERGO_PLUG :
@@ -37,7 +37,7 @@
 #define STERGO_PLUG 1
 
 // Firmware Version always part of this file
-#define FW_VERSION "000.06.002"                 // Check releaseLog for details
+#define FW_VERSION "000.06.003"                 // Check releaseLog for details
 #define MODEL_FRENDLY_NAME "Stergo Smart"
 #define COMPANY_URL "http://www.stergo.hr"
 

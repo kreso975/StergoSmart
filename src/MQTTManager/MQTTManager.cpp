@@ -6,7 +6,7 @@
 
 #include "../../settings.h"
 
-#include "MQTT.h"
+#include "MQTTManager.h"
 #include <Arduino.h>
 
 // Global variables
@@ -30,19 +30,12 @@ unsigned long mqtt_previousMillis; // Time of the last point added
 
 std::vector<const char *> subscriptionList;
 
-void MQTTmanager::registerCallback(CallbackType callback, int id)
+void MQTTManager::registerCallback(CallbackType callback, int id)
 {
   callbacks.emplace_back(id, callback);
 }
 
-void MQTTmanager::unregisterCallback(int id)
-{
-  callbacks.erase(std::remove_if(callbacks.begin(), callbacks.end(), [id](const std::pair<int, CallbackType> &cb) {
-    return cb.first == id;
-  }), callbacks.end());
-}
-
-void MQTTmanager::callbackMQTT(char *topic, byte *payload, unsigned int length)
+void MQTTManager::callbackMQTT(char *topic, byte *payload, unsigned int length)
 {
   for (auto &callback : callbacks)
   {
@@ -50,13 +43,22 @@ void MQTTmanager::callbackMQTT(char *topic, byte *payload, unsigned int length)
   }
 }
 
-void MQTTmanager::initCallback(PubSubClient &client)
+void MQTTManager::initCallback(PubSubClient &client)
 {
   client.setCallback([this](char *topic, byte *payload, unsigned int length)
                      { this->callbackMQTT(topic, payload, length); });
 }
 
-void MQTTmanager::listCallbacks() const
+/* // NOT IN USE 
+  // IF NEEDED JUST UNCOMMENT - saving KBs
+void MQTTManager::unregisterCallback(int id)
+{
+  callbacks.erase(std::remove_if(callbacks.begin(), callbacks.end(), [id](const std::pair<int, CallbackType> &cb) {
+    return cb.first == id;
+  }), callbacks.end());
+}
+
+void MQTTManager::listCallbacks() const
 {
   #if ( DEBUG == 1 )
   writeLogFile(F("Registered Callbacks:"), 1, 1);
@@ -70,6 +72,7 @@ void MQTTmanager::listCallbacks() const
   }
   #endif
 }
+*/
 
 /* ======================================================================
 Function: updateMQTT
@@ -78,7 +81,7 @@ Input   :
 Output  : logic execution and listener
 Comments: 
 TODO    : */
-void MQTTmanager::updateMQTT()
+void MQTTManager::updateMQTT()
 {
   if (mqtt_start == 1)
   {
@@ -107,7 +110,7 @@ Function: setupMQTT
 Input: runState == false | true = stop | start MQTT
 TODO: 
 Comments:*/
-bool MQTTmanager::setupMQTT(String *message, boolean runState)
+bool MQTTManager::setupMQTT(String *message, boolean runState)
 {
   String msg;
   if (runState)
@@ -147,7 +150,7 @@ bool MQTTmanager::setupMQTT(String *message, boolean runState)
   return false;
 }
 
-bool MQTTmanager::MQTTreconnect()
+bool MQTTManager::MQTTreconnect()
 {
   while (!client.connected())
   {
@@ -183,7 +186,7 @@ Input   : Topic, Payload, retain
 Output  : Success = True | Fail = False
 Comments: 
 TODO    :  */
-bool MQTTmanager::sendMQTT(char *Topic, char *Payload, bool retain)
+bool MQTTManager::sendMQTT(char *Topic, char *Payload, bool retain)
 {
   if (client.connected())
   {

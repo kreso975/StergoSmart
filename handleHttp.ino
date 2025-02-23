@@ -62,8 +62,8 @@ void setupHttpServer()
 	server.on("/upload", HTTP_POST, []() { // if the client posts to the upload page
 			server.send(200, "text/plain", "");
 		},
-				 handleFileUpload // Send status 200 (OK) to tell the client we are ready to receive
-	);									// Receive and save the file
+		handleFileUpload // Send status 200 (OK) to tell the client we are ready to receive
+	);						  // Receive and save the file
 
 	server.begin();
 	#if (DEBUG == 1)
