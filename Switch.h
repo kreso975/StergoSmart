@@ -55,6 +55,8 @@
 char mqtt_switch[120];              //"/home/ESP8266-2/switch";
 char mqtt_switch2[120];             //"/home/ESP8266-2/switch2";
 
+//subscriptionList.push_back(mqtt_switch);
+
 #define POWERON "{\"POWER\":\"ON\"}"
 #define POWEROFF "{\"POWER\":\"OFF\"}"
     

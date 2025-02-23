@@ -7,9 +7,9 @@
 
 // external functions
 extern void sendJSONheaderReply(byte type, String message);
-extern bool sendMQTT ( char* Topic, char* Payload, bool retain );
 
 // external variables
+extern MQTTmanager mqttManager;
 extern time_t adjustedTime;
 
 #define LED_PIN 0
@@ -85,7 +85,6 @@ extern char mqtt_Brightness[120];
 extern char mqtt_Color[120];
 extern char mqtt_displayON[120];
 
-
 extern const byte W_coords[][2];
 extern const byte I_coords[][2];
 extern const byte N_coords[][2];
@@ -114,6 +113,10 @@ extern void displayState();
 
 extern uint16_t XY(uint8_t x, uint8_t y);
 extern uint16_t XYsafe(uint8_t x, uint8_t y);
+
+extern void setupDisplay();
+
+extern void callbackDisplayMQTT(char *topic, byte *payload, unsigned int length);
 
 class Particle {
 public:

@@ -1,3 +1,4 @@
+#include "../../settings.h"
 #ifdef MODULE_DS18B20
 
 #include "DS18B20.h"

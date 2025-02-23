@@ -1,4 +1,4 @@
-
+#include "../../settings.h"
 #include <Arduino.h> // Include the Arduino core header file                   
 
 #if defined(ESP8266)                // -----------------  ESP8266  -----------------

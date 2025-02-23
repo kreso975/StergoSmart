@@ -1,5 +1,6 @@
 #ifdef MODULE_SWITCH
 
+
 /* ======================================================================
 Function: setupSwitch
 Purpose : Initialize Switch
@@ -16,6 +17,12 @@ bool setupSwitch()
     pinMode( BUTTON01, INPUT );
     digitalWrite( LED, HIGH );
   #endif
+
+  // Add MQTT subscriptions
+  subscriptionList.push_back(mqtt_switch);
+  //subscriptionList.push_back(mqtt_switch2);
+  
+  mqttManager.registerCallback(callbackSwitchMQTT, 1); 		// register Switch callback for MQTT
 
   return true;
 }
@@ -87,7 +94,7 @@ bool sendSwitchMQTT()
 {
   bool checkStat = true;
   // We are sending Switch state on change
-  if ( !sendMQTT( mqtt_switch, (char*) String(relay01State).c_str(), true ) )
+  if ( !mqttManager.sendMQTT( mqtt_switch, (char*) String(relay01State).c_str(), true ) )
   {
     #if ( DEBUG == 1 )
     writeLogFile( F("MQTT Switch: failed"), 1 );
@@ -191,5 +198,35 @@ void keyRelease()
     shortKeyPress();
 }
 #endif                                                    // Button Control===============================================
+
+
+void callbackSwitchMQTT(char *topic, byte *payload, unsigned int length)
+{
+	#ifdef MODULE_SWITCH
+	if (String(topic) == String(mqtt_switch))
+	{
+		if ((char)payload[0] == '1')
+		{ // Turn the Relay on/off
+			digitalWrite(RELAY, HIGH);
+			relay01State = true;
+		}
+		if ((char)payload[0] == '0')
+		{
+			digitalWrite(RELAY, LOW);
+			relay01State = false;
+		}
+	}
+	else if (String(topic) == String(mqtt_switch2))
+	{
+		// No current purpose Except for ESP8266 01S turning light onboard on/off
+		#ifdef LED2
+		if ((char)payload[0] == '1') // Turn the LED on/off
+			digitalWrite(LED2, 0);
+		else
+			digitalWrite(LED2, 1);
+		#endif
+	}
+	#endif
+}
 
 #endif

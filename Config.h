@@ -1,48 +1,3 @@
-/*
- * For What Device We need to Compile
- * 
- * STERGO_PROGRAM :
- *
- * PowerSwitch                  = 0
- * StergoWeather BME280         = 1
- * TicTacToe                    = 2
- * StergoWeather+PowerSwitch    = 3
- * StergoWeather DHT22          = 4
- * StergoWeather DS18B20        = 5
- */
-#define STERGO_PROGRAM 0
-// Screen or Led On device WS001 = Second 0 == device type
-// example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
-#define STERGO_SCREEN 0
-/*
- * STERGO_PROGRAM_BOARD :
- * 
- * ESP8266 default 01S = 1   // v01
- * LOLIN D1 mini       = 2   // v02
- * ESP32C6             = 3   // v03
- */
-#define STERGO_PROGRAM_BOARD 2
-
-/*
- * STERGO_PLUG :
- * 
- * Native Board relay = 1   // Relay Switch - RS
- * Sonoff S26         = 2   // Plug Switch  - PS
- * Sonoff T4EU1C      = 3   // Light Switch - LS
- */
-#define STERGO_PLUG 2
-
-// Firmware Version always part of this file
-#define FW_VERSION "000.06.002"                 // Check releaseLog for details
-#define MODEL_FRENDLY_NAME "Stergo Smart"
-#define COMPANY_URL "http://www.stergo.hr"
-
-// Exluded Code tu be included
-// 0 = None to be included
-#define EXCLUDED_CODE 1
-
-// 1 true | 0 false  / Serial.print 
-#define DEBUG 1
 
 #if defined(ESP8266)                                         // -----------------  ESP8266  -----------------
   #include <ESP8266WiFi.h>
@@ -85,8 +40,15 @@
   String chipID = String((uint16_t)(chipIDmac >> 32), HEX) + String((uint32_t)chipIDmac, HEX);
 #endif                                                       // ---------------------------------------------
 
+// ----------------------------------------------------------------------------------------------------------
+
+// Main settings for StergoSmart
+#include "settings.h"
+
 #include "Filesystem.h"     //
 #include "./src/WiFiManager/WiFiManager.h"
+#include "./src/MQTT/MQTT.h"
+
 
 #if ( STERGO_PROGRAM == 0 )  // Power Plug | Switch
     #define MODULE_SWITCH
@@ -116,13 +78,6 @@
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
-
-/*********************************************************************************************************/
-/* MQTT Server address
- * TODO : WebClient - In devices - Run Services (on | off )
- *                    Check if MQTT Broker is available, Check if MQTT is set - give alerts (graphic)
- *********************************************************************************************************/
-#include "MQTT.h"
 
 // Macro generate model version number based on STERGO_PROGRAM_BOARD
 #define MODEL_NUMBER_HELPER(x) "v0" #x
@@ -219,6 +174,7 @@ char moduleName[20] = "Test";
 WiFiClient espClient;
 HTTPClient http;
 PubSubClient client(espClient);
+MQTTmanager mqttManager;
 
 #if ( EXCLUDED_CODE == 9 )  //===============================================
 // TEST WITH SSL
@@ -256,8 +212,6 @@ WiFiManager wifiManager(wifi_ssid, wifi_password, wifi_StaticIP, wifi_gateway, w
 
 
 // Load Modules
-
-
 #ifdef MODULE_DISPLAY                             //====================== MODULE_DISPLAY ================
   //#include "Display.h"
   #include "./modules/myFonts.h"

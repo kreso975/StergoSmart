@@ -1,3 +1,4 @@
+#include "../../settings.h"
 #ifdef MODULE_DHT
 #include "DHTsensors.h"
 

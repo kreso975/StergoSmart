@@ -33,6 +33,21 @@ void updateWeather()
 				sendMeasuresWebhook();
 			}
 		}
+
+		if ( mqtt_start == 1 )
+		{
+			String message;
+			if ( millis() - mqtt_previousMillis > mqtt_intervalHist )
+			{
+				mqtt_previousMillis = millis();
+				if (!sendMeasuresMQTT())
+				{
+					mqttManager.setupMQTT(&message, 1);
+					sendMeasuresMQTT();
+				}
+			}
+			
+		}
 	}
 }
 
@@ -126,7 +141,7 @@ bool sendMeasuresMQTT()
 	bool checkStat = true;
 	
 	// Let's try to publish Temperature
-	if ( !sendMQTT( mqtt_Temperature, (char*) String(t).c_str(), true ) )
+	if ( !mqttManager.sendMQTT( mqtt_Temperature, (char*) String(t).c_str(), true ) )
 	{
     	//writeLogFile( F("Publish Temperature: failed"), 1 );
     	checkStat = false;
@@ -137,7 +152,7 @@ bool sendMeasuresMQTT()
 	dtostrf(h, 5, 1, humidityString);
     
 	// Let's try to publish Humidity
-  	if ( !sendMQTT( mqtt_Humidity, humidityString, true ) )
+  	if ( !mqttManager.sendMQTT( mqtt_Humidity, humidityString, true ) )
   	{
   		//writeLogFile( F("Publish Humidity: failed"), 1 );
     	checkStat = false;
@@ -149,7 +164,7 @@ bool sendMeasuresMQTT()
 	dtostrf(P0, 6, 1, pressureString);
     
 	// Let's try to publish Pressure
-   if ( !sendMQTT( mqtt_Pressure, pressureString, true ) )
+   if ( !mqttManager.sendMQTT( mqtt_Pressure, pressureString, true ) )
    {
    	//writeLogFile( F("Publish Pressure: failed"), 1 );
     	checkStat = false;

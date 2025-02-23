@@ -37,6 +37,7 @@ void setup()
 	#ifdef MODULE_WEATHER
 	setupWeather();
 	#endif
+	
 	#ifdef MODULE_SWITCH
 	setupSwitch();
 	#endif
@@ -47,6 +48,8 @@ void setup()
 	FastLED.setBrightness(maxBrightness);
 
 	timeZoneOffset = 3600 * timeZone;	// Used for accurate display of local Time
+
+	setupDisplay(); // Set init values
 	#endif
 
 	// Start WiFi
@@ -69,8 +72,8 @@ void setup()
 		randomSeed(analogRead(0));
 
 		if ( mqtt_start == 1 )
-			setupMQTT( &message, 1 );
-
+			mqttManager.setupMQTT( &message, true );
+			
 		// Start ntpUDP
 		// We need it for M-SEARCH over UDP - SSDP discovery
 		ntpUDP.begin( LOCAL_UDP_PORT );
@@ -103,6 +106,7 @@ void loop()
 			setTime(timeClient.getEpochTime());
 
 		// We will not run anything if we are in WIN message mode
+		// Dirty fix for not to run anything if we are in WIN message mode
 		#ifdef MODULE_DISPLAY						//=================  MODULE DISPLAY =============
 		if ( !messageWinON )
 		{
@@ -112,7 +116,7 @@ void loop()
 			updateWeather();
 			#endif   									//===============================================
 													
-			updateMQTT();
+			mqttManager.updateMQTT();
 			
 			#ifdef MODULE_TICTACTOE					//=================  MODULE TICTACTOE =========== 
 			updateTicTacToe();
@@ -129,6 +133,7 @@ void loop()
 		#endif											//===============================================
 	}
 
+	// This should be renamed to updateSwitch and handled in Switch.ino
 	#if ( defined( MODULE_SWITCH ) && ( STERGO_PLUG == 2 || STERGO_PLUG == 3 ) )  //===============================================
 	checkSwitchButton();	// Check Button State - long press
 	#endif                                                                   	   //===============================================

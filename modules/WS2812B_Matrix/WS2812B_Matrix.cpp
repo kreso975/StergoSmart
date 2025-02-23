@@ -1,4 +1,5 @@
 #ifdef MODULE_DISPLAY
+#include "../../settings.h"
 #include "WS2812B_Matrix.h"
 
 byte maxBrightness = 35;
@@ -621,7 +622,7 @@ void displayState()
 			itoa(maxBrightness, buffer, 10); // Convert
 			writeLogFile(F("Updated Brightness to ") + String(maxBrightness), 1, 1);
 			if (mqtt_start == 1)
-				if (!sendMQTT(mqtt_Brightness, buffer, true))
+				if (!mqttManager.sendMQTT(mqtt_Brightness, buffer, true))
 					writeLogFile(F("Publish Brightness: failed"), 1);
 
 			
@@ -670,9 +671,9 @@ void displayState()
 	  
 			// Send the color and brightness values via MQTT
 			if (mqtt_start == 1) {
-				 if (!sendMQTT(mqtt_Color, hexColorChar, true))
+				 if (!mqttManager.sendMQTT(mqtt_Color, hexColorChar, true))
 					  writeLogFile(F("Publish Color: failed"), 1);
-				 if (!sendMQTT(mqtt_Brightness, brightnessBuffer, true))
+				 if (!mqttManager.sendMQTT(mqtt_Brightness, brightnessBuffer, true))
 					  writeLogFile(F("Publish Brightness: failed"), 1);
 			}
 	  
@@ -766,6 +767,84 @@ uint16_t XYsafe(uint8_t x, uint8_t y)
 	if ( x < 0 ) return -1;
 	if ( y < 0 ) return -1;
 	return XY(x, y);
+}
+
+
+
+void setupDisplay()
+{
+	// MQTT subscribe to:
+	subscriptionList.push_back(mqtt_displayON);					// mqtt_displayON == ON | OFF
+	subscriptionList.push_back(mqtt_Brightness);					// mqtt_Brightness == maxBrightness
+	subscriptionList.push_back(mqtt_Color);						// mqtt_Color == RGB() or HSV()
+
+	mqttManager.registerCallback(callbackDisplayMQTT, 2); 	// register Display callback for MQTT
+}
+
+void callbackDisplayMQTT(char *topic, byte *payload, unsigned int length)
+{
+	if (String(topic) == String(mqtt_displayON))
+	{
+		// displayON = (byte)payload[0];
+		if ((char)payload[0] == '1')
+			displayON = 1;
+
+		if ((char)payload[0] == '0')
+		{
+			FastLED.clearData();
+			displayON = 0;
+		}
+	}
+
+	/*
+	if (String(topic) == String(mqtt_Brightness))
+	{
+		payload[length] = '\0'; // Null-terminate the payload
+		maxBrightness = atoi((char *)payload);
+	}
+	*/
+
+	if (String(topic) == String(mqtt_Color))
+	{
+		// Null-terminate the payload
+		payload[length] = '\0';
+		// Convert payload to String
+		String hexColor = String((char *)payload);
+		unsigned long tempDisplayColor; // Temporary variable for calculations
+
+		// Check if hexColor has a '#' in front and convert to long integer
+		if (hexColor.charAt(0) == '#')
+			tempDisplayColor = strtol(&hexColor[1], NULL, 16);
+		else
+			tempDisplayColor = strtol(hexColor.c_str(), NULL, 16);
+
+		// Set the global displayColor variable
+		displayColor = tempDisplayColor;
+
+		// Convert the hexColor to a C string for MQTT publish
+		char hexColorChar[hexColor.length() + 1];
+		hexColor.toCharArray(hexColorChar, sizeof(hexColorChar));
+
+		// Extract individual red, green, and blue components using bitwise operations
+		int red = (tempDisplayColor >> 16) & 0xFF;
+		int green = (tempDisplayColor >> 8) & 0xFF;
+		int blue = tempDisplayColor & 0xFF;
+
+		// Create a CRGB object with the extracted color value
+		CRGB rgbColor = CRGB(red, green, blue);
+
+		// Calculate the brightness as the maximum of the red, green, and blue components
+		maxBrightness = max(max(red, green), blue);
+
+		// Convert the brightness to a string for MQTT payload
+		char brightnessBuffer[10];
+		itoa(maxBrightness, brightnessBuffer, 10);
+
+		// Send the brightness value via MQTT
+		if (mqtt_start == 1)
+			if (!mqttManager.sendMQTT(mqtt_Brightness, brightnessBuffer, true))
+				writeLogFile(F("Publish Brightness: failed"), 1);
+	}
 }
 
 #endif

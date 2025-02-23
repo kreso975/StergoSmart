@@ -12,6 +12,11 @@
 **000.06.002** - in development  
 - add LedMatrix free orientation in settings - byte kMatrixOrientation = 1; // O = Normal, 1 = Diagonal flip (0 and 256 are on opposite diagonal side)
 - fixed compile for TicTacToe only module
+- refactore MQTTcallback function into class MQTTcallbackHandler in order to easy extend listening functionalities. This should allow to register, unregister, and list callbacks flexibly.
+- move sendMeasuresMQTT() from MQTT.ino updateMQTT() to Weather.ino updateWeather()
+- moved MQTT from .ino to .h, .cpp
+- MQTT moved to class structure - MQTTmanager
+- cleanUP MQTT moved subscription and callback to owner functions ( check setupSwitch() or setupDisplay() )
 
 **000.06.001**  
 - WiFiManager first to moved from ino to structure .h .cpp

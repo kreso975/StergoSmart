@@ -43,13 +43,13 @@ GUI editor : [Smart Stergo GUI project](https://github.com/kreso975/StergoSmartG
 > **Libraries Needed:**  
 > NTPClient by Fabrice Weinberg  **v3.2.1**  
 > Adafruit BME280 Library by Adafruit **v2.2.4**  
-> Adafruit Unified Sensor by Adafruit **v1.1.14**  
+> Adafruit Unified Sensor by Adafruit **v1.1.15**  
 > DHT sensor library by Adafruit **v1.4.6**  
-> Adafruit BusIO by Adafruit **v1.16.1**  
+> Adafruit BusIO by Adafruit **v1.17.0**  
 > Arduinojson by Benoit Blanchon **v5.13.5** || v000.5.103 >= **v6.21.5**  
 > PubSubClient by Nick O'Leary **v2.8**  
 > OneWire by Jim Studt, Tom Pollard.. **v2.3.8**  
-> DallasTemperature by Miles Burton **v3.9.0**  
+> DallasTemperature by Miles Burton **v4.0.3**  
 > Time by Michael Margolis **v1.6.1**  
 > FastLED by Daniel Garcia **v3.7.8**  
 

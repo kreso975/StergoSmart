@@ -124,7 +124,6 @@ bool initConfig( String* message )
 		strlcpy(mqtt_displayON, jsonConfig["mqtt_displayON"].as<String>().c_str(), sizeof(mqtt_displayON));
 		strlcpy(mqtt_Brightness, jsonConfig["mqtt_Brightness"].as<String>().c_str(), sizeof(mqtt_Brightness));
 		strlcpy(mqtt_Color, jsonConfig["mqtt_Color"].as<String>().c_str(), sizeof(mqtt_Color));
-
 	#endif           										  		//================================================
 
 	return true;
@@ -257,7 +256,7 @@ bool writeToConfig( String* message )
 		{
 			// HERE WE MUST TELL THAT WE WILL START MQTT SERVICES
 			mqtt_start = 1;
-			if ( setupMQTT( message, 1 ) )
+			if ( mqttManager.setupMQTT( message, true ) )
 			{
 				return true;
 			}
@@ -271,7 +270,7 @@ bool writeToConfig( String* message )
 		{
 			mqtt_start = 0;
 			
-			setupMQTT( message, 0 );
+			mqttManager.setupMQTT( message, false );
 			// reset interval times
 			mqtt_previousMillis = mqtt_intervalHist;     // time of last point added
 			return true;
@@ -344,7 +343,7 @@ bool writeToConfig( String* message )
 			*message = SUCCESS_MSG + msg + F("\"}");
 
 			if (mqtt_start == 1)
-				if (!sendMQTT(mqtt_displayON, payload, true))
+				if (!mqttManager.sendMQTT(mqtt_displayON, payload, true))
 					writeLogFile(F("Publish displayON: failed"), 1);
 
 			return true;
@@ -360,7 +359,7 @@ bool writeToConfig( String* message )
 			*message = SUCCESS_MSG + msg + F("\"}");
 
 			if (mqtt_start == 1)
-				if (!sendMQTT(mqtt_displayON, payload, true))
+				if (!mqttManager.sendMQTT(mqtt_displayON, payload, true))
 					writeLogFile(F("Publish displayON: failed"), 1);
 			return true;
 		}

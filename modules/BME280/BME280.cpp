@@ -1,3 +1,4 @@
+#include "../../settings.h"
 #ifdef MODULE_BME280
 #include "BME280.h"
 #include <Wire.h>
