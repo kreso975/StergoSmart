@@ -182,25 +182,22 @@ Comments:
 TODO    : */
 void sendMeasuresWebhook()
 {
-	char* localURL;
- 	String data;
-	char data2[40];
-    
-	localURL = webLoc_server;
-    
-   #ifdef MODULE_DS18B20
-   sprintf(data2, "{\"t\":\"%.2f\"}",t);
-   #endif
-   #ifdef MODULE_DHT
-   sprintf(data2, "{\"t\":\"%.2f\",\"h\":\"%.2f\"}",t,h);
-   #endif
-   #ifdef MODULE_BME280
-	sprintf(data2, "{\"t\":\"%.2f\",\"h\":\"%.2f\",\"p\":\"%.2f\"}",t,h,P0);
-   #endif
-	
-   data = String(data2);
-	sendWebhook( localURL, data );
+	const char* localURL = webLoc_server;
+	char data[100];  // Allocate a buffer for the data
+
+	#ifdef MODULE_DS18B20
+	snprintf(data, sizeof(data), PSTR("{\"t\":\"%.2f\"}"), t);
+	#endif
+	#ifdef MODULE_DHT
+	snprintf(data, sizeof(data), PSTR("{\"t\":\"%.2f\",\"h\":\"%.2f\"}"), t, h);
+	#endif
+	#ifdef MODULE_BME280
+	snprintf(data, sizeof(data), PSTR("{\"t\":\"%.2f\",\"h\":\"%.2f\",\"p\":\"%.2f\"}"), t, h, P0);
+	#endif
+
+	sendWebhook(localURL, data);
 }
+
 
 /* ======================================================================
 Function: sendMeasures

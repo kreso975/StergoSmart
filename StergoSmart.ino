@@ -1,16 +1,21 @@
 /*
  * StergoSmart
  * 
- * Smart Home IOT - Weather and Switches with GUI - ESP8266
+ * Smart Home IoT - Weather, Clock and Switches with GUI
  *
+ * Components:
+ *   - ESP8266 + ESP32
+ *   - BME280 + DHT + DS18B20
+ *   - CAPTIVE PORTAL + BOOTSTRAP + LittleFS + APEX CHARTS
+ *   - MQTT + WebHooks + HTTP
+ *   - SSDP + UDP + NTP + OTA
+ *   - TicTacToe
+ *   - LED Matrix Display 8x32
+ *   - Discord Integration
  *
- * ESP8266 + BME280 + DHT + DS18B20 + BOOTSTRAP + LittleFS + APEX CHARTS + MQTT + WebHooks
- * + CAPTIVE PORTAL + SSDP + NTP + OTA + TicTacToe + LED Matrix Display 8x32 + Discord
- *
- *
- * Copyright (C) 2018-2024 Kresimir Kokanovic - https://github.com/kreso975/StergoSmart
- *
- * Apache-2.0 license - https://github.com/kreso975/StergoSmart#Apache-2.0-1-ov-file
+ * Copyright (C) 2018-2025 Kresimir Kokanovic
+ * GitHub: https://github.com/kreso975/StergoSmart
+ * License: Apache-2.0 (https://github.com/kreso975/StergoSmart#Apache-2.0-1-ov-file)
  */
 
 
@@ -86,7 +91,6 @@ void setup()
 }
 
 
-// nothing can run if we are in 1st setup cycle
 void loop()
 {
 	// WiFi AP mode

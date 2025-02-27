@@ -246,22 +246,24 @@ Purpose : Sending data as HTTP POST to selected URL
 Input   : localURL = URL where to send | data = JSON payload
 Output  :
 Comments: - I have local web server for forwarding Discord Webhook */
-void sendWebhook(char *localURL, String data)
+void sendWebhook(const char* localURL, const char* data)
 {
-	HTTPClient http;
-	http.begin(espClient, localURL);
-	http.addHeader("Content-Type", "application/json"); // Set request as JSON
+    HTTPClient http;
+    http.begin(espClient, localURL);
+    http.addHeader("Content-Type", "application/json"); // Set request as JSON
 
-	// Send POST request
-	int httpResponseCode = http.POST(data);
+    // Send POST request
+    int httpResponseCode = http.POST(data);
 
-#if (DEBUG == 1)
-	Serial.print(F("HTTP Response code: "));
-	Serial.println(httpResponseCode);
-#endif
+    #if (DEBUG == 1)
+    	char logMessage[50];
+		snprintf(logMessage, sizeof(logMessage), "HTTP Response code: %d", httpResponseCode);
+		writeLogFile(logMessage, 1, 1);
+    #endif
 
-	http.end();
+    http.end();
 }
+
 
 /* ======================================================================
 Function: sendJSONheaderReply

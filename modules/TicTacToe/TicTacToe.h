@@ -7,7 +7,7 @@
 extern void updateSSDP();
 extern String parseUDP(String input, int part);
 extern String parseString( String str, String found, int what );
-extern void sendWebhook(char *localURL, String data);
+extern void sendWebhook(const char* localURL, const char* data);
 
 // Config.ino
 extern byte tictac_start, tictac_interval, tictac_webhook, tictac_discord;
@@ -55,14 +55,14 @@ extern bool didIaskedToPlay;
 extern String SERTIC;
 
 extern void updateTicTacToe();
-extern void startGameValues( String playerName );
+extern void startGameValues( const char* playerName );
 extern void resetTicTacToe();
 extern GamePhases getGamePhase(String input);
 extern int win( const int board[9] );
 extern int minimax( int board[9], int player, byte depth );
 extern void computerMove( int board[9] );
 extern bool playerMove( int board[9], byte moveKeypadNum );
-extern void letsPlay( byte what, String who );
+extern void letsPlay( byte what, const char* who );
 extern void playTicTacToe( String input );
 extern void inviteDeviceTicTacToe();
 extern void sendTicTacWebhook(byte where);
