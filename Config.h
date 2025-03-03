@@ -1,3 +1,5 @@
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #if defined(ESP8266)                                         // -----------------  ESP8266  -----------------
   #include <ESP8266WiFi.h>
@@ -106,7 +108,7 @@ int actualSSDPdevices = 0;
 byte logOutput = 0;  // 0 = Serial, 1 = LogFile
 #define sizeLog 30   // Log size = nr of records
 
-#define SUCCESS_MSG F("{\"success\":\"")
+
 String fOpen = "Fail to open ";
 String fWrite = "Fail to write ";
 #define nLOG "New Log file"
@@ -225,3 +227,5 @@ WiFiManager wifiManager(wifi_ssid, wifi_password, wifi_StaticIP, wifi_gateway, w
   #include "./modules/TicTacToe/TicTacToe.h"
   #include "./modules/TicTacToe/TicTacToe.cpp"
 #endif                                            //======================================================
+
+#endif // CONFIG_H

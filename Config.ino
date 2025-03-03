@@ -285,7 +285,7 @@ bool writeToConfig( String* message )
 			webLoc_start = 1;
 			msg = F("Success WebHook Start");
 			writeLogFile( msg, 1, 3 );
-    		*message = SUCCESS_MSG + msg + F("\"}");
+    		*message = F("{\"success\":\"") + msg + F("\"}");
 			return true;
 		}
 		else if ( server.arg("WhookStateOn") == "0" )
@@ -293,7 +293,7 @@ bool writeToConfig( String* message )
 			webLoc_start = 0;
 			msg = F("Success WebHook Stop");
 			writeLogFile( msg, 1, 3 );
-    		*message = SUCCESS_MSG + msg + F("\"}");
+    		*message = F("{\"success\":\"") + msg + F("\"}");
 			webLoc_previousMillis = webLoc_intervalHist;     // time of last point added
 			return true;
 		}
@@ -309,7 +309,7 @@ bool writeToConfig( String* message )
 			tictac_start = 1;
 			msg = F("Success Tic Tac Toe Start");
 			writeLogFile( msg, 1, 3 );
-    		*message = SUCCESS_MSG + msg + F("\"}");
+    		*message = F("{\"success\":\"") + msg + F("\"}");
 			return true;
 		}
 		else if ( server.arg("TicTacStateOn") == "0" )
@@ -317,7 +317,7 @@ bool writeToConfig( String* message )
 			tictac_start = 0;
 			msg = F("Success Tic Tac Toe Stop");
 			writeLogFile( msg, 1, 3 );
-    		*message = SUCCESS_MSG + msg + F("\"}");
+    		*message = F("{\"success\":\"") + msg + F("\"}");
 			ticCallLMInterval = ticTacCallInterval;
 			return true;
 		}
@@ -340,7 +340,7 @@ bool writeToConfig( String* message )
 			itoa(displayON, payload, 10); // Convert byte to string
 			msg = F("Success Display ON");
 			writeLogFile(msg, 1, 3);
-			*message = SUCCESS_MSG + msg + F("\"}");
+			*message = F("{\"success\":\"") + msg + F("\"}");
 
 			if (mqtt_start == 1)
 				if (!mqttManager.sendMQTT(mqtt_displayON, payload, true))
@@ -356,7 +356,7 @@ bool writeToConfig( String* message )
 			itoa(displayON, payload, 10); // Convert byte to string
 			msg = F("Success Display OFF");
 			writeLogFile(msg, 1, 3);
-			*message = SUCCESS_MSG + msg + F("\"}");
+			*message = F("{\"success\":\"") + msg + F("\"}");
 
 			if (mqtt_start == 1)
 				if (!mqttManager.sendMQTT(mqtt_displayON, payload, true))
@@ -377,7 +377,7 @@ bool writeToConfig( String* message )
 	else
 	{
 		msg = F("Saved and init Config");
-		*message = SUCCESS_MSG + msg + F("\"}");
+		*message = F("{\"success\":\"") + msg + F("\"}");
 		return true;
 	}
 

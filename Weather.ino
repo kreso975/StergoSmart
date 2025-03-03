@@ -1,4 +1,6 @@
+#include "Config.h"
 #ifdef MODULE_WEATHER
+
 /* ======================================================================
 Function: updateWeather
 Purpose : Main Loop handler for Weather
@@ -30,7 +32,7 @@ void updateWeather()
 					writeLogFile(F("Inside true webLoc loop"), 1, 1);
 				#endif
 				webLoc_previousMillis = millis();
-				sendMeasuresWebhook();
+				sendMeasures(true);
 			}
 		}
 
@@ -107,26 +109,24 @@ TODO:   : check if jsonDataBuffer not EMPTY before write to file. After
           sub functions so that we can go over again if needed
 
 Comments: -  */
-bool updateHistory( int z = 0 )
-{
-	String json;
+bool updateHistory(int z = 0) {
+	const char* json = "";
 
-	File file = LittleFS.open( HISTORY_FILE, "w" );
-	if ( !file )
-		return false;
+	File file = LittleFS.open(HISTORY_FILE, "w");
+	if (!file)
+		 return false;
 
 	// Clear/Delete history
-	if ( z == 1 )
-	{
-		json = "{\"sensor\":[]}"; // length = 13
-		writeLogFile( F("Delete History"), 1, 3 );
+	if (z == 1) {
+		 json = "{\"sensor\":[]}";
+		 writeLogFile(F("Delete History"), 1, 3);
 	}
-		
-	file.print( json );
-  	file.close();
 
-    //writeLogFile( F("Update History"), 1 );
-    return true;
+	file.print(json);
+	file.close();
+
+	//writeLogFile(F("Update History"), 1);
+	return true;
 }
 
 /* ======================================================================
@@ -173,17 +173,15 @@ bool sendMeasuresMQTT()
    return checkStat;
 }
 
-/* ======================================================================
-Function: sendMeasuresWebhook
-Purpose : Publish measures to Webhook
-Input   : 
-Output  : 
-Comments: 
-TODO    : */
-void sendMeasuresWebhook()
-{
-	const char* localURL = webLoc_server;
-	char data[100];  // Allocate a buffer for the data
+/* ==========================================================================
+Function: sendMeasures
+Purpose : Publish temperature, humidity, air pressure to JSON HTTP || WebHook
+Input   : -
+Output  : HTTP JSON
+Comments: -  */
+void sendMeasures(bool webhook) {
+	const char* localURL = webLoc_server; // Only used if webhook is true
+	char data[100]; // Allocate a buffer for the data
 
 	#ifdef MODULE_DS18B20
 	snprintf(data, sizeof(data), PSTR("{\"t\":\"%.2f\"}"), t);
@@ -195,32 +193,12 @@ void sendMeasuresWebhook()
 	snprintf(data, sizeof(data), PSTR("{\"t\":\"%.2f\",\"h\":\"%.2f\",\"p\":\"%.2f\"}"), t, h, P0);
 	#endif
 
-	sendWebhook(localURL, data);
-}
-
-
-/* ======================================================================
-Function: sendMeasures
-Purpose : Publish temperature, humidity, air pressure to JSON HTTP
-Input   : -
-Output  : HTTP JSON
-Comments: -  */
-void sendMeasures()
-{
-	char data[40];
-
-    #ifdef MODULE_DS18B20
-    sprintf(data, "{\"t\":\"%.2f\"}",t);
-    #endif
-    #ifdef MODULE_DHT
-    sprintf(data, "{\"t\":\"%.2f\",\"h\":\"%.2f\"}",t,h);
-    #endif
-    #ifdef MODULE_BME280
-	sprintf(data, "{\"t\":\"%.2f\",\"h\":\"%.2f\",\"p\":\"%.2f\"}",t,h,P0);
-    #endif
-
-	// 3 is indicator of JSON already formated reply
-	sendJSONheaderReply( 3, data );
+	if (webhook) {
+		 sendWebhook(localURL, data);
+	} else {
+		 // 3 is an indicator of JSON already formatted reply
+		 sendJSONheaderReply(3, data);
+	}
 }
 
 /* ======================================================================

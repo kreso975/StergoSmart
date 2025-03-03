@@ -1,3 +1,5 @@
+#include "Config.h"	// Need it in VS Code :)
+
 /* ======================================================================
 Function: setupHttpServer
 Purpose : Setup and Initialize HTTP Server
@@ -43,7 +45,7 @@ void setupHttpServer()
 
 	#ifdef MODULE_WEATHER //===============================================
 	server.serveStatic("/history.json", LittleFS, "/history.json");
-	server.on("/measures.json", sendMeasures);
+	server.on("/measures.json", []() { sendMeasures(); });
 	#endif //===============================================
 
 	#ifdef MODULE_SWITCH //===============================================
@@ -280,7 +282,7 @@ void sendJSONheaderReply(byte type, String message)
 		output = F("{\"Error\":\"") + message + F("\"}");
 		break;
 	case 1:
-		output = SUCCESS_MSG + message + F("\"}");
+		output = F("{\"success\":\"") + message + F("\"}");
 		break;
 	case 2:
 		output = F("{\"Info\":\"") + message + F("\"}");

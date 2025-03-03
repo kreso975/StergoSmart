@@ -124,7 +124,8 @@ bool MQTTManager::setupMQTT(String *message, boolean runState)
         if (MQTTreconnect())
         {
           msg = F("Success MQTT Start");
-          *message = F("{\"success\":\"") + msg + F("\"}");
+          String tempMessage = F("{\"success\":\"") + msg + F("\"}");
+          *message = tempMessage;
           writeLogFile(msg, 1, 3);
           return true;
         }
@@ -133,7 +134,8 @@ bool MQTTManager::setupMQTT(String *message, boolean runState)
     else
     {
       msg = F("Success MQTT already running");
-      *message = F("{\"success\":\"") + msg + F("\"}");
+      String tempMessage = F("{\"success\":\"") + msg + F("\"}");
+      *message = tempMessage;
       writeLogFile(msg, 1, 3);
       return true;
     }
@@ -143,7 +145,8 @@ bool MQTTManager::setupMQTT(String *message, boolean runState)
     if (client.connected())
       client.disconnect();
     msg = F("Success MQTT Stop");
-    *message = F("{\"success\":\"") + msg + F("\"}");
+    String tempMessage = F("{\"success\":\"") + msg + F("\"}");
+    *message = tempMessage;
     writeLogFile(msg, 1, 3);
     return true;
   }

@@ -1,5 +1,5 @@
 // Declare function because of default param provided
-void sendUDP( String payloadUDP, IPAddress ssdpDeviceIP = (0,0,0,0), int udpPort = 4210 );
+void sendUDP(const char* payloadUDP, IPAddress ssdpDeviceIP = (0,0,0,0), int udpPort = 4210 );
 
 enum SSDPcomType { Arduino, Stergo, TicTac, NotDeclared };
 SSDPcomType ssdpComType;

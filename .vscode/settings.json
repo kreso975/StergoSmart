@@ -33,6 +33,10 @@
         "typeinfo": "cpp",
         "*.all-contributorsrc": "cpp",
         "cstddef": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "list": "cpp",
+        "xhash": "cpp",
+        "xstring": "cpp",
+        "xutility": "cpp"
     }
 }

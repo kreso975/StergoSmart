@@ -43,20 +43,17 @@ void setupSSDP()
 	writeLogFile(F("SSDP Started"), 1, 3);
 }
 
-SSDPcomType getSSDPcomType(String input)
+SSDPcomType getSSDPcomType(const char* input)
 {
-	// Maybe Shorter
-	int i = input.indexOf("Arduino"); // From M-SEARCH
-	int a = input.indexOf("Stergo");	 // From D2D (device2device) communication
-	int b = input.indexOf("TicTac");	 // From D2D (device2device) communication
-
-	if (i > 0)
+	// Perform the necessary operations to determine the SSDPcomType
+	if ( strstr(input, "Arduino") != NULL )	// From M-SEARCH
 		return Arduino;
-	if (a > 0)
+	else if ( strstr(input, "Stergo") != NULL )	// From D2D (device2device) communication
 		return Stergo;
-	if (b > 0)
+	else if ( strstr(input, "TicTac") != NULL )	// From D2D (TicTac) communication
 		return TicTac;
-	return NotDeclared;
+	else
+		return NotDeclared;
 }
 
 /* ======================================================================
@@ -94,8 +91,7 @@ String parseUDP(String input, int part)
 /* ======================================================================
 Function: requestSSDP
 Purpose : UDP packets send
-Input   : what = 1 (M-SEARCH devisec upnp)
-			 what = 2 (Send string for communication with Stergo device)
+Input   : what = 1 (M-SEARCH devices upnp)
 Output  : M-SEARCH &
 Comments: -
 ====================================================================== */
@@ -107,7 +103,7 @@ void requestSSDP(int what)
 
 		ntpUDP.beginPacket(IPAddress(SSDPADRESS), SSDPPORT);
 		//ntpUDP.write(ReplyBuffer);
-    ntpUDP.write((uint8_t*)ReplyBuffer, strlen(ReplyBuffer));
+   	ntpUDP.write((uint8_t*)ReplyBuffer, strlen(ReplyBuffer));
 		ntpUDP.endPacket();
 	}
 }
@@ -122,8 +118,8 @@ TODO    : Add save to file , check for duplicate entry / JSON format
 			 Load existing list and check if servers responds - something simple */
 void receiveUDP()
 {
-	String input, modelNumber, modelName, message;
-
+	char message[256];
+	char modelName[128];
 	char packetBuffer[512];
 
 	int packetSize = ntpUDP.parsePacket();
@@ -134,34 +130,32 @@ void receiveUDP()
 		if (len > 0)
 			packetBuffer[len] = 0;
 
-		input = packetBuffer;
-
-		switch (getSSDPcomType(input))
+		switch (getSSDPcomType(packetBuffer))
 		{
-		case Arduino:
-			isSSDPfoundBefore(ntpUDP.remoteIP());
-#if (DEBUG == 1) // -------------------------------------------
-			writeLogFile(F("Actual Devices: ") + String(actualSSDPdevices), 1, 1);
-#endif // -------------------------------------------
-			break;
+			case Arduino:
+				isSSDPfoundBefore(ntpUDP.remoteIP());
+				#if (DEBUG == 1) // -------------------------------------------
+				writeLogFile(F("Actual Devices: ") + String(actualSSDPdevices), 1, 1);
+				#endif // -------------------------------------------
+				break;
 
-		case Stergo:
-			modelName = parseUDP(input, 2);
-			message = F("Hi there! ");
-			message += modelName;
-			message += F(", I'm ");
-			message += String(_devicename);
-			sendUDP(message, ntpUDP.remoteIP(), ntpUDP.remotePort());
-			break;
+			case Stergo:
+				strncpy(modelName, parseUDP(packetBuffer, 2).c_str(), sizeof(modelName) - 1);
+				modelName[sizeof(modelName) - 1] = 0; // Ensure null-termination
+				
+				snprintf(message, sizeof(message), "Hi there! %s, I'm %s", modelName, _devicename);
 
-		case TicTac:
-#ifdef MODULE_TICTACTOE // -------------------------------------------
-			playTicTacToe(input);
-#endif // -------------------------------------------
-			break;
+				sendUDP(message, ntpUDP.remoteIP(), ntpUDP.remotePort());
+				break;
 
-		case NotDeclared:
-			break;
+			case TicTac:
+				#ifdef MODULE_TICTACTOE // -------------------------------------------
+				playTicTacToe(packetBuffer);
+				#endif // -------------------------------------------
+				break;
+
+			case NotDeclared:
+				break;
 		}
 	}
 }
@@ -174,10 +168,10 @@ Output  : no output.
 Comments:
 TODO    :
 ============================================================================================= */
-void sendUDP(String payloadUDP, IPAddress ssdpDeviceIP, int udpPort)
+void sendUDP(const char* payloadUDP, IPAddress ssdpDeviceIP, int udpPort)
 {
 	ntpUDP.beginPacket(ssdpDeviceIP, udpPort);
-	ntpUDP.write((uint8_t*)payloadUDP.c_str(), payloadUDP.length());
+	ntpUDP.write((uint8_t*)payloadUDP, strlen(payloadUDP));
 	ntpUDP.endPacket();
 	return;
 }
@@ -204,9 +198,9 @@ void isSSDPfoundBefore(IPAddress ssdpDeviceIP)
 			actualSSDPdevices = x + 1;
 			foundSSDPdevices[x] = ssdpDeviceIP; // ADD Device to my list
 
-#if (DEBUG == 1) // -------------------------------------------
+			#if (DEBUG == 1) // -------------------------------------------
 			writeLogFile(F("Found Device: ") + foundSSDPdevices[x].toString(), 1, 1);
-#endif // -------------------------------------------
+			#endif // -------------------------------------------
 
 			return;
 		}

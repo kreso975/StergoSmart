@@ -154,7 +154,8 @@ Input   : message, newLine = for Serial.print (with or without NEW LINE),
 			output: default is 2 if not set. ( 1 only serial, 2 only LOG, 3 both )
 Output  : true / false
 Comments: date:hour, type (warning, info), message
-TODO    : FIX time issue ( no timestamp before NTP ), START using TYPE clasification  */
+TODO    : use const char* message, FIX time issue ( no timestamp before NTP ), START using TYPE clasification  */
+//bool writeLogFile(const char* message, int newLine, int output)
 bool writeLogFile(String message, int newLine, int output)
 {
 	// Write to Serial

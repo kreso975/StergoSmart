@@ -130,8 +130,9 @@ void startGameValues(const char* playerName)
 {
 	// Here we will start a game
    // RND am I playing first or second, and then send proper message
-   gameStarted = 1;               // game is in play
-   difficulty = random(3, 9);     // AI difficulty
+   gameStarted = 1;               	// game is in play
+	randomSeed(millis());				// Added additional random seed because ESP8266 D1 mini v4 always starts with same random number
+   difficulty = random(3, 9);     	// AI difficulty
 
    #if (DEBUG == 1)
    char logMessage[50];
@@ -139,9 +140,9 @@ void startGameValues(const char* playerName)
    writeLogFile(logMessage, 1, 1);
    #endif
 
-   strncpy(opponentName, playerName, 28);  // Add player name
-   opponentIP = ntpUDP.remoteIP();            // Let's fetch the IP and save it for later use
-   opponentUDPport = ntpUDP.remotePort();     // Let's fetch the port and save it for later use
+   strncpy(opponentName, playerName, 28);  	// Add player name
+   opponentIP = ntpUDP.remoteIP();           // Let's fetch the IP and save it for later use
+   opponentUDPport = ntpUDP.remotePort();    // Let's fetch the port and save it for later use
 }
 
 // Before starting new game | After End of game
@@ -162,19 +163,14 @@ void resetTicTacToe()
 	didIaskedToPlay = false;
 }
 
-GamePhases getGamePhase(String input)
-{
+GamePhases getGamePhase(const char* input) {
 	// Maybe Shorter
-	int index = input.indexOf("WePlay");
-	int index2 = input.indexOf("Player");
-	int index3 = input.indexOf("Move");
-
-	if (index > 0)
-		return WePlay;
-	if (index2 > 0)
-		return Player;
-	if (index3 > 0)
-		return Move;
+	if (strstr(input, "WePlay") != NULL)
+		 return WePlay;
+	if (strstr(input, "Player") != NULL)
+		 return Player;
+	if (strstr(input, "Move") != NULL)
+		 return Move;
 	return Invalid;
 }
 
@@ -514,7 +510,7 @@ Purpose : initial Tic Tac Toe Manager
 Input   : String input - UDP ASCII message received
 Output  :
 TODO    :  */
-void playTicTacToe(String input)
+void playTicTacToe(const char* input)
 {
 	char replyPacket[100];
 	char logMessage[100];

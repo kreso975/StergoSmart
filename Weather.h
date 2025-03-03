@@ -1,3 +1,6 @@
+#ifndef WEATHER_H
+#define WEATHER_H
+
 /*
 * STERGO_PROGRAM :
  *
@@ -14,7 +17,7 @@
   Screen or Led On device WS001 = Second 0 == device type
   FE: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
 */
-
+#include "Config.h"
 #define MODEL_PREFIX "WS0"
 
 #if ( STERGO_PROGRAM == 1 )
@@ -44,3 +47,7 @@
 
 #define HISTORY_FILE "/history.json"
 #define sizeHist 100                      // History size = nr of records (24h x 4pts)
+
+void sendMeasures(bool webhook = false);
+
+#endif // WEATHER_H
