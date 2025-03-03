@@ -87,11 +87,24 @@ bool WiFiManager::startSTA(int STAmode)
     return true;
 }
 
+/**
+ * @brief Starts the Access Point (AP) mode on the ESP8266/ESP32 device.
+ * 
+ * This function sets the WiFi mode to Access Point (WIFI_AP), constructs the
+ * Access Point SSID by concatenating the predefined SSID (`softAP_ssid`) with
+ * the unique chip ID (`chipID`), and starts the Access Point with the 
+ * constructed SSID and password (`softAP_pass`). A delay of 500 milliseconds 
+ * is introduced to ensure the AP mode is initiated properly. The current 
+ * time is recorded to manage AP restart intervals.
+ * 
+ * @return true if the AP mode is successfully started.
+ */
 bool WiFiManager::startAP()
 {
     WiFi.mode(WIFI_AP);
-    String tmp = String(softAP_ssid) + "_" + chipID;
-    WiFi.softAP(tmp.c_str(), softAP_pass);
+    char tmp[40]; // Adjust size as needed
+    snprintf(tmp, sizeof(tmp), "%s_%s", softAP_ssid, chipID.c_str());
+    WiFi.softAP(tmp, softAP_pass);
     delay(500);
     ap_previousMillis = millis();
     return true;
@@ -151,19 +164,28 @@ void WiFiManager::checkAPRestart()
 
 void WiFiManager::wifiScanResult(int networksFound)
 {
-    String json;
-    json = "{\"result\": [";
+    char json[2048];
+    snprintf(json, sizeof(json), "{\"result\":[");
+
     for (int i = 0; i < networksFound; i++)
     {
-        json += "{\"ssid\": \"" + WiFi.SSID(i) + "\",\"encType\": \"" + WiFi.encryptionType(i) + "\",\"chann\": " + WiFi.channel(i) + ",\"rssi\": " + WiFi.RSSI(i) + "}";
-        (i < networksFound - 1) ? json += "," : json += "";
+        char entry[128];
+        snprintf(entry, sizeof(entry), "{\"ssid\":\"%s\",\"encType\":\"%d\",\"chann\":%d,\"rssi\":%d}",
+                 WiFi.SSID(i).c_str(), WiFi.encryptionType(i), WiFi.channel(i), WiFi.RSSI(i));
+
+        strlcat(json, entry, sizeof(json));
+        if (i < networksFound - 1)
+            strlcat(json, ",", sizeof(json));
     }
-    json += "], \"status\": \"OK\"}";
+
+    strlcat(json, "],\"status\":\"OK\"}", sizeof(json));
 
     scanResult = json;
-
+    #if (DEBUG == 1)
+    Serial.println(scanResult);
+    #endif
     // Trigger the callback to send the result
-    if ( scanCompleteCallback )
+    if (scanCompleteCallback)
         scanCompleteCallback(scanResult);
 }
 

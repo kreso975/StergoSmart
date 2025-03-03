@@ -1,17 +1,9 @@
+#include "Config.h"
 #ifdef MODULE_TICTACTOE
 
 #include "TicTacToe.h"
 
 /*
- *  IDEAS:  - 1st request includes: DO YOU WANT TO PLAY + CHOOSE PLAY 1st or 2nd
- *
- *          - add flag : game in play | already playing ( this is till more simultanious games can be played )
- *          - starting new game Reset board.
- *
- *          - far future: add GUI for playing against devices
- *          - GUI must be placed into WebServer so that codeFootprint on devices will not grow for such non important features
- *          - In Order to monitor games in Play, Webserver should now (be notified) that game is startig at: device - then need to think if to send to server all moves
- *            or in future all games must be played via/over WebServer (code related for devices - uneccecery growth )
  *
  *
  *            TicTacToe layout:
@@ -27,7 +19,9 @@ byte tictac_start, tictac_interval, tictac_webhook, tictac_discord;
 
 // Difficulty defines number of Depth for AI , bigger Depth stronger AI
 byte difficulty = 8;
-int board[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+#define BOARD_SIZE 9
+int board[BOARD_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 // int selectPlayer;     // Select Who Plays first 1=X, 2=O
 int receivedMove = -1; // Move received from opponent
@@ -64,9 +58,9 @@ const char serverPrefix[] PROGMEM = "SERVER: TicTac ";
 void generateReplyPacket(char *replyPacket, size_t size, const char *deviceName, const char *action, int value = -1, bool hasValue = true)
 {
 	if (hasValue)
-		snprintf(replyPacket, size, "%s%s %s=%d", serverPrefix, deviceName, action, value);
+		snprintf(replyPacket, size, PSTR("%s%s %s=%d"), serverPrefix, deviceName, action, value);
 	else
-		snprintf(replyPacket, size, "%s%s %s", serverPrefix, deviceName, action);
+		snprintf(replyPacket, size, PSTR("%s%s %s"), serverPrefix, deviceName, action);
 }
 
 void sendMovePacket(int move = -1, bool hasValue = true)
@@ -132,11 +126,11 @@ void startGameValues(const char* playerName)
    // RND am I playing first or second, and then send proper message
    gameStarted = 1;               	// game is in play
 	randomSeed(millis());				// Added additional random seed because ESP8266 D1 mini v4 always starts with same random number
-   difficulty = random(3, 9);     	// AI difficulty
+   difficulty = random(3, BOARD_SIZE);     	// AI difficulty
 
    #if (DEBUG == 1)
    char logMessage[50];
-   snprintf(logMessage, sizeof(logMessage), "Difficulty set to: %d", difficulty);
+   snprintf(logMessage, sizeof(logMessage), PSTR("Difficulty set to: %d"), difficulty);
    writeLogFile(logMessage, 1, 1);
    #endif
 
@@ -149,7 +143,7 @@ void startGameValues(const char* playerName)
 void resetTicTacToe()
 {
 	// Reset board to all 0
-	for (int i = 0; i < 9; ++i)
+	for (int i = 0; i < BOARD_SIZE; ++i)
 		board[i] = 0;
 
 	turn = 0;
@@ -203,11 +197,11 @@ void drawNumberedBoard()
 
 #if (DEBUG == 1)
 // Display in Serial played moves after every move
-void draw(int board[9])
+void draw(int board[BOARD_SIZE])
 {
 	byte vn;
 	String bm = "\n ";
-	for (vn = 0; vn < 9; ++vn)
+	for (vn = 0; vn < BOARD_SIZE; ++vn)
 	{
 		bm += String(displayChar(board[vn]));
 		if (vn == 2 || vn == 5)
@@ -228,12 +222,12 @@ Input   :
 Output  : 0 or 1 or -1
 Comments:
 TODO    : */
-int win(const int board[9])
+int win(const int board[BOARD_SIZE])
 {
 	if (turn > 0)
 	{
 		// list of possible winning positions
-		byte wins[8][3] = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}};
+		const byte wins[8][3] = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}};
 		byte winPos;
 		for (winPos = 0; winPos < 8; ++winPos)
 		{
@@ -247,12 +241,14 @@ int win(const int board[9])
 
 /* ======================================================================
 Function: minimax
-Purpose : Calculate the best move for AI
-Input   :
-Output  : Return best move - dependant on depth (IQ)
-Comments:
-TODO    : */
-int minimax(int board[9], int player, byte depth)
+Purpose : Implements the minimax algorithm to determine the best move for the AI.
+Input   : board (int[BOARD_SIZE]) - Current state of the game board.
+          player (int) - Current player (1 for AI, -1 for opponent).
+          depth (byte) - Current depth of the search tree.
+Output  : int - The score of the best move found.
+Comments: This function recursively explores possible moves, evaluates their scores, and returns the best score.
+TODO    : NOT USING alpha / beta because AI is too good and hard to make him loose - this way if "difficulty" is low there is a chance to loose */
+int minimax(int board[BOARD_SIZE], int player, byte depth)
 {
 	// check if there is a winner
 	int winner = win(board);
@@ -262,7 +258,7 @@ int minimax(int board[9], int player, byte depth)
 	int move = -1;
 	int score = -2;
 	byte i;
-	for (i = 0; i < 9; ++i)
+	for (i = 0; i < BOARD_SIZE; ++i)
 	{
 		if (board[i] == 0)
 		{
@@ -287,19 +283,19 @@ int minimax(int board[9], int player, byte depth)
 
 /* ======================================================================
 Function: computerMove
-Purpose : AI Player
-Input   :
-Output  : Play move
-Comments:
-TODO    : */
-void computerMove(int board[9])
+Purpose : Determines and makes the best move for the AI on the game board.
+Input   : board (int[9]) - Current state of the game board.
+Output  : void
+Comments: This function uses the minimax algorithm to find the best move and updates the board.
+TODO    : N/A */
+void computerMove(int board[BOARD_SIZE])
 {
 	int move = -1;
 	if (turn > 0)
 	{
 		int score = -2;
 		byte i;
-		for (i = 0; i < 9; ++i)
+		for (i = 0; i < BOARD_SIZE; ++i)
 		{
 			if (board[i] == 0)
 			{
@@ -308,9 +304,9 @@ void computerMove(int board[9])
 
 				#if (DEBUG == 1)
 				char logMessage[50];
-				snprintf(logMessage, sizeof(logMessage), "Temp Score: %d", tempScore);
+				snprintf(logMessage, sizeof(logMessage), PSTR("Temp Score: %d"), tempScore);
 				writeLogFile(logMessage, 1, 1);
-				#endif				
+				#endif
 
 				board[i] = 0;
 				if (tempScore > score)
@@ -325,7 +321,7 @@ void computerMove(int board[9])
 	{
 		// First move is going to be RANDOM otherwhise it's always draw
 		// 0 is included, up 9, 9 not included
-		move = random(0, 9);
+		move = random(0, BOARD_SIZE);
 	}
 
 	// returns a score based on minimax tree at a given node.
@@ -343,33 +339,32 @@ Input   :
 Output  : Play move
 Comments:
 TODO    : */
-bool playerMove(int board[9], byte moveKeypadNum)
+bool playerMove(int board[BOARD_SIZE], byte moveToPlay)
 {
 	int move = 0;
 
 	// Serial.println("Input move ([0..8]): ");
 
-	// if keypad number is less than or equal to 8, the move is valid. 'moveKeypadNum' cannot be negative ( < 0 ) because it is a 'byte' type not 'int'.
+	// if number is less than or equal to 8, the move is valid. 'moveToPlay' cannot be negative ( < 0 ) because it is a 'byte' type not 'int'.
 	// If the user types '0', keypadConversion[0] = 255 which is also an invalid move (So the error message will appear)
-	if (moveKeypadNum <= 8)
-		move = moveKeypadNum;
+	if ( moveToPlay <= 8 )
+		move = moveToPlay;
 	else
 		move = 255; // Set 'move' to 255 which will be picked up later as an invalid move
 
 	#if (DEBUG == 1)
 	char logMessage[50];
-	snprintf(logMessage, sizeof(logMessage), "Opponent played move: %d", move);
+	snprintf(logMessage, sizeof(logMessage), PSTR("Opponent played move: %d"), move);
 	writeLogFile(logMessage, 1, 1);
 	#endif
 		
-
 	// Here we check validity of selected Player move
 	// This should be modiffied Proper respond when we includ Real player moves not AI
 	if ((move > 8 || move < 0) || board[move] != 0)
 	{
 		#if (DEBUG == 1)
 		char logMessage[20];
-		snprintf(logMessage, sizeof(logMessage), "Invalid move"); // Say if the player's move was invalid
+		snprintf(logMessage, sizeof(logMessage), PSTR("Invalid move")); // Say if the player's move was invalid
 		writeLogFile(logMessage, 1, 1);
 		#endif
 		
@@ -430,7 +425,7 @@ void letsPlay(byte what, const char* who)
 		printLogInPhase("LetsPlay_w2");
 		#endif
 
-		if (turn < 9 && win(board) == 0)
+		if (turn < BOARD_SIZE && win(board) == 0)
 		{
 			if ( (turn + player) % 2 == 0 )
 			{
@@ -448,7 +443,7 @@ void letsPlay(byte what, const char* who)
 					draw(board);
 					#endif
 
-					if ( turn < 9 && win(board) == 0 )
+					if ( turn < BOARD_SIZE && win(board) == 0 )
 					{
 						computerMove(board);
 						#if (DEBUG == 1)
@@ -464,7 +459,7 @@ void letsPlay(byte what, const char* who)
 			}
 		}
 
-		if ( (turn < 9 && win(board) != 0) || turn == 9 )
+		if ( (turn < BOARD_SIZE && win(board) != 0) || turn == BOARD_SIZE )
 		{
 			switch (win(board))
 			{
@@ -527,7 +522,7 @@ void playTicTacToe(const char* input)
 			{
 				// Remote don't want to play
 				#if (DEBUG == 1)
-				snprintf(logMessage, sizeof(logMessage), "%s%s do not want to play", REPLAYER, playerName);
+				snprintf(logMessage, sizeof(logMessage), PSTR("%s%s do not want to play"), REPLAYER, playerName);
 				writeLogFile(logMessage, 1, 1);
 				printLogInPhase("WePlay");
 				#endif
@@ -540,7 +535,7 @@ void playTicTacToe(const char* input)
 				// Here we can check if we are playing with the same player already
 				// But i think simultanious games with the same Player are not OK
 				#if (DEBUG == 1)
-				snprintf(logMessage, sizeof(logMessage), "%s%s ask to play but we are already playing", REPLAYER, playerName);
+				snprintf(logMessage, sizeof(logMessage), PSTR("%s%s ask to play but we are already playing"), REPLAYER, playerName);
 				writeLogFile(logMessage, 1, 1);
 				printLogInPhase("WePlay");
 				#endif
@@ -599,7 +594,7 @@ void playTicTacToe(const char* input)
 			{
 				// I didnt sent Play Invitation so i just reply Yes I want to play
 				#if (DEBUG == 1)
-				snprintf(logMessage, sizeof(logMessage), "Somebody Skipped directly to Player");
+				snprintf(logMessage, sizeof(logMessage), PSTR("Somebody Skipped directly to Player"));
 				writeLogFile(logMessage, 1, 1);
 				#endif
 
@@ -678,7 +673,7 @@ void playTicTacToe(const char* input)
 					#if (DEBUG == 1) 								// ----------------------------------------
 					snprintf(logMessage, sizeof(logMessage), "%s%s", REPLAYER, playerName);
 					writeLogFile(logMessage, 1, 1);
-					snprintf(logMessage, sizeof(logMessage), "played move: %d", receivedMove);
+					snprintf(logMessage, sizeof(logMessage), PSTR("played move: %d"), receivedMove);
 					writeLogFile(logMessage, 1, 1);
 					#endif 											// ----------------------------------------
 
@@ -688,7 +683,7 @@ void playTicTacToe(const char* input)
 				{
 					// Somebody else sent us move
 					#if (DEBUG == 1) 								// ----------------------------------------
-					snprintf(logMessage, sizeof(logMessage), "Opponent Name: %s - PlayerName: %s", opponentName, playerName);
+					snprintf(logMessage, sizeof(logMessage), PSTR("Opponent Name: %s - PlayerName: %s"), opponentName, playerName);
 					writeLogFile(logMessage, 1, 1);
 					std::string message = std::string("We are not playing With ") + REPLAYER + playerName;
 					snprintf(logMessage, sizeof(logMessage), "%s", message.c_str());

@@ -62,6 +62,10 @@ void setup()
 
 	if ( WiFi.getMode() == WIFI_STA )
 	{
+		#if (DEBUG == 1)
+		writeLogFile(F("WiFi Connected, IP: "), 0, 1);
+		writeLogFile(WiFi.localIP().toString(), 1, 1);
+		#endif
 		MDNS.begin( wifi_hostname );
 
 		timeClient.begin();
@@ -85,6 +89,9 @@ void setup()
 	}
 	else
 	{
+		#if (DEBUG == 1)
+		writeLogFile(F("Setting AP"), 1, 1);
+		#endif
 		setupHttpServer();
 	}
 	
