@@ -279,20 +279,19 @@ void displayMessage(CRGB *buffer, CRGB colorScroll, const char *message, int num
 	static bool bufferInitialized = false;
 	static CRGB *displayBuffer = nullptr; // Pointer to store the buffer
 	static int bufferSize = 0;
-	static String previousMessage = "";
+	static char previousMessage[256] = "";
 	static int previousNumSpaces = 0;
-	// colorScroll.nscale8(maxBrightness);
 
-	String convertedMessage = convertToSingleByte(message);
+	const char *convertedMessage = convertToSingleByte(message);
 
 	// Check if the message or number of spaces has changed
-	if (previousMessage != convertedMessage || previousNumSpaces != numSpaces)
+	if (strcmp(previousMessage, convertedMessage) != 0 || previousNumSpaces != numSpaces)
 	{
 		if (displayBuffer != nullptr) // Free the old buffer if it exists
 			delete[] displayBuffer;
 
 		// Calculate the new buffer size
-		bufferSize = (convertedMessage.length() + numSpaces) * 6 * kMatrixHeight;
+		bufferSize = (strlen(convertedMessage) + numSpaces) * 6 * kMatrixHeight;
 		displayBuffer = new CRGB[bufferSize]; // Allocate memory for the new buffer
 
 		for (int i = 0; i < bufferSize; i++) // Initialize the buffer with the new message and spaces
@@ -306,7 +305,7 @@ void displayMessage(CRGB *buffer, CRGB colorScroll, const char *message, int num
 			{
 				for (int y = 0; y < 8; y++)
 				{
-					int bufferIndex = (charPosition + x) + (y * (convertedMessage.length() + numSpaces) * 6);
+					int bufferIndex = (charPosition + x) + (y * (strlen(convertedMessage) + numSpaces) * 6);
 					if (bufferIndex < bufferSize)
 						displayBuffer[bufferIndex] = CRGB::Black;
 				}
@@ -316,17 +315,17 @@ void displayMessage(CRGB *buffer, CRGB colorScroll, const char *message, int num
 		// Render message in the appropriate order
 		if (orientation == 1)
 		{
-			for (int i = convertedMessage.length() - 1; i >= 0; i--)
+			for (int i = strlen(convertedMessage) - 1; i >= 0; i--)
 			{
-				char charToDisplay = convertedMessage.charAt(i);
-				int charPosition = (convertedMessage.length() - 1 - i + numSpaces) * 6;
+				char charToDisplay = convertedMessage[i];
+				int charPosition = (strlen(convertedMessage) - 1 - i + numSpaces) * 6;
 				for (int x = 0; x < 6; x++)
 				{
 					for (int y = 0; y < 8; y++)
 					{
 						if (bitRead(pgm_read_byte(&(Font[charToDisplay][5 - x])), 7 - y) == 1)
 						{ // Apply vertical and horizontal flip
-							int bufferIndex = (charPosition + x) + (y * (convertedMessage.length() + numSpaces) * 6);
+							int bufferIndex = (charPosition + x) + (y * (strlen(convertedMessage) + numSpaces) * 6);
 							if (bufferIndex < bufferSize)
 								displayBuffer[bufferIndex] = colorScroll;
 						}
@@ -336,9 +335,9 @@ void displayMessage(CRGB *buffer, CRGB colorScroll, const char *message, int num
 		}
 		else
 		{
-			for (int i = 0; i < convertedMessage.length(); i++)
+			for (int i = 0; i < strlen(convertedMessage); i++)
 			{
-				char charToDisplay = convertedMessage.charAt(i);
+				char charToDisplay = convertedMessage[i];
 				int charPosition = (i + numSpaces) * 6;
 				for (int x = 0; x < 6; x++)
 				{
@@ -346,7 +345,7 @@ void displayMessage(CRGB *buffer, CRGB colorScroll, const char *message, int num
 					{
 						if (bitRead(pgm_read_byte(&(Font[charToDisplay][x])), y) == 1)
 						{
-							int bufferIndex = (charPosition + x) + (y * (convertedMessage.length() + numSpaces) * 6);
+							int bufferIndex = (charPosition + x) + (y * (strlen(convertedMessage) + numSpaces) * 6);
 							if (bufferIndex < bufferSize)
 								displayBuffer[bufferIndex] = colorScroll;
 						}
@@ -355,9 +354,14 @@ void displayMessage(CRGB *buffer, CRGB colorScroll, const char *message, int num
 			}
 		}
 
-		previousMessage = convertedMessage;																				// Update the previous message
-		previousNumSpaces = numSpaces;																					// Update the previous number of spaces
-		scrollPosition = (orientation == 1) ? (convertedMessage.length() + numSpaces) * 6 - 1 : 0;	// Set the scroll position based on orientation
+		// Copy convertedMessage to previousMessage
+		strncpy(previousMessage, convertedMessage, sizeof(previousMessage) - 1);
+		// Ensure null termination
+		previousMessage[sizeof(previousMessage) - 1] = '\0';
+
+		// Update the previous message
+		previousNumSpaces = numSpaces;																				// Update the previous number of spaces
+		scrollPosition = (orientation == 1) ? (strlen(convertedMessage) + numSpaces) * 6 - 1 : 0; // Set the scroll position based on orientation
 	}
 
 	// Copy the relevant part of the buffer to the LED matrix
@@ -365,7 +369,7 @@ void displayMessage(CRGB *buffer, CRGB colorScroll, const char *message, int num
 	{
 		for (int y = 0; y < kMatrixHeight; y++)
 		{
-			int bufferIndex = (scrollPosition + x) % ((convertedMessage.length() + numSpaces) * 6) + (y * (convertedMessage.length() + numSpaces) * 6);
+			int bufferIndex = (scrollPosition + x) % ((strlen(convertedMessage) + numSpaces) * 6) + (y * (strlen(convertedMessage) + numSpaces) * 6);
 			if (bufferIndex < bufferSize)
 				buffer[XYsafe(kMatrixWidth - 1 - x, y)] += displayBuffer[bufferIndex]; // Use buffer instead of leds
 		}
@@ -375,12 +379,12 @@ void displayMessage(CRGB *buffer, CRGB colorScroll, const char *message, int num
 	{
 		scrollPosition--;
 		if (scrollPosition < 0)
-			scrollPosition = (convertedMessage.length() + numSpaces) * 6 - 1;
+			scrollPosition = (strlen(convertedMessage) + numSpaces) * 6 - 1;
 	}
 	else
 	{
 		scrollPosition++;
-		if (scrollPosition >= (convertedMessage.length() + numSpaces) * 6)
+		if (scrollPosition >= (strlen(convertedMessage) + numSpaces) * 6)
 			scrollPosition = 0;
 	}
 }
@@ -676,21 +680,17 @@ void displayState()
 
 		if (server.hasArg("RGB"))
 		{
-			String hexColor = server.arg("RGB");
+			const char *hexColor = server.arg("RGB").c_str();
 			unsigned long tempDisplayColor; // Temporary variable for calculations
 
 			// Check if hexColor has a '#' in front and convert to long integer
-			if (hexColor.charAt(0) == '#')
+			if (hexColor[0] == '#')
 				tempDisplayColor = strtol(&hexColor[1], NULL, 16);
 			else
-				tempDisplayColor = strtol(hexColor.c_str(), NULL, 16);
+				tempDisplayColor = strtol(hexColor, NULL, 16);
 
 			// Set the global displayColor variable
 			displayColor = tempDisplayColor;
-
-			// Convert the hexColor to a C string for MQTT publish
-			char hexColorChar[hexColor.length() + 1];
-			hexColor.toCharArray(hexColorChar, sizeof(hexColorChar));
 
 			// Extract individual red, green, and blue components using bitwise operations
 			int red = (tempDisplayColor >> 16) & 0xFF;
@@ -707,7 +707,7 @@ void displayState()
 			// Send the color and brightness values via MQTT
 			if (mqtt_start == 1)
 			{
-				if (!mqttManager.sendMQTT(mqtt_Color, hexColorChar, true))
+				if (!mqttManager.sendMQTT(mqtt_Color, (char *)hexColor, true)) // Cast to char*
 					writeLogFile(F("Publish Color: failed"), 1);
 				if (!mqttManager.sendMQTT(mqtt_Brightness, brightnessBuffer, true))
 					writeLogFile(F("Publish Brightness: failed"), 1);
@@ -725,67 +725,70 @@ Input   : String input (letter)
 Output  : String
 Comments:
 TODO    : */
-String convertToSingleByte(String input)
+const char *convertToSingleByte(const char *input)
 {
-	String output = "";
-	for (int i = 0; i < input.length(); i++)
+	static char output[256] = "";
+	int len = strlen(input);
+	int j = 0;
+	for (int i = 0; i < len; i++)
 	{
-		char c = input.charAt(i);
+		char c = input[i];
 		if (c == 0xC4 || c == 0xC5)
 		{
-			char nextChar = input.charAt(i + 1);
+			char nextChar = input[i + 1];
 			switch (nextChar)
 			{
 			case 0x8D:
-				output += (char)0xE8;
+				output[j++] = (char)0xE8;
 				i++;
 				break; // č (C4)
 			case 0x8C:
-				output += (char)0xC8;
+				output[j++] = (char)0xC8;
 				i++;
 				break; // Č (C4)
 			case 0x87:
-				output += (char)0xE6;
+				output[j++] = (char)0xE6;
 				i++;
 				break; // ć (C4)
 			case 0x86:
-				output += (char)0xC6;
+				output[j++] = (char)0xC6;
 				i++;
 				break; // Ć (C4)
 			case 0xBE:
-				output += (char)0x9E;
+				output[j++] = (char)0x9E;
 				i++;
 				break; // ž (C5)
 			case 0xBD:
-				output += (char)0x8E;
+				output[j++] = (char)0x8E;
 				i++;
 				break; // Ž (C5)
 			case 0xA1:
-				output += (char)0x9A;
+				output[j++] = (char)0x9A;
 				i++;
 				break; // š (C5)
 			case 0xA0:
-				output += (char)0x8A;
+				output[j++] = (char)0x8A;
 				i++;
 				break; // Š (C5)
 			case 0x91:
-				output += (char)0xF0;
+				output[j++] = (char)0xF0;
 				i++;
 				break; // đ (C5)
 			case 0x90:
-				output += (char)0xD0;
+				output[j++] = (char)0xD0;
 				i++;
 				break; // Đ (C5)
 			default:
-				output += c;
+				output[j++] = c;
 				break;
 			}
 		}
 		else
 		{
-			output += c;
+			output[j++] = c;
 		}
 	}
+	output[j] = '\0'; // Null-terminate the output string
 	return output;
 }
 
@@ -853,13 +856,14 @@ void setupDisplay()
 
 void callbackDisplayMQTT(char *topic, byte *payload, unsigned int length)
 {
-	if (String(topic) == String(mqtt_displayON))
+	if (strcmp(topic, mqtt_displayON) == 0)
 	{
 		// displayON = (byte)payload[0];
-		if ((char)payload[0] == '1')
+		if ( payload[0] == '1' )
+		{
 			displayON = 1;
-
-		if ((char)payload[0] == '0')
+		}
+		else if ( payload[0] == '0' )
 		{
 			FastLED.clearData();
 			displayON = 0;
@@ -867,54 +871,51 @@ void callbackDisplayMQTT(char *topic, byte *payload, unsigned int length)
 	}
 
 	/*
-	if (String(topic) == String(mqtt_Brightness))
+	if (strcmp(topic, mqtt_Brightness) == 0)
 	{
 		payload[length] = '\0'; // Null-terminate the payload
 		maxBrightness = atoi((char *)payload);
 	}
 	*/
 
-	if (String(topic) == String(mqtt_Color))
-	{
-		// Null-terminate the payload
-		payload[length] = '\0';
-		// Convert payload to String
-		String hexColor = String((char *)payload);
-		unsigned long tempDisplayColor; // Temporary variable for calculations
+	if (strcmp(topic, mqtt_Color) == 0)
+    {
+        // Null-terminate the payload
+        payload[length] = '\0';
 
-		// Check if hexColor has a '#' in front and convert to long integer
-		if (hexColor.charAt(0) == '#')
-			tempDisplayColor = strtol(&hexColor[1], NULL, 16);
-		else
-			tempDisplayColor = strtol(hexColor.c_str(), NULL, 16);
+        unsigned long tempDisplayColor; // Temporary variable for calculations
 
-		// Set the global displayColor variable
-		displayColor = tempDisplayColor;
+        // Convert payload to long integer, handling both '#' and non-'#' formats
+        if (payload[0] == '#')
+            tempDisplayColor = strtol((char*)&payload[1], NULL, 16);
+        else
+            tempDisplayColor = strtol((char*)payload, NULL, 16);
 
-		// Convert the hexColor to a C string for MQTT publish
-		char hexColorChar[hexColor.length() + 1];
-		hexColor.toCharArray(hexColorChar, sizeof(hexColorChar));
+        // Set the global displayColor variable
+        displayColor = tempDisplayColor;
 
-		// Extract individual red, green, and blue components using bitwise operations
-		int red = (tempDisplayColor >> 16) & 0xFF;
-		int green = (tempDisplayColor >> 8) & 0xFF;
-		int blue = tempDisplayColor & 0xFF;
+        // Extract individual red, green, and blue components using bitwise operations
+        int red = (tempDisplayColor >> 16) & 0xFF;
+        int green = (tempDisplayColor >> 8) & 0xFF;
+        int blue = tempDisplayColor & 0xFF;
 
-		// Create a CRGB object with the extracted color value
-		CRGB rgbColor = CRGB(red, green, blue);
+        // Create a CRGB object with the extracted color value
+        CRGB rgbColor = CRGB(red, green, blue);
 
-		// Calculate the brightness as the maximum of the red, green, and blue components
-		maxBrightness = max(max(red, green), blue);
+        // Calculate the brightness as the maximum of the red, green, and blue components
+        maxBrightness = max(max(red, green), blue);
 
-		// Convert the brightness to a string for MQTT payload
-		char brightnessBuffer[10];
-		itoa(maxBrightness, brightnessBuffer, 10);
+        // Convert the brightness to a string for MQTT payload
+        char brightnessBuffer[10];
+        itoa(maxBrightness, brightnessBuffer, 10);
 
-		// Send the brightness value via MQTT
-		if (mqtt_start == 1)
-			if (!mqttManager.sendMQTT(mqtt_Brightness, brightnessBuffer, true))
-				writeLogFile(F("Publish Brightness: failed"), 1);
-	}
+        // Send the brightness value via MQTT
+        if (mqtt_start == 1)
+        {
+            if (!mqttManager.sendMQTT(mqtt_Brightness, brightnessBuffer, true))
+                writeLogFile(F("Publish Brightness: failed"), 1);
+        }
+    }
 }
 
 #endif

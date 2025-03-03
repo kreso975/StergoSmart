@@ -59,12 +59,23 @@ bool initConfig( String* message )
 	//---
 	strlcpy(_deviceType, jsonConfig["deviceType"].as<String>().c_str(), sizeof(_deviceType));
 	strlcpy(deviceName, jsonConfig["deviceName"].as<String>().c_str(), sizeof(deviceName));
-	// This must be placed somwhere else
-	String _tmp = deviceName;
-	_tmp.replace(' ', '-');
-	_tmp += "-";
-	_tmp += chipID;
-	_tmp.toCharArray(_devicename, sizeof(_devicename));
+	
+	// generate _devicename
+	size_t len = 0;
+	// Copy deviceName to _devicename, replacing spaces with '-'
+	for (size_t i = 0; deviceName[i] != '\0' && len < sizeof(_devicename) - 1; i++)
+    _devicename[len++] = (deviceName[i] == ' ') ? '-' : deviceName[i];
+
+	// Append "-" and chipID to _devicename
+	if (len < sizeof(_devicename) - 1)
+    	_devicename[len++] = '-';
+
+	strlcpy(_devicename + len, chipID.c_str(), sizeof(_devicename) - len);
+
+	// Ensure null-terminated string
+	_devicename[sizeof(_devicename) - 1] = '\0';
+	
+
 	// -----
 	
 	strlcpy(moduleName, jsonConfig["moduleName"].as<String>().c_str(), sizeof(moduleName));

@@ -108,7 +108,7 @@ extern void renderDisplayWin( unsigned long currentMillis );
 extern void resetParticles();
 extern void addParticles( CRGB* buffer );
 
-extern String convertToSingleByte( String input );
+extern const char *convertToSingleByte(const char *input);
 extern void displayState();
 
 extern uint16_t XY(uint8_t x, uint8_t y);

@@ -47,7 +47,7 @@
 #define EXCLUDED_CODE 1
 
 // 1 true | 0 false  / Serial.print 
-#define DEBUG 0
+#define DEBUG 1
 
 
 #endif // SETTINGS_H

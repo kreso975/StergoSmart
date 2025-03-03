@@ -16,6 +16,8 @@
 - cleanUP SSDP.ino String to char
 - fixed F() issue with ESP32 in MQTTManager
 - Weather.ino code optimization
+- Optimization WS2812B.cpp
+- Optimization in WiFiManager.cpp
   
 **000.06.002**
 - add LedMatrix free orientation in settings - byte kMatrixOrientation = 1; // O = Normal, 1 = Diagonal flip (0 and 256 are on opposite diagonal side)
