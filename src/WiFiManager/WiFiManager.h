@@ -36,6 +36,7 @@ public:
 	void manageWiFi();
 	void checkAPRestart();
 	void startWiFiScan(ScanCompleteCallback callback);
+	void getScanResult();
 
 
 private:

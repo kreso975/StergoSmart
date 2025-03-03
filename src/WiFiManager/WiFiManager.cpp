@@ -207,3 +207,8 @@ void WiFiManager::scanCompleteHandler(int networksFound, WiFiManager* instance)
 {
     instance->wifiScanResult(networksFound);
 }
+
+void WiFiManager::getScanResult()
+{
+    return scanResult; // Return the stored scan result
+}
