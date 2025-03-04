@@ -74,9 +74,9 @@ void sendMovePacket(int move = -1, bool hasValue = true)
 	sendUDP(replyPacket, opponentIP, 4210);
 }
 
-/* ======================================================================
+/* ===============================================================================
 Function: updateTicTacToe
-Purpose : Main TicTacToe Constructor ( listen and initiate game)
+Purpose : Main TicTacToe Constructor ( listen and initiate game) Part of Main Loop
 Input   :
 Output  :
 Comments:
@@ -475,11 +475,15 @@ void letsPlay(byte what, const char* who)
 					writeLogFile(F("You lose. I won!"), 1, 1);
 					#endif
 					#ifdef MODULE_DISPLAY
-					renderWIN = true;
-					messageWinON = true;
-					messageON = true;
-					server.stop(); // Stopping webServer because it scrambles scroll buffer if accessed during scroll
-					prevMilMesLife = millis();
+					// this should be in display module
+					if (displayON == 1)
+					{
+						renderWIN = true;
+						messageWinON = true;
+						messageON = true;
+						server.stop(); // Stopping webServer because it scrambles scroll buffer if accessed during scroll
+						prevMilMesLife = millis();
+					}
 					#endif
 					sendTicTacWebhook(1);
 					sendTicTacWebhook(2);

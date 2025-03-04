@@ -1,3 +1,4 @@
+#include "../../Config.h"
 #ifdef MODULE_DISPLAY
 #include "../../settings.h"
 #include "WS2812B_Matrix.h"
@@ -78,8 +79,9 @@ Comments: Updates the display with time, date, temperature, humidity, or message
 TODO    : */
 void updateDisplay()
 {
+	
 	if (displayON == 1) // if display is SET ON
-	{
+	{	
 		unsigned long currentMillis = millis();
 		if (messageON)
 		{
@@ -419,6 +421,9 @@ void renderDisplayMessage(unsigned long currentMillis)
 		memset(tempBufferMessage, 0, sizeof(tempBufferMessage)); // Clear temp buffer
 		freeDisplayMessageBuffer();
 		messageON = false; // Set messageON to false after 10 seconds
+		#if ( DEBUG == 1 )
+		writeLogFile(F("Scroll text END, messageON = false, server.begin"), 1, 1);
+		#endif
 	}
 }
 
@@ -667,15 +672,23 @@ void displayState()
 
 		}
 		*/
-		if (server.hasArg("messageDisplay"))
+		// No need to use if we have display OFF
+		if (displayON == 1)
 		{
-			messageDisplay = server.arg("messageDisplay").c_str();
-			// writeLogFile( F("Updated messageDisplay to ") + String(messageDisplay), 1, 1 );
-			// renderWIN = true;
-			// messageWinON = true;
-			messageON = true;
-			server.stop(); // Stopping webServer because it scrambles scroll buffer if accessed during scroll
-			prevMilMesLife = millis();
+			if (server.hasArg("messageDisplay"))
+			{
+				messageDisplay = server.arg("messageDisplay").c_str();
+				messageON = true;
+				server.stop(); // Stopping webServer because it scrambles scroll buffer if accessed during scroll
+				prevMilMesLife = millis();
+
+				#if (DEBUG == 1)
+				writeLogFile(F("Scroll text, messageON = true, server.stop"), 1, 1);
+				// writeLogFile( F("Updated messageDisplay to ") + String(messageDisplay), 1, 1 );
+				// renderWIN = true;
+				// messageWinON = true;
+				#endif
+			}
 		}
 
 		if (server.hasArg("RGB"))
@@ -713,7 +726,8 @@ void displayState()
 					writeLogFile(F("Publish Brightness: failed"), 1);
 			}
 
-			sendJSONheaderReply(1, "Updated");
+			sendJSONheaderReply( 1, "Updated" );
+			delay(5000);
 		}
 	}
 }

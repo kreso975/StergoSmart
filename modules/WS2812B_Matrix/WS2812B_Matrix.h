@@ -7,6 +7,7 @@
 
 // external functions
 extern void sendJSONheaderReply(byte type, String message);
+extern bool writeLogFile( String message, int newLine, int output);
 
 // external variables
 extern MQTTManager mqttManager;

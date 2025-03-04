@@ -133,7 +133,6 @@ void loop()
 			updateTicTacToe();
 			#endif										//===============================================
 
-		
 			#ifdef MODULE_DISPLAY					//=================  MODULE DISPLAY =============
 			updateDisplay();
 		}
