@@ -94,8 +94,7 @@ Function: setupSSDP
 Purpose : Initialize SSDP (Simple Service Discovery Protocol) Service
 Input   :
 Output  :
-Comments: -
-====================================================================== */
+Comments: - */
 void setupSSDP()
 {
 	SSDP.setSchemaURL("description.xml");
@@ -164,8 +163,7 @@ Function: requestSSDP
 Purpose : UDP packets send
 Input   : what = 1 (M-SEARCH devices upnp)
 Output  : M-SEARCH &
-Comments: -
-====================================================================== */
+Comments: - */
 void requestSSDP(int what)
 {
 	if (what == 1)
@@ -214,11 +212,10 @@ Purpose : send UDP
 Input   : payloadUDP - Prepared message to be sent
 Output  : no output.
 Comments:
-TODO    :
-============================================================================================= */
-void sendUDP(const char* payloadUDP, IPAddress ssdpDeviceIP, int udpPort)
+TODO    : */
+void sendUDP(const char* payloadUDP, IPAddress udpDeviceIP, int udpPort)
 {
-	ntpUDP.beginPacket(ssdpDeviceIP, udpPort);
+	ntpUDP.beginPacket(udpDeviceIP, udpPort);
 	ntpUDP.write((uint8_t*)payloadUDP, strlen(payloadUDP));
 	ntpUDP.endPacket();
 	return;

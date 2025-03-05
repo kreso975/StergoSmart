@@ -11,7 +11,7 @@
 ## **CHANGES:**  
 **000.06.003** - in development  
 - rename MQTT file and class into MQTTManager  
-- clenup and optimizaton for TicTacToe library (removing String)
+- clenup and optimizaton for TicTacToe library (removing String) 
 - cleanUP and optimization for WebHooks
 - cleanUP SSDP.ino String to char
 - fixed F() issue with ESP32 in MQTTManager

@@ -8,7 +8,7 @@
 // External functions
 extern void updateSSDP();
 extern char* parseUDP(const char* input, int part, const char* delimiter);
-extern String parseString( String str, String found, int what );
+extern String extractValue(const String& str, const String& key);
 extern void sendWebhook(const char* localURL, const char* data);
 
 // Config.ino
@@ -38,7 +38,7 @@ extern bool ticCallFirstRun;
 extern unsigned long ticTacCallInterval;        // 1000 * 60 * 60 - 60min
 extern unsigned long ticCallLMInterval;
 
-extern byte nrInvitationTry; 
+//extern byte nrInvitationTry; 
 
 extern String playerName;
 extern byte gameStarted;

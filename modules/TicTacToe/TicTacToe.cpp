@@ -21,7 +21,7 @@ byte tictac_start, tictac_interval, tictac_webhook, tictac_discord;
 byte difficulty = 8;
 int board[BOARD_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-// int selectPlayer;     // Select Who Plays first 1=X, 2=O
+// int selectPlayer;   // Select Who Plays first 1=X, 2=O
 int receivedMove = -1; // Move received from opponent
 int sentMove;			  // Our move sent to opponent
 
@@ -38,7 +38,7 @@ bool ticCallFirstRun = true;
 unsigned long ticTacCallInterval = 1000 * 60 * 60; // 1000 * 60 * 60 - 60min
 unsigned long ticCallLMInterval;
 
-byte nrInvitationTry = 0;
+//byte nrInvitationTry = 0;
 
 String playerName = "";
 byte gameStarted = 0;
@@ -53,23 +53,11 @@ bool didIaskedToPlay = false;
 
 const char serverPrefix[] PROGMEM = "SERVER: TicTac ";
 
-void generateReplyPacket(char *replyPacket, size_t size, const char *deviceName, const char *action, int value = -1, bool hasValue = true)
+void sendPacket(const char *action, int value, IPAddress ip, int port)
 {
-	if (hasValue)
-		snprintf(replyPacket, size, PSTR("%s%s %s=%d"), serverPrefix, deviceName, action, value);
-	else
-		snprintf(replyPacket, size, PSTR("%s%s %s"), serverPrefix, deviceName, action);
-}
-
-void sendMovePacket(int move = -1, bool hasValue = true)
-{
-	char replyPacket[100];
-	if ( hasValue )
-		generateReplyPacket(replyPacket, sizeof(replyPacket), _devicename, "Played Move", move, true);
-	else
-		generateReplyPacket(replyPacket, sizeof(replyPacket), _devicename, "Move=-1", -1, false);
-	
-	sendUDP(replyPacket, opponentIP, 4210);
+    char replyPacket[100];
+    snprintf(replyPacket, sizeof(replyPacket), PSTR("%s%s %s=%d"), serverPrefix, _devicename, action, value);
+    sendUDP(replyPacket, ip, port);
 }
 
 /* ===============================================================================
@@ -392,14 +380,14 @@ void letsPlay(byte what, const char* who)
 {
 	char replyPacket[100];
 
-	if (what == 1)
+	if ( what == 1 )
 	{
 		startGameValues(who);
 
-		if (player == 1)
-			sendMovePacket(-1, false);
+		if ( player ==  1 )
+			sendPacket("Move", -1, opponentIP, opponentUDPport);
 
-		if (player == 2)
+		if ( player == 2 )
 		{
 			#if (DEBUG == 1)
 			printLogInPhase("LetsPlay_w1p2");
@@ -413,17 +401,16 @@ void letsPlay(byte what, const char* who)
 			draw(board);
 			#endif
 
-			sendMovePacket(sentMove, true);
+			sendPacket("Move", sentMove, opponentIP, opponentUDPport);
 		}
 	}
-
-	if (what == 2)
+	else if ( what == 2 )
 	{
 		#if (DEBUG == 1)
 		printLogInPhase("LetsPlay_w2");
 		#endif
 
-		if (turn < BOARD_SIZE && win(board) == 0)
+		if ( turn < BOARD_SIZE && win(board) == 0 )
 		{
 			if ( (turn + player) % 2 == 0 )
 			{
@@ -431,7 +418,8 @@ void letsPlay(byte what, const char* who)
 				#if (DEBUG == 1)
 				draw(board);
 				#endif
-				sendMovePacket(sentMove, true);
+				
+				sendPacket("Move", sentMove, opponentIP, opponentUDPport);
 			}
 			else
 			{
@@ -447,12 +435,12 @@ void letsPlay(byte what, const char* who)
 						#if (DEBUG == 1)
 						draw(board);
 						#endif
-						sendMovePacket(sentMove, true);
+						sendPacket("Move", sentMove, opponentIP, opponentUDPport);
 					}
 				}
 				else
 				{
-					sendMovePacket(-1, false);
+					sendPacket("Move", -1, opponentIP, opponentUDPport);
 				}
 			}
 		}
@@ -474,7 +462,7 @@ void letsPlay(byte what, const char* who)
 					#endif
 					#ifdef MODULE_DISPLAY
 					// this should be in display module
-					if (displayON == 1)
+					if ( displayON == 1 )
 					{
 						renderWIN = true;
 						messageWinON = true;
@@ -518,7 +506,7 @@ void playTicTacToe(const char* input)
 	switch (gamePhase)
 	{
 		case WePlay:
-			wantToPlay = parseString(input, "WePlay=", 1).toInt();
+			wantToPlay = extractValue(input, "WePlay=").toInt();
 			if ( wantToPlay == 0 )
 			{
 				// Remote don't want to play
@@ -541,8 +529,7 @@ void playTicTacToe(const char* input)
 				printLogInPhase("WePlay");
 				#endif
 
-				generateReplyPacket(replyPacket, sizeof(replyPacket), _devicename, "WePlay=0", -1, false);
-				sendUDP(replyPacket, ntpUDP.remoteIP(), ntpUDP.remotePort());
+				sendPacket("WePlay", 0, ntpUDP.remoteIP(), ntpUDP.remotePort());
 
 				#if (DEBUG == 1)
 				snprintf(logMessage, sizeof(logMessage), "Reseting game");
@@ -575,15 +562,13 @@ void playTicTacToe(const char* input)
 						player = 2;
 
 					// Here I'm Back with answer and I need to ask oponent is he playin 1st or second
-					generateReplyPacket(replyPacket, sizeof(replyPacket), _devicename, "Player", randNumber, true);
-					sendUDP(replyPacket, opponentIP, 4210);
+					sendPacket("Player", randNumber, opponentIP, opponentUDPport);
 					break;
 				}
 				else
 				{
 					// I didnt sent Play Invitation so i just reply Yes I want to play
-					generateReplyPacket(replyPacket, sizeof(replyPacket), _devicename, "WePlay=1", -1, false);
-					sendUDP(replyPacket, opponentIP, 4210);
+					sendPacket("WePlay", 1, opponentIP, opponentUDPport);
 					break;
 				}
 			}
@@ -591,7 +576,7 @@ void playTicTacToe(const char* input)
 
 		case Player:
 			// First lets check if we can talk
-			if (gameStarted == 0)
+			if ( gameStarted == 0 )
 			{
 				// I didnt sent Play Invitation so i just reply Yes I want to play
 				#if (DEBUG == 1)
@@ -599,12 +584,11 @@ void playTicTacToe(const char* input)
 				writeLogFile(logMessage, 1, 1);
 				#endif
 
-				generateReplyPacket(replyPacket, sizeof(replyPacket), _devicename, "WePlay=0", -1, false);
-				sendUDP(replyPacket, ntpUDP.remoteIP(), ntpUDP.remotePort());
+				sendPacket("WePlay", 0, ntpUDP.remoteIP(), ntpUDP.remotePort());
 				break;
 			}
 
-			selectPlayer = parseString(input, "Player=", 1).toInt();
+			selectPlayer = extractValue(input, "Player=").toInt();
 			if (selectPlayer == 0)
 			{
 				// We need to make a decision Player 1 || 2
@@ -612,8 +596,7 @@ void playTicTacToe(const char* input)
 				randNumber = random(1, 3);
 				player = (randNumber == 1) ? 2 : 1;
 
-				generateReplyPacket(replyPacket, sizeof(replyPacket), _devicename, "Player", randNumber, true);
-				sendUDP(replyPacket, opponentIP, 4210);
+				sendPacket("Player", randNumber, opponentIP, opponentUDPport);
 			}
 			else if ((selectPlayer == 1 || selectPlayer == 2) && gameStarted == 0)
 			{
@@ -637,8 +620,12 @@ void playTicTacToe(const char* input)
 				printLogInPhase("Player");
 				#endif
 
-				generateReplyPacket(replyPacket, sizeof(replyPacket), _devicename, "Move=-1", -1, false);
-				sendUDP(replyPacket, opponentIP, 4210);
+				//sendPacket("Move", -1, opponentIP, 4210);
+				#if (DEBUG == 1)
+				writeLogFile("TU SAM", 1, 1);
+				#endif
+				sendPacket("Move", -1, opponentIP, opponentUDPport);
+				
 			}
 			else if (selectPlayer == 2 && gameStarted == 1 && turn == 0)
 			{
@@ -650,31 +637,30 @@ void playTicTacToe(const char* input)
 				#endif
 
 				letsPlay(2, playerName);
-				// generateReplyPacket(replyPacket, sizeof(replyPacket), _devicename, "Move=-1", -1, false);
-				// sendUDP(replyPacket, opponentIP, 4210);
+				//sendPacket("Move", -1, opponentIP, 4210);
 			}
 			break;
 
 		case Move:
 			// Getting Move response from Remote Player
-			receivedMove = parseString(input, "Move=", 1).toInt();
+			receivedMove = extractValue(input, "Move=").toInt();
 			#if (DEBUG == 1)
 			writeLogFile("Game is in Turn: " + String(turn), 1, 1);
 			#endif
 			// MyTurn to play but no Turn Played
-			if (receivedMove == -1 && turn == 0)
+			if ( receivedMove == -1 && turn == 0 )
 				letsPlay(1, playerName);
 
 			if (receivedMove >= 0 && gameStarted == 1)
 			{
 				// Check If we can play with this player
-				if (String(opponentName) == playerName)
+				if ( String(opponentName) == playerName )
 				{
 					// We have our oponent lets continue
 					#if (DEBUG == 1) 								// ----------------------------------------
 					snprintf(logMessage, sizeof(logMessage), "%s%s", REPLAYER, playerName);
-					writeLogFile(logMessage, 1, 1);
-					snprintf(logMessage, sizeof(logMessage), PSTR("played move: %d"), receivedMove);
+					writeLogFile(logMessage, 0, 1);
+					snprintf(logMessage, sizeof(logMessage), PSTR(" played move: %d"), receivedMove);
 					writeLogFile(logMessage, 1, 1);
 					#endif 											// ----------------------------------------
 
@@ -711,14 +697,14 @@ void inviteDeviceTicTacToe()
 	char replyPacket[100];
 
 	// Let's check if we are already playing
-	if (gameStarted == 0)
+	if ( gameStarted == 0 )
 	{
 		// We are randomly picking 3 times one of available addresses
 		randNumber = random(0, actualSSDPdevices);
-		// Serial.println("Random broj: " + String(randNumber));
 
 		// Marked that we sent invitation | We are locked until we set this to false
 		didIaskedToPlay = true;
+
 		// We also do the hack to auto unlock us using Stale game
 		ticTacLastPlayed = millis();
 
@@ -729,8 +715,7 @@ void inviteDeviceTicTacToe()
 			writeLogFile("Sending Invitation to IP: " + rndAddr.toString(), 1, 1);
 			#endif
 
-			generateReplyPacket(replyPacket, sizeof(replyPacket), _devicename, "WePlay=1", -1, false);
-			sendUDP(replyPacket, rndAddr, 4210);
+			sendPacket("WePlay", 1, rndAddr, 4210);
 		}
 		else
 		{
@@ -744,10 +729,6 @@ void inviteDeviceTicTacToe()
 
 			maxRetryInviteEmptyIP++;
 		}
-
-		// ntpUDP.beginPacket( IPAddress(foundSSDPdevices[randNumber]), 4210 );
-		// ntpUDP.write( replyPacket.c_str() );
-		// ntpUDP.endPacket();
 	}
 }
 

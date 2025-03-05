@@ -95,6 +95,7 @@ Example Usage:
 
   // Case 4: Select To Marker
   String result4 = parseString(str, found, 4);  // "Hello, this is a " */
+  /*
 String parseString( String str, String found, int what )
 {
   if ( what == 2 || what == 4 )
@@ -117,4 +118,15 @@ String parseString( String str, String found, int what )
   }
 
   return "";
+}
+*/
+
+
+String extractValue(const String& str, const String& key)
+{
+    int start = str.indexOf(key) + key.length();
+    if (start == -1 + key.length()) return ""; // key not found
+    int end = str.indexOf(' ', start);
+    if (end == -1) end = str.length();
+    return str.substring(start, end);
 }
