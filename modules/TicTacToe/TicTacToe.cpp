@@ -19,8 +19,6 @@ byte tictac_start, tictac_interval, tictac_webhook, tictac_discord;
 
 // Difficulty defines number of Depth for AI , bigger Depth stronger AI
 byte difficulty = 8;
-
-#define BOARD_SIZE 9
 int board[BOARD_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 // int selectPlayer;     // Select Who Plays first 1=X, 2=O
@@ -514,8 +512,7 @@ void playTicTacToe(const char* input)
 	char replyPacket[100];
 	char logMessage[100];
 
-	String playerNameStr = parseUDP(input, 2); // Parsing Input from UDP
-	const char* playerName = playerNameStr.c_str();
+	const char* playerName = parseUDP(input, 2, " "); // Parsing Input from UDP, space as delimiter
 	int gamePhase = getGamePhase(input);
 
 	switch (gamePhase)
@@ -794,5 +791,12 @@ void printLogInPhase(String where)
 	writeLogFile("in " + where + ", turn: " + String(turn), 1, 1);
 }
 #endif
+
+void ticTacToeUDPHandler(const char *message)
+{
+	#ifdef MODULE_TICTACTOE // -------------------------------------------
+	playTicTacToe(message);
+	#endif // -------------------------------------------
+}
 
 #endif // MODULE_TICTACTOE

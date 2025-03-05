@@ -1,9 +1,6 @@
 // Declare function because of default param provided
 void sendUDP(const char* payloadUDP, IPAddress ssdpDeviceIP = (0,0,0,0), int udpPort = 4210 );
 
-enum SSDPcomType { Arduino, Stergo, TicTac, NotDeclared };
-SSDPcomType ssdpComType;
-
 // Time interval for udp SSDP M-SEARCH
 bool measureSSDPFirstRun = true;
 const long intervalSSDP = 1000 * 60 * 10;   // 1000 * 60 * 10 - 10min

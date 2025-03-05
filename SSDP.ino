@@ -19,6 +19,76 @@ void updateSSDP()
 	receiveUDP(); // WE DON'T NEED SSDP in WiFi AP mode
 }
 
+
+/* ==========================================================================================
+Function: arduinoHandler
+Purpose : go through already collected IPs and update the list
+Input   : UDP message
+Output  : Update foundSSDPdevices[]
+Comments: 
+TODO    : */
+void arduinoHandler(const char *message)
+{
+	IPAddress ssdpDeviceIP = ntpUDP.remoteIP();
+	for (int x = 0; x < NUMBER_OF_FOUND_SSDP; x++)
+	{
+		if (foundSSDPdevices[x] == ssdpDeviceIP)
+			return; // Device SSDP already in the list
+
+		if (foundSSDPdevices[x] == IPAddress(0, 0, 0, 0))
+		{
+			actualSSDPdevices = x + 1;
+			foundSSDPdevices[x] = ssdpDeviceIP; // Add device to the list
+
+			#if (DEBUG == 1) // -------------------------------------------
+			writeLogFile(F("Found Device: ") + foundSSDPdevices[x].toString(), 1, 1);
+			writeLogFile(F("Actual Devices: ") + String(actualSSDPdevices), 1, 1);
+			#endif // -------------------------------------------
+			return;
+		}
+	}
+}
+
+void StergoHandler(const char *message)
+{
+	char modelName[64];
+	char message2[128];
+	strncpy(modelName, parseUDP(message, 2, " "), sizeof(modelName) - 1);
+	modelName[sizeof(modelName) - 1] = 0; // Ensure null-termination
+
+	snprintf(message2, sizeof(message2), "Hi there! %s, I'm %s", modelName, _devicename);
+
+	sendUDP(message2, ntpUDP.remoteIP(), ntpUDP.remotePort());
+}
+
+struct UDPSubscription
+{
+	char keyword[16]; // Adjust the size as needed
+	void (*callback)(const char *message);
+};
+
+const int maxSubscriptions = 10;
+UDPSubscription subscriptions[maxSubscriptions];
+int subscriptionCount = 0;
+
+/* ======================================================================
+Function: subscribeUDP
+Purpose : Register a keyword and its callback function for UDP message handling
+Input   : const char* keyword - The keyword to match in incoming UDP messages
+          void (*callback)(const char* message) - The callback function to invoke when the keyword is matched
+Output  : None
+TODO    : Add error handling for invalid inputs or potential buffer overflows */
+void subscribeUDP(const char *keyword, void (*callback)(const char *message))
+{
+	if (subscriptionCount < maxSubscriptions)
+	{
+		strncpy(subscriptions[subscriptionCount].keyword, keyword, sizeof(subscriptions[subscriptionCount].keyword) - 1);
+		subscriptions[subscriptionCount].keyword[sizeof(subscriptions[subscriptionCount].keyword) - 1] = 0; // Ensure null-termination
+		subscriptions[subscriptionCount].callback = callback;
+		subscriptionCount++;
+	}
+}
+
 /* ======================================================================
 Function: setupSSDP
 Purpose : Initialize SSDP (Simple Service Discovery Protocol) Service
@@ -41,51 +111,52 @@ void setupSSDP()
 	SSDP.setManufacturerURL(COMPANY_URL);
 	SSDP.begin();
 	writeLogFile(F("SSDP Started"), 1, 3);
-}
 
-SSDPcomType getSSDPcomType(const char* input)
-{
-	// Perform the necessary operations to determine the SSDPcomType
-	if ( strstr(input, "Arduino") != NULL )	// From M-SEARCH
-		return Arduino;
-	else if ( strstr(input, "Stergo") != NULL )	// From D2D (device2device) communication
-		return Stergo;
-	else if ( strstr(input, "TicTac") != NULL )	// From D2D (TicTac) communication
-		return TicTac;
-	else
-		return NotDeclared;
+	// Register the TicTacToe handler for the keyword "TicTac"
+	// These needs to be moved 
+	subscribeUDP("TicTac", ticTacToeUDPHandler);
+	subscribeUDP("Arduino", arduinoHandler);
+	subscribeUDP("Stergo", StergoHandler);
+
 }
 
 /* ======================================================================
-String  : parseUDP()
-Purpose : to Optimize code. Easyer to read playTicTacToe
-Input   : input - received raw ASCII from UDP | SERVER: TicTac deviceNAME+chipID Move=8
-			 part  - requested element of array to be returned
-Output  : String of input[part]
-TODO    :
-====================================================================== */
-String parseUDP(String input, int part)
+Function: parseUDP
+Purpose : Parse a specific part of a UDP message using a specified delimiter
+Input   : const char* input - The input UDP message to be parsed
+          int part - The part index to retrieve from the parsed message
+          const char* delimiter - The delimiter to use for parsing
+Output  : char* - The parsed part of the message as a C-style string */
+char *parseUDP(const char *input, int part, const char *delimiter)
 {
-	char buf[input.length() + 1];
-	input.toCharArray(buf, sizeof(buf));
+	static char output[64];				  // Allocate a static buffer for the output (adjust size as needed)
+	memset(output, 0, sizeof(output)); // Clear the output buffer
+
+	char buf[strlen(input) + 1];
+	strncpy(buf, input, sizeof(buf));
+	buf[sizeof(buf) - 1] = 0; // Ensure null-termination
+
 	char *values[5];
 	byte i = 0;
-	char *token = strtok(buf, " "); // Delimiter is " ", we get 5 Strings
+	char *token = strtok(buf, delimiter); // Use the specified delimiter
 
 	while (token != NULL && i < 5)
-	{ // Added boundary check for i
+	{
 		values[i++] = token;
-		token = strtok(NULL, " ");
+		token = strtok(NULL, delimiter);
 	}
 
-	if (part >= 0 && part < 5)
-	{ // Added boundary check for part
-		return String(values[part]);
+	if (part >= 0 && part < 5 && values[part] != NULL)
+	{
+		strncpy(output, values[part], sizeof(output) - 1);
+		output[sizeof(output) - 1] = 0; // Ensure null-termination
 	}
 	else
 	{
-		return String(""); // Return an empty string if part is out of bounds
+		output[0] = 0; // Return an empty string if part is out of bounds
 	}
+
+	return output;
 }
 
 /* ======================================================================
@@ -111,51 +182,28 @@ void requestSSDP(int what)
 /* ======================================================================
 Function: receiveUDP
 Purpose : UDP packets receive
-Input   :
-Output  :
-TODO    : Add save to file , check for duplicate entry / JSON format
-			 fields: Device name(name from settings), modelName, modelNumber, IP
-			 Load existing list and check if servers responds - something simple */
+Input   : None
+Output  : None
+TODO    : Add error handling and optimize buffer size if needed */
 void receiveUDP()
 {
-	char message[256];
-	char modelName[128];
 	char packetBuffer[512];
-
 	int packetSize = ntpUDP.parsePacket();
-	// If there is something inside
+
 	if (packetSize)
 	{
-		int len = ntpUDP.read(packetBuffer, 512);
+		int len = ntpUDP.read(packetBuffer, sizeof(packetBuffer) - 1);
 		if (len > 0)
 			packetBuffer[len] = 0;
 
-		switch (getSSDPcomType(packetBuffer))
+		for (int i = 0; i < subscriptionCount; i++)
 		{
-			case Arduino:
-				isSSDPfoundBefore(ntpUDP.remoteIP());
-				#if (DEBUG == 1) // -------------------------------------------
-				writeLogFile(F("Actual Devices: ") + String(actualSSDPdevices), 1, 1);
-				#endif // -------------------------------------------
+			// Check if the keyword is found within the message
+			if (strstr(packetBuffer, subscriptions[i].keyword) != NULL)
+			{ 
+				subscriptions[i].callback(packetBuffer);
 				break;
-
-			case Stergo:
-				strncpy(modelName, parseUDP(packetBuffer, 2).c_str(), sizeof(modelName) - 1);
-				modelName[sizeof(modelName) - 1] = 0; // Ensure null-termination
-				
-				snprintf(message, sizeof(message), "Hi there! %s, I'm %s", modelName, _devicename);
-
-				sendUDP(message, ntpUDP.remoteIP(), ntpUDP.remotePort());
-				break;
-
-			case TicTac:
-				#ifdef MODULE_TICTACTOE // -------------------------------------------
-				playTicTacToe(packetBuffer);
-				#endif // -------------------------------------------
-				break;
-
-			case NotDeclared:
-				break;
+			}
 		}
 	}
 }
@@ -174,35 +222,4 @@ void sendUDP(const char* payloadUDP, IPAddress ssdpDeviceIP, int udpPort)
 	ntpUDP.write((uint8_t*)payloadUDP, strlen(payloadUDP));
 	ntpUDP.endPacket();
 	return;
-}
-
-/* ==========================================================================================
-Function: isSSDPfoundBefore
-Purpose : go through already collected IPs and update the list
-Input   : ssdpDeviceIP
-Output  : no output.
-Comments:
-TODO    :
-============================================================================================= */
-void isSSDPfoundBefore(IPAddress ssdpDeviceIP)
-{
-	for (int x = 0; x < NUMBER_OF_FOUND_SSDP; x++)
-	{
-		if (foundSSDPdevices[x] != IPAddress(0, 0, 0, 0))
-		{
-			if (foundSSDPdevices[x] == ssdpDeviceIP)
-				return; // Device SSDP Already in my list
-		}
-		else
-		{
-			actualSSDPdevices = x + 1;
-			foundSSDPdevices[x] = ssdpDeviceIP; // ADD Device to my list
-
-			#if (DEBUG == 1) // -------------------------------------------
-			writeLogFile(F("Found Device: ") + foundSSDPdevices[x].toString(), 1, 1);
-			#endif // -------------------------------------------
-
-			return;
-		}
-	}
 }

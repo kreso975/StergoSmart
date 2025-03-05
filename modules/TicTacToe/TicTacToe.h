@@ -2,10 +2,12 @@
 #define MODULE_TIC_TAC_TOE_H
 
 #include <Arduino.h>
+// Define the size of the Tic Tac Toe board
+#define BOARD_SIZE 9
 
 // External functions
 extern void updateSSDP();
-extern String parseUDP(String input, int part);
+extern char* parseUDP(const char* input, int part, const char* delimiter);
 extern String parseString( String str, String found, int what );
 extern void sendWebhook(const char* localURL, const char* data);
 
@@ -52,22 +54,24 @@ extern byte wantToPlay, selectPlayer;
 extern bool didIaskedToPlay;
 
 #define REPLAYER "Remote Player"
+
 extern String SERTIC;
 
 extern void updateTicTacToe();
 extern void startGameValues( const char* playerName );
 extern void resetTicTacToe();
-extern GamePhases getGamePhase(String input);
-extern int win( const int board[9] );
-extern int minimax( int board[9], int player, byte depth );
-extern void computerMove( int board[9] );
-extern bool playerMove( int board[9], byte moveKeypadNum );
+extern GamePhases getGamePhase(const char* input);
+extern int win( const int board[BOARD_SIZE] );
+extern int minimax( int board[BOARD_SIZE], int player, byte depth );
+extern void computerMove( int board[BOARD_SIZE] );
+extern bool playerMove(int board[BOARD_SIZE], byte moveToPlay);
 extern void letsPlay( byte what, const char* who );
-extern void playTicTacToe( String input );
+extern void playTicTacToe(const char* input);
 extern void inviteDeviceTicTacToe();
 extern void sendTicTacWebhook(byte where);
+extern void ticTacToeUDPHandler(const char *message);
 #if (DEBUG == 1)
-   extern void draw( int board[9] );
+   extern void draw( int board[BOARD_SIZE] );
    extern void printLogInPhase(String where);
 #endif
 

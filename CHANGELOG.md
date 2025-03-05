@@ -18,6 +18,13 @@
 - Weather.ino code optimization
 - Optimization WS2812B.cpp
 - Optimization in WiFiManager.cpp
+  Changelog for UDP Functionality
+  ---------------------------------
+  - Added a modular approach for handling UDP packets with specific keywords using the `subscribeUDP` function.
+    - Implemented a `UDPSubscription` struct to store the keyword and corresponding callback function.
+    - Created an array to hold subscriptions and a function to register keywords and callbacks.
+
+
   
 **000.06.002**
 - add LedMatrix free orientation in settings - byte kMatrixOrientation = 1; // O = Normal, 1 = Diagonal flip (0 and 256 are on opposite diagonal side)
