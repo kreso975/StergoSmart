@@ -21,7 +21,6 @@ extern  int board[9];
 enum GamePhases { WePlay, Player, Move, Invalid };
 extern GamePhases gamephase;
 
-//int selectPlayer;     // Select Who Plays first 1=X, 2=O 
 extern int receivedMove;  // Move received from opponent
 extern int sentMove;      // Our move sent to opponent
   
@@ -40,7 +39,7 @@ extern unsigned long ticCallLMInterval;
 
 //extern byte nrInvitationTry; 
 
-extern String playerName;
+extern const char* playerName;
 extern byte gameStarted;
 extern char opponentName[28];
 extern IPAddress opponentIP;
@@ -69,7 +68,6 @@ extern void letsPlay( byte what, const char* who );
 extern void playTicTacToe(const char* input);
 extern void inviteDeviceTicTacToe();
 extern void sendTicTacWebhook(byte where);
-extern void ticTacToeUDPHandler(const char *message);
 #if (DEBUG == 1)
    extern void draw( int board[BOARD_SIZE] );
    extern void printLogInPhase(String where);

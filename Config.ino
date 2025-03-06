@@ -21,7 +21,8 @@ bool initConfig( String* message )
 	configfile.readBytes(buf.get(), size);
 	configfile.close();
 
-	DynamicJsonDocument  jsonConfig(8000);
+	// Reserve the required space for jsonBuffer based on the file size
+	DynamicJsonDocument jsonConfig(size + 500); // Adding extra space for overhead
   	DeserializationError error = deserializeJson( jsonConfig, buf.get());
 
 	if ( error )
@@ -165,7 +166,7 @@ bool writeToConfig( String* message )
 	configfile.readBytes(buf.get(), size);
 	configfile.close();
 
-  	DynamicJsonDocument  jsonConfig(8000);
+	DynamicJsonDocument jsonConfig(size + 500); // Adding extra space for overhead
   	DeserializationError error = deserializeJson( jsonConfig, buf.get());
 
 	if ( error )

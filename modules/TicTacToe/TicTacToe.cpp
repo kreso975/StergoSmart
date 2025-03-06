@@ -4,8 +4,6 @@
 #include "TicTacToe.h"
 
 /*
- *
- *
  *            TicTacToe layout:
  *              0 | 1 | 2
  *              ---+---+---
@@ -21,12 +19,15 @@ byte tictac_start, tictac_interval, tictac_webhook, tictac_discord;
 byte difficulty = 8;
 int board[BOARD_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-// int selectPlayer;   // Select Who Plays first 1=X, 2=O
 int receivedMove = -1; // Move received from opponent
 int sentMove;			  // Our move sent to opponent
 
+byte gameStarted = 0;
 byte player = 0; // Select Who Plays first 1=X, 2=O
 byte turn = 0;	  // Value of current Turn in game
+
+// Select Who Plays first 1=X, 2=O
+byte wantToPlay, selectPlayer;
 
 // We will use this to auto reset Game because there is no play and it hangs
 const long ticTacLastPlayedInterval = 1000 * 10; // 30 sec              // 1000 * 60 * 2 - 120 sec
@@ -38,21 +39,28 @@ bool ticCallFirstRun = true;
 unsigned long ticTacCallInterval = 1000 * 60 * 60; // 1000 * 60 * 60 - 60min
 unsigned long ticCallLMInterval;
 
-//byte nrInvitationTry = 0;
-
-String playerName = "";
-byte gameStarted = 0;
+const char* playerName = "";
 char opponentName[28] = "";
 IPAddress opponentIP;
 int opponentUDPport;
 
-byte wantToPlay, selectPlayer;
-
 // didIaskedToPlay = true or false set when sending invite
 bool didIaskedToPlay = false;
+//byte nrInvitationTry = 0;
 
 const char serverPrefix[] PROGMEM = "SERVER: TicTac ";
 
+/* ===============================================================================
+Function: sendPacket
+Purpose : Constructs and sends a formatted UDP packet to the specified IP address and port.
+Input   : action - The action to be included in the packet (const char*)
+          value  - The value associated with the action (int)
+          ip     - The IP address to send the packet to (IPAddress)
+          port   - The port to send the packet to (int)
+Output  : None
+Comments: The function uses snprintf to format the packet with the server prefix, device name, action, and value.
+          Possible actions include "WePlay", "Player", and "Move".
+TODO    : None */
 void sendPacket(const char *action, int value, IPAddress ip, int port)
 {
     char replyPacket[100];
@@ -186,16 +194,16 @@ void drawNumberedBoard()
 void draw(int board[BOARD_SIZE])
 {
 	byte vn;
-	String bm = "\n ";
+	String bm = F("\n ");
 	for (vn = 0; vn < BOARD_SIZE; ++vn)
 	{
 		bm += String(displayChar(board[vn]));
 		if (vn == 2 || vn == 5)
-			bm += "\n---+---+---\n ";
+			bm += F("\n---+---+---\n ");
 		else if (vn == 8)
-			bm += " ";
+			bm += F(" ");
 		else
-			bm += " | ";
+			bm += F(" | ");
 	}
 	writeLogFile(bm, 1, 1);
 }
@@ -385,7 +393,7 @@ void letsPlay(byte what, const char* who)
 		startGameValues(who);
 
 		if ( player ==  1 )
-			sendPacket("Move", -1, opponentIP, opponentUDPport);
+			sendPacket( "Move", -1, opponentIP, opponentUDPport );
 
 		if ( player == 2 )
 		{
@@ -393,9 +401,9 @@ void letsPlay(byte what, const char* who)
 			printLogInPhase("LetsPlay_w1p2");
 			#endif
 
-			delay(1000);
+			//delay(1000);
 			computerMove(board);
-			delay(1000);
+			//delay(1000);
 
 			#if (DEBUG == 1)
 			draw(board);
@@ -500,7 +508,7 @@ void playTicTacToe(const char* input)
 	char replyPacket[100];
 	char logMessage[100];
 
-	const char* playerName = parseUDP(input, 2, " "); // Parsing Input from UDP, space as delimiter
+	playerName = parseUDP(input, 2, " "); // Parsing Input from UDP, space as delimiter
 	int gamePhase = getGamePhase(input);
 
 	switch (gamePhase)
@@ -613,19 +621,14 @@ void playTicTacToe(const char* input)
 			}
 			else if (selectPlayer == 1 && gameStarted == 1 && turn == 0)
 			{
-				// Opponent decided to play As player 1, lets register player as 1 and send him to play
+				// Opponent decided to play As player 1, lets register player as 1 and inform him he plays first, send him to play (-1)
 				player = selectPlayer;
 
 				#if (DEBUG == 1)
 				printLogInPhase("Player");
 				#endif
 
-				//sendPacket("Move", -1, opponentIP, 4210);
-				#if (DEBUG == 1)
-				writeLogFile("TU SAM", 1, 1);
-				#endif
 				sendPacket("Move", -1, opponentIP, opponentUDPport);
-				
 			}
 			else if (selectPlayer == 2 && gameStarted == 1 && turn == 0)
 			{
@@ -654,7 +657,8 @@ void playTicTacToe(const char* input)
 			if (receivedMove >= 0 && gameStarted == 1)
 			{
 				// Check If we can play with this player
-				if ( String(opponentName) == playerName )
+				// compare if playerName was the one when Game initiated
+				if ( strcmp( opponentName, playerName ) == 0 )
 				{
 					// We have our oponent lets continue
 					#if (DEBUG == 1) 								// ----------------------------------------
@@ -686,12 +690,12 @@ void playTicTacToe(const char* input)
 	}
 }
 
-/* ======================================================================
+/* ========================================================================================
 Function: inviteDeviceTicTacToe
-Purpose : invite available device to play Tic Tac Toe with you (SSDP)
+Purpose : invite available device to play Tic Tac Toe with you (UDP)
 Input   :
 Output  :
-TODO    : In here We Can have settup for Playing UDP or MQTT */
+TODO    : In here We Can have settup for Playing UDP, UDP Hub proxy, Game Server or MQTT */
 void inviteDeviceTicTacToe()
 {
 	char replyPacket[100];
@@ -753,8 +757,8 @@ void sendTicTacWebhook(byte where)
 		char message[100];
 
 		// Create the message
-		snprintf(message, sizeof(message), PSTR("I Won! Loser: %s lost."), playerName);
-
+		snprintf(message, sizeof(message), PSTR("I Won! Loser: %s lost."), opponentName);
+		//writeLogFile(message, 1, 1);
 		// Create the JSON data
 		snprintf(data, sizeof(data), PSTR("{\"username\":\"%s\",\"avatar_url\":\"%s\",\"content\":\"%s\"}"), discordUsername, discordAvatar, message);
 
@@ -772,12 +776,5 @@ void printLogInPhase(String where)
 	writeLogFile("in " + where + ", turn: " + String(turn), 1, 1);
 }
 #endif
-
-void ticTacToeUDPHandler(const char *message)
-{
-	#ifdef MODULE_TICTACTOE // -------------------------------------------
-	playTicTacToe(message);
-	#endif // -------------------------------------------
-}
 
 #endif // MODULE_TICTACTOE

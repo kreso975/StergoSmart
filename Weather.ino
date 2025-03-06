@@ -210,88 +210,89 @@ Comments: -
 ToDo	: -  */
 bool MainSensorConstruct()
 {
-	File file = LittleFS.open( HISTORY_FILE, "r" );
+	File file = LittleFS.open(HISTORY_FILE, "r");
 	if (!file)
 	{
-		if ( updateHistory( 1 ) ) // Create proper initial History File
-			writeLogFile( F("Delete History 1"), 1, 3 );
+		if (updateHistory(1)) // Create proper initial History File
+			writeLogFile(F("Delete History 1"), 1, 1);
 	}
 	else
 	{
 		size_t size = file.size();
+		#if (DEBUG == 1)
+		//String logMessage = String(F("File size: ")) + String(size);
+		//writeLogFile(logMessage, 1, 2);
+		#endif
+
 		if ( size < 4 )
 		{
-			if ( updateHistory( 1 ) ) // Create proper initial History File
-				writeLogFile( F("Delete History 2"), 1, 3 );
+			if (updateHistory(1)) // Create proper initial History File
+				writeLogFile(F("Delete History 2"), 1, 1);
 		}
-      else
-      {
-			std::unique_ptr<char[]> buf (new char[size]);
+		else
+		{
+			std::unique_ptr<char[]> buf(new char[size]);
 			file.readBytes(buf.get(), size);
 			file.close();
-			
-			DynamicJsonDocument  jsonBuffer(12000);
-      		DeserializationError error = deserializeJson( jsonBuffer, buf.get());
 
-			if ( error )
+			// Reserve the required space for jsonBuffer based on the file size
+			DynamicJsonDocument jsonBuffer(size + 500); // Adding extra space for overhead
+			DeserializationError error = deserializeJson(jsonBuffer, buf.get());
+
+			if (error)
 			{
-				//writeLogFile( faParse HISTORY_FILE, 1 );
-				writeLogFile( error.c_str(), 1 );
+				writeLogFile(error.c_str(), 1, 1);
 				return false;
 			}
 			else
-      	{
+			{
 				JsonArray sensor = jsonBuffer["sensor"];
-        		JsonArray Sensordata = sensor.createNestedArray();	
-				
+				JsonArray Sensordata = sensor.createNestedArray();
+
 				unsigned long currentMillis = millis();
-				// should add on startup to insert record
-				if ( currentMillis - previousMillis > intervalHist )
+				if (currentMillis - previousMillis > intervalHist)
 				{
 					long int tps = now();
 					previousMillis = currentMillis;
 
-					// Check tps - if we have any record and if maybe record is false: 1.1.2036
-					if ( tps > 0 && tps < 2085974400 )
+					if (tps > 0 && tps < 2085974400)
 					{
-						Sensordata.add(tps);  			// Timestamp
-						Sensordata.add(round2(t));    // Temperature
+						Sensordata.add(tps);			// Timestamp
+						Sensordata.add(round2(t)); // Temperature
 
-            		#if defined( MODULE_DHT ) || defined( MODULE_BME280 )
-						Sensordata.add(round2(h));    // Humidity
-            		#endif
+						#if defined(MODULE_DHT) || defined(MODULE_BME280)
+						Sensordata.add(round2(h)); // Humidity
+						#endif
 
-            		#ifdef MODULE_BME280
-						Sensordata.add(round2(P0));   // Pressure
-            		#endif
+						#ifdef MODULE_BME280
+						Sensordata.add(round2(P0)); // Pressure
+						#endif
 
-						// Check if we have more than 100 records
-						if ( sensor.size() > sizeHist )
+						if (sensor.size() > sizeHist)
 							sensor.remove(0); // - remove first record / oldest
 
-						File file = LittleFS.open( HISTORY_FILE, "w" );
+						File file = LittleFS.open(HISTORY_FILE, "w");
 						if (!file)
 						{
-							//writeLogFile( fOpen + HISTORY_FILE, 1 );
-							if ( updateHistory( 1 ) ) // Create proper initial History File
-								writeLogFile( F("Delete History 3"), 1 );
+							if (updateHistory(1)) // Create proper initial History File
+								writeLogFile(F("Delete History 3"), 1, 1);
 						}
 						else
 						{
-              			if ( serializeJson( jsonBuffer, file ) == 0 )
+							if (serializeJson(jsonBuffer, file) == 0)
 							{
-								writeLogFile( fWrite + HISTORY_FILE, 1 );
+								writeLogFile(fWrite + HISTORY_FILE, 1, 1);
 								file.close();
 								return false;
-							}	// Should do something if else happened!!!!
+							}
 						}
-            	}  // END of tps
-        		}
+					}
+				}
 			}
 		}
 		file.close();
 	}
-   return true;
+	return true;
 }
 
 #endif

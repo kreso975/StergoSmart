@@ -113,7 +113,7 @@ void setupSSDP()
 
 	// Register the TicTacToe handler for the keyword "TicTac"
 	// These needs to be moved 
-	subscribeUDP("TicTac", ticTacToeUDPHandler);
+	subscribeUDP("TicTac", playTicTacToe);
 	subscribeUDP("Arduino", arduinoHandler);
 	subscribeUDP("Stergo", StergoHandler);
 
