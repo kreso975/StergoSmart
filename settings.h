@@ -38,7 +38,7 @@
 #define STERGO_PLUG 1
 
 // Firmware Version always part of this file
-#define FW_VERSION "000.06.003"                 // Check releaseLog for details
+#define FW_VERSION "000.06.004"                 // Check releaseLog for details
 #define MODEL_FRENDLY_NAME "Stergo Smart"
 #define COMPANY_URL "http://www.stergo.hr"
 

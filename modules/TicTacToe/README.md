@@ -3,29 +3,31 @@
 ❌⭕❌  
 ⭕❌⭕  
 ❌⭕❌  
-  
- # Tic Tac Toe 
 
+# Tic Tac Toe
 
 </span>
-  
-  
-Autoplay over UDP so that my smart devices can do something while doing nothing :)
-  
-> [!NOTE]  
-> On boot, M-SEARCH over UDP looks for my devices. They are added to a list, and every N minutes,  
-> a device will try to initiate a new game with a randomly selected device from the gathered list of available devices.  
->   
-> If there is a winner, that device will publish to Discord that it won.  
+
+Tic Tac Toe that *never stops playing!* With **Autoplay over UDP**, your smart devices find clever ways to stay busy... even when doing absolutely nothing. 😄  
+
+> [!NOTE]    
+> On boot, an **M-SEARCH over UDP** scans for your devices in the local network. Detected devices are compiled into a list, and every **N minutes**, a device initiates a new game with a randomly chosen partner from the list of available devices.  
 >  
-> The Tic Tac Toe module includes several features:  
-> - Initiates game invitations to available devices every N minutes.  
-> - Resets the game board automatically after a period of inactivity.  
-> - Uses AI with configurable difficulty levels to play against.  
-> - Publishes the game outcome to Discord.  
-  
-> [!TIP]  
-> StergoSmart can be compiled to feature only Tic Tac Toe.  
-> In Config.h at the top, set `#define STERGO_PROGRAM 2`.  
-  
-  
+> If a **UDP proxy HUB** is detected in the local network, the game transitions seamlessly to communicate through the HUB. The HUB modifies messages to enable centralized monitoring and live tracking of gameplay across all devices. It also provides the option to insert a human player to compete against a selected device.  
+>  
+> When a victorious device emerges, it proudly announces its win by publishing to Discord. 🏆✨  
+
+---
+
+### Tic Tac Toe Module Features
+- **Autonomous Game Invitations**: Devices automatically send game invitations to others every **N minutes** for endless fun and engagement.  
+- **Dynamic Communication Modes**: Automatically switches between direct communication and communication via the UDP proxy HUB based on network detection.  
+- **Live Monitoring**: The UDP proxy HUB facilitates centralized gameplay tracking and even allows human players to join the fun.  
+- **Smart Board Reset**: The game board resets itself after a set period of inactivity to ensure seamless gameplay.  
+- **AI with Configurable Difficulty**: Play against an AI opponent and adjust the difficulty level to suit your challenge preferences.  
+- **Discord Integration**: Game outcomes are shared on Discord, allowing devices to boast about their victories to the world.  
+
+> [!TIP]    
+> Want to enjoy just Tic Tac Toe? You can compile **StergoSmart** to include only this module.  
+> Simply update your `settings.h` file by setting:  
+> `#define STERGO_PROGRAM 2`

@@ -8,8 +8,10 @@
  
  <br><br>
  
-## **CHANGES:**  
-**000.06.003** - in development  
+## **CHANGES:**
+**000.06.004** - in development 
+
+**000.06.003** 
 - rename MQTT file and class into MQTTManager  
 - clenup and optimizaton of TicTacToe library (removing String) 
 - Tic Tac Toe can be played over UDP Proxy Hub / single point for all games traffic

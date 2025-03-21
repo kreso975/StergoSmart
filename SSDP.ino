@@ -116,7 +116,7 @@ void arduinoHandler(const char *message)
 			foundSSDPdevices[x].timestamp = 0;
 			actualSSDPdevices--;
 			#if (DEBUG == 1) 					// -------------------------------------------
-			writeLogFile(F("Found Device for removal: ") + foundSSDPdevices[x].ip.toString(), 1, 1);
+			writeLogFile(F("Found Device for removal: ") + foundSSDPdevices[x].ip.toString(), 1, 3);
 			#endif 								// -------------------------------------------
 		}
 	}
