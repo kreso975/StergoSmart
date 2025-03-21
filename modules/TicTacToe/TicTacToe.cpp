@@ -12,6 +12,18 @@
  *              6 | 7 | 8
  */
 
+// test Params
+byte HUBproxy = 0;
+byte HUBproxy_play = 0;					// 0 = No, 1 = Yes - Some Devices does not have HUBProxy functionality and they might start 1 On 1 game 
+IPAddress HUBproxy_ip(192,168,1,34);
+int HUBproxy_port = 4210;
+
+// This should be done as sepparate TicTacToe program, not to extend this code
+// TICTACTOE_GAMESERVER_CLIENT
+//byte TicTacToe_GameServer = 0;
+//IPAddress TicTacToe_GameServer_ip(192,168,1,118);
+//int TicTacToe_GameServer_port = 4210;
+
 // Config.ino
 byte tictac_start, tictac_interval, tictac_webhook, tictac_discord;
 
@@ -26,9 +38,6 @@ byte gameStarted = 0;
 byte player = 0; // Select Who Plays first 1=X, 2=O
 byte turn = 0;	  // Value of current Turn in game
 
-// Select Who Plays first 1=X, 2=O
-byte wantToPlay, selectPlayer;
-
 // We will use this to auto reset Game because there is no play and it hangs
 const long ticTacLastPlayedInterval = 1000 * 10; // 30 sec              // 1000 * 60 * 2 - 120 sec
 unsigned long ticTacLastPlayed = ticTacLastPlayedInterval;
@@ -36,10 +45,10 @@ unsigned long ticTacLastPlayed = ticTacLastPlayedInterval;
 // Interval timer for sending Invitations
 byte maxRetryInviteEmptyIP = 0;
 bool ticCallFirstRun = true;
-unsigned long ticTacCallInterval = 1000 * 60 * 60; // 1000 * 60 * 60 - 60min
+unsigned long ticTacCallInterval = 1000 * 60 * 1; // 1000 * 60 * 60 - 60min
 unsigned long ticCallLMInterval;
 
-const char* playerName = "";
+char playerName[64];
 char opponentName[28] = "";
 IPAddress opponentIP;
 int opponentUDPport;
@@ -63,9 +72,21 @@ Comments: The function uses snprintf to format the packet with the server prefix
 TODO    : None */
 void sendPacket(const char *action, int value, IPAddress ip, int port)
 {
-    char replyPacket[100];
-    snprintf(replyPacket, sizeof(replyPacket), PSTR("%s%s %s=%d"), serverPrefix, _devicename, action, value);
-    sendUDP(replyPacket, ip, port);
+	char replyPacket[100];
+	// Determine the message format based on the HUBproxy state
+	if ( HUBproxy && HUBproxy_play )
+	{
+		snprintf(replyPacket, sizeof(replyPacket), "%s;%d;%s%s %s=%d", ip.toString().c_str(), port, serverPrefix, _devicename, action, value);
+		#if (DEBUG == 1)
+    	writeLogFile(replyPacket, 1, 1);
+		#endif
+		sendUDP(replyPacket, HUBproxy_ip, HUBproxy_port); // Send to HUB proxy
+	}
+	else
+	{
+		snprintf(replyPacket, sizeof(replyPacket), "%s%s %s=%d", serverPrefix, _devicename, action, value);
+		sendUDP(replyPacket, ip, port); // Send directly to the target
+	}
 }
 
 /* ===============================================================================
@@ -118,8 +139,8 @@ void startGameValues(const char* playerName)
 {
 	// Here we will start a game
    // RND am I playing first or second, and then send proper message
-   gameStarted = 1;               	// game is in play
-	randomSeed(millis());				// Added additional random seed because ESP8266 D1 mini v4 always starts with same random number
+   gameStarted = 1;               				// game is in play
+	randomSeed(millis());							// Added additional random seed because ESP8266 D1 mini v4 always starts with same random number
    difficulty = random(3, BOARD_SIZE);     	// AI difficulty
 
    #if (DEBUG == 1)
@@ -129,29 +150,27 @@ void startGameValues(const char* playerName)
    #endif
 
    strncpy(opponentName, playerName, 28);  	// Add player name
-   opponentIP = ntpUDP.remoteIP();           // Let's fetch the IP and save it for later use
-   opponentUDPport = ntpUDP.remotePort();    // Let's fetch the port and save it for later use
 }
 
 // Before starting new game | After End of game
 void resetTicTacToe()
 {
-	// Reset board to all 0
-	for (int i = 0; i < BOARD_SIZE; ++i)
-		board[i] = 0;
+	// Reset the board and all relevant variables
+	memset(board, 0, sizeof(board)); // Reset the board in one line
 
-	turn = 0;
-	player = 0;
+	turn = player = 0;
 	byte difficulty = 8;
-	playerName = "";
+	playerName[0] = '\0';
 	memset(opponentName, 0, sizeof(opponentName));
-	gameStarted = 0;
-	opponentIP = (0, 0, 0, 0);
+	
+	gameStarted = HUBproxy_play = HUBproxy = 0;
+	opponentIP = IPAddress(0, 0, 0, 0);
 	opponentUDPport = 0;
 	didIaskedToPlay = false;
 }
 
-GamePhases getGamePhase(const char* input) {
+GamePhases getGamePhase(const char* input)
+{
 	// Maybe Shorter
 	if (strstr(input, "WePlay") != NULL)
 		 return WePlay;
@@ -161,53 +180,6 @@ GamePhases getGamePhase(const char* input) {
 		 return Move;
 	return Invalid;
 }
-
-char displayChar(int c)
-{
-	switch (c)
-	{
-		case -1:
-			return 'X';
-		case 0:
-			return ' ';
-		case 1:
-			return 'O';
-	}
-	return 0;
-}
-
-// Just Draw Grid
-void drawNumberedBoard()
-{
-	#if (DEBUG == 1)
-	// writeLogFile("Grid number layout:",1,1);
-	// writeLogFile(" 0 | 1 | 2 ",1,1);
-	// writeLogFile("---+---+---",1,1);
-	// writeLogFile(" 3 | 4 | 5 ",1,1);
-	// writeLogFile("---+---+---",1,1);
-	// writeLogFile(" 6 | 7 | 8 ",1,1);
-	#endif
-}
-
-#if (DEBUG == 1)
-// Display in Serial played moves after every move
-void draw(int board[BOARD_SIZE])
-{
-	byte vn;
-	String bm = F("\n ");
-	for (vn = 0; vn < BOARD_SIZE; ++vn)
-	{
-		bm += String(displayChar(board[vn]));
-		if (vn == 2 || vn == 5)
-			bm += F("\n---+---+---\n ");
-		else if (vn == 8)
-			bm += F(" ");
-		else
-			bm += F(" | ");
-	}
-	writeLogFile(bm, 1, 1);
-}
-#endif
 
 /* ======================================================================
 Function: win
@@ -401,10 +373,8 @@ void letsPlay(byte what, const char* who)
 			printLogInPhase("LetsPlay_w1p2");
 			#endif
 
-			//delay(1000);
 			computerMove(board);
-			//delay(1000);
-
+			
 			#if (DEBUG == 1)
 			draw(board);
 			#endif
@@ -507,14 +477,19 @@ void playTicTacToe(const char* input)
 {
 	char replyPacket[100];
 	char logMessage[100];
+	byte wantToPlay, selectPlayer;
 
-	playerName = parseUDP(input, 2, " "); // Parsing Input from UDP, space as delimiter
+	checkIfHUBProxyPlay(input);
+
+	strncpy(playerName, parseAndExtract(input, "", " ", 2), sizeof(playerName) - 1);  	// Parsing Input from UDP, space as delimiter
+	playerName[sizeof(playerName) - 1] = '\0'; // Ensure null-termination
+
 	int gamePhase = getGamePhase(input);
-
+	//writeLogFile(String("Game Phase: ") + gamePhase, 1, 1);
 	switch (gamePhase)
 	{
 		case WePlay:
-			wantToPlay = extractValue(input, "WePlay=").toInt();
+			wantToPlay = atoi(parseAndExtract(input, "WePlay=", " "));
 			if ( wantToPlay == 0 )
 			{
 				// Remote don't want to play
@@ -537,6 +512,7 @@ void playTicTacToe(const char* input)
 				printLogInPhase("WePlay");
 				#endif
 
+				// This must be fixed because if received over proxy IP is wrong
 				sendPacket("WePlay", 0, ntpUDP.remoteIP(), ntpUDP.remotePort());
 
 				#if (DEBUG == 1)
@@ -554,7 +530,7 @@ void playTicTacToe(const char* input)
 
 				// Check if I'm the one asking
 				// That Way We know how to respond
-				if (didIaskedToPlay)
+				if ( didIaskedToPlay )
 				{
 					// We will randomly choose To ask Opponent to choose Player 1 || 2 , or we will Choose 1 || 2
 					// 0 = Ask, 1 = Play 1st, 2 = Play 2nd
@@ -564,10 +540,9 @@ void playTicTacToe(const char* input)
 					writeLogFile("In sending Player decision: " + String(randNumber), 1, 1);
 					#endif
 
-					if (randNumber == 2)
-						player = 1;
-					if (randNumber == 1)
-						player = 2;
+					//If randNumber is 1, player will be set to 2.If randNumber is 2, player will be set to 1.
+					//If randNumber is any other value (like 0), player retains its current value and is not modified.
+					player = (randNumber == 1) ? 2 : (randNumber == 2) ? 1 : player;
 
 					// Here I'm Back with answer and I need to ask oponent is he playin 1st or second
 					sendPacket("Player", randNumber, opponentIP, opponentUDPport);
@@ -596,7 +571,7 @@ void playTicTacToe(const char* input)
 				break;
 			}
 
-			selectPlayer = extractValue(input, "Player=").toInt();
+			selectPlayer = atoi(parseAndExtract(input, "Player=", " "));
 			if (selectPlayer == 0)
 			{
 				// We need to make a decision Player 1 || 2
@@ -646,7 +621,7 @@ void playTicTacToe(const char* input)
 
 		case Move:
 			// Getting Move response from Remote Player
-			receivedMove = extractValue(input, "Move=").toInt();
+			receivedMove = atoi(parseAndExtract(input, "Move=", " "));
 			#if (DEBUG == 1)
 			writeLogFile("Game is in Turn: " + String(turn), 1, 1);
 			#endif
@@ -712,13 +687,13 @@ void inviteDeviceTicTacToe()
 		// We also do the hack to auto unlock us using Stale game
 		ticTacLastPlayed = millis();
 
-		IPAddress rndAddr = IPAddress(foundSSDPdevices[randNumber]);
-		if (rndAddr)
+		IPAddress rndAddr = foundSSDPdevices[randNumber].ip;
+		if ( rndAddr )
 		{
 			#if (DEBUG == 1)
 			writeLogFile("Sending Invitation to IP: " + rndAddr.toString(), 1, 1);
 			#endif
-
+			HUBproxy_play = 1;
 			sendPacket("WePlay", 1, rndAddr, 4210);
 		}
 		else
@@ -767,7 +742,75 @@ void sendTicTacWebhook(byte where)
 	}
 }
 
+// This is used to detect if opponent wants to play not over ProxyHub but directly
+void checkIfHUBProxyPlay(const char *message)
+{
+	// Check if the input contains two semicolons and set HUBproxy_play accordingly
+	const char* firstSemicolon = strstr(message, ";");
+	const char* secondSemicolon = firstSemicolon ? strstr(firstSemicolon + 1, ";") : NULL;
+ 
+	// Check if the input contains two semicolons and set HUBproxy_play accordingly
+	HUBproxy_play = (firstSemicolon != NULL && secondSemicolon != NULL) ? 1 : 0;
+ 
+	if ( HUBproxy_play == 1 )
+	{
+	  // Extract opponent IP and UDP port if the message has a prefix
+	  char opponentIPStr[16]; // Temporary variable to hold IP address string
+	  strncpy(opponentIPStr, message, firstSemicolon - message);
+	  opponentIPStr[firstSemicolon - message] = '\0'; // Null-terminate the string
+ 
+	  // Set the opponentIP variable
+	  opponentIP.fromString(opponentIPStr);
+ 
+	  char opponentUDPportStr[6]; // Temporary variable to hold port number string
+	  strncpy(opponentUDPportStr, firstSemicolon + 1, secondSemicolon - firstSemicolon - 1);
+	  opponentUDPportStr[secondSemicolon - firstSemicolon - 1] = '\0'; // Null-terminate the string
+ 
+	  // Convert port number string to integer
+	  opponentUDPport = atoi(opponentUDPportStr);
+
+	  return;
+	}
+	
+	opponentIP = ntpUDP.remoteIP();           // Let's fetch the IP and save it for later use
+   opponentUDPport = ntpUDP.remotePort();    // Let's fetch the port and save it for later use
+}
+
 #if (DEBUG == 1)
+// Just Draw Grid
+void drawNumberedBoard()
+{
+	writeLogFile("Grid number layout:",1,1);
+	writeLogFile(" 0 | 1 | 2 ",1,1);
+	writeLogFile("---+---+---",1,1);
+	writeLogFile(" 3 | 4 | 5 ",1,1);
+	writeLogFile("---+---+---",1,1);
+	writeLogFile(" 6 | 7 | 8 ",1,1);
+}
+
+char displayChar( int c )
+{
+	return (c == -1) ? 'X' : (c == 0) ? ' ' : (c == 1) ? 'O' : 0;
+}
+
+// Display in Serial played moves after every move
+void draw(int board[BOARD_SIZE])
+{
+	byte vn;
+	String bm = F("\n ");
+	for (vn = 0; vn < BOARD_SIZE; ++vn)
+	{
+		bm += String(displayChar(board[vn]));
+		if (vn == 2 || vn == 5)
+			bm += F("\n---+---+---\n ");
+		else if (vn == 8)
+			bm += F(" ");
+		else
+			bm += F(" | ");
+	}
+	writeLogFile(bm, 1, 1);
+}
+
 // to Optimize code.
 void printLogInPhase(String where)
 {

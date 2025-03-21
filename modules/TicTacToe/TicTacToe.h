@@ -5,10 +5,14 @@
 // Define the size of the Tic Tac Toe board
 #define BOARD_SIZE 9
 
+// test param
+extern byte HUBproxy;
+extern IPAddress HUBproxy_ip;
+extern int HUBproxy_port;
+
 // External functions
 extern void updateSSDP();
-extern char* parseUDP(const char* input, int part, const char* delimiter);
-extern String extractValue(const String& str, const String& key);
+extern char* parseAndExtract(const char* input, const char* key, const char* delimiter, int part);
 extern void sendWebhook(const char* localURL, const char* data);
 
 // Config.ino
@@ -16,7 +20,7 @@ extern byte tictac_start, tictac_interval, tictac_webhook, tictac_discord;
 
 // Difficulty defines number of Depth for AI , bigger Depth stronger AI
 extern byte difficulty;
-extern  int board[9];
+extern int board[BOARD_SIZE];
 
 enum GamePhases { WePlay, Player, Move, Invalid };
 extern GamePhases gamephase;
@@ -39,15 +43,11 @@ extern unsigned long ticCallLMInterval;
 
 //extern byte nrInvitationTry; 
 
-extern const char* playerName;
+extern char playerName[64];
 extern byte gameStarted;
 extern char opponentName[28];
 extern IPAddress opponentIP;
 extern int opponentUDPport;
-
-// wantToPlay = Parsed value of WePlay=
-// selectPlayer = Parsed value of Player=
-extern byte wantToPlay, selectPlayer;
 
 // didIaskedToPlay = true or false set when sending invite
 extern bool didIaskedToPlay;
@@ -68,6 +68,7 @@ extern void letsPlay( byte what, const char* who );
 extern void playTicTacToe(const char* input);
 extern void inviteDeviceTicTacToe();
 extern void sendTicTacWebhook(byte where);
+extern void checkIfHUBProxyPlay(const char *message);
 #if (DEBUG == 1)
    extern void draw( int board[BOARD_SIZE] );
    extern void printLogInPhase(String where);

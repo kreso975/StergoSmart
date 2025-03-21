@@ -38,95 +38,30 @@ double round2(double value) { return (int)(value * 100 + 0.5) / 100.0; }
 
 /* ============================================================================
 Function: showDuration
-Purpose : converts upTime / Time from device started till now (time_t upTime;)
-          to readable days hours minutes seconds
-Input   : time_t upTime;
-Output  : String DD:HH:MM:SS
-Comments: 
-TODO    :
-=============================================================================== */
-String showDuration()
+Purpose : Converts elapsed time (uptime) from when the device started to a 
+          human-readable format showing days, hours, minutes, and seconds.
+Input   : None (uses global variables time_t currentTime and startTime).
+Output  : const char* - Formatted uptime as a C-style string (e.g., "1d 2h 3m 4s").
+Comments: Uses a static buffer for efficient memory handling. Ensure the returned 
+          pointer is not used concurrently from multiple threads.
+TODO    : None */
+const char* showDuration()
 {
+  static char uptime[64]; // Static buffer to hold the uptime string
+  memset(uptime, 0, sizeof(uptime)); // Clear the buffer
+
   time_t currentTime = now();
   time_t elapsedTime = currentTime - startTime;
-  
+
   int days = elapsedTime / 86400;
   elapsedTime %= 86400;
   int hours = elapsedTime / 3600;
   elapsedTime %= 3600;
   int minutes = elapsedTime / 60;
   int seconds = elapsedTime % 60;
-  
-  String uptime = "";
-  uptime += String(days) + "d ";
-  uptime += String(hours) + "h ";
-  uptime += String(minutes) + "m ";
-  uptime += String(seconds) + "s";
-  
+
+  // Format the uptime into the static buffer
+  snprintf(uptime, sizeof(uptime), "%dd %dh %dm %ds", days, hours, minutes, seconds);
+
   return uptime;
-}
-
-/* ======================================================================
-Function: parseString
-Purpose : Process a given string based on a substring and an integer parameter
-Input   : str   : The original string to be processed
-          found : The substring to search for within str
-          what  : Operation type:
-                    1 - Delete Before Delimiter: Returns the part of str after the first occurrence of found
-                    2 - Delete Before Delimiter To: Returns the part of str starting from the first occurrence of found
-                    3 - Select To Marker Last: Returns the part of str after the last occurrence of found
-                    4 - Select To Marker: Returns the part of str before the first occurrence of found
-Output  : String - Processed substring based on the value of what
-Comments: Depending on the value of what, the function performs different types of substring extraction. 
-          If what doesn't match any specified case, it returns an empty string.
-          
-Example Usage:
-  String str = "Hello, this is a test string.";
-  String found = "test";
-
-  // Case 1: Delete Before Delimiter
-  String result1 = parseString(str, found, 1);  // " string."
-
-  // Case 2: Delete Before Delimiter To
-  String result2 = parseString(str, found, 2);  // "test string."
-
-  // Case 3: Select To Marker Last
-  String result3 = parseString(str, found, 3);  // " string."
-
-  // Case 4: Select To Marker
-  String result4 = parseString(str, found, 4);  // "Hello, this is a " */
-  /*
-String parseString( String str, String found, int what )
-{
-  if ( what == 2 || what == 4 )
-  {
-    int p = str.indexOf(found);
-    if ( what == 2 )
-      return str.substring(p);
-    else
-      return str.substring(0, p);
-  }
-  else if ( what == 1 )
-  {
-    int p = str.indexOf(found) + found.length();
-    return str.substring(p);
-  }
-  else if ( what == 3 )
-  {
-    int p = str.lastIndexOf(found);
-    return str.substring(p + found.length());
-  }
-
-  return "";
-}
-*/
-
-
-String extractValue(const String& str, const String& key)
-{
-    int start = str.indexOf(key) + key.length();
-    if (start == -1 + key.length()) return ""; // key not found
-    int end = str.indexOf(' ', start);
-    if (end == -1) end = str.length();
-    return str.substring(start, end);
 }

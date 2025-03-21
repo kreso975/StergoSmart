@@ -35,13 +35,17 @@ TODO    : Implement fail over if LittleFS get corrupted - copy content
 			 https://github.com/spacehuhn/esp8266_deauther/blob/master/esp8266_deauther/webfiles.h */
 bool setupFS()
 {
-	if (LittleFS.begin())
-		return true;
-	else
-		return false;
+	return LittleFS.begin();
 }
 
-// convert the file extension to the MIME type
+/* ============================================================================
+Function: getContentType
+Purpose : Determines the MIME type of a file based on its extension.
+Input   : String filename - The name of the file whose MIME type is to be determined.
+Output  : String - The corresponding MIME type as a string.
+Comments: - Supports common file extensions like .html, .css, .js, etc.
+          - Returns "text/plain" as a default for unsupported file extensions.
+          - Special handling for .txt files, which are treated as "text/html". */
 String getContentType(String filename)
 {
 	if (filename.endsWith(".html"))
@@ -61,6 +65,16 @@ String getContentType(String filename)
 	return "text/plain";
 }
 
+/* ============================================================================
+Function: handleFileRead
+Purpose : Sends the requested file to the client if it exists in the filesystem.
+Input   : String path - The requested file path.
+Output  : bool - Returns true if the file exists and is successfully sent to
+                 the client, otherwise returns false.
+Comments: - Automatically appends "index.html" to paths ending with "/".
+          - Prioritizes sending compressed (.gz) versions of files if available.
+          - Streams the file to the client using the MIME type determined by getContentType.
+          - Closes the file after streaming to free up resources. */
 bool handleFileRead(String path)
 { // send the right file to the client (if it exists)
 
@@ -87,6 +101,21 @@ bool handleFileRead(String path)
 	return false;
 }
 
+/* ============================================================================
+Function: handleFileUpload
+Purpose : Handles the upload of a new file to the LittleFS filesystem. Processes
+          file creation, writing, and finalization, with logging and JSON replies.
+Input   : None (relies on the `server.upload()` object for upload data).
+Output  : None
+Comments: - Handles three stages of an HTTP file upload:
+            1. UPLOAD_FILE_START: Prepares the file for writing.
+            2. UPLOAD_FILE_WRITE: Writes chunks of uploaded data to the file.
+            3. UPLOAD_FILE_END: Finalizes the upload, closes the file, and logs
+               the result.
+          - Generates appropriate log messages and JSON responses based on the
+            upload status (success or error).
+          - Requires LittleFS and HTTP server libraries to be included.
+TODO    : Add error handling for edge cases, such as filesystem errors or large files. */
 void handleFileUpload()
 { // upload a new file to the LittleFS
 
@@ -114,12 +143,12 @@ void handleFileUpload()
 
 			// writeLogFile( "handleFileUpload Size: " + upload.totalSize, 1 );
 			writeLogFile(F("Success file upload: ") + filename, 1);
-			server.send(200, "application/json", "{\"success\":\"Success file upload\"}");
+			sendJSONheaderReply(1, F("Success file upload"));
 		}
 		else
 		{
 			writeLogFile(F("Error file upload: ") + filename, 1);
-			server.send(200, "application/json", "{\"Error\":\"Error file upload\"}");
+			sendJSONheaderReply(0, F("Error file upload"));
 		}
 	}
 }
@@ -132,16 +161,10 @@ Output  : true / false
 Comments: - */
 bool saveLogFile(int z = 0)
 {
-	String json;
-
 	File file = LittleFS.open(LOG_FILE, "w");
-	if (!file)
-		return false;
+	if (!file) return false;
 
-	if (z == 1)
-		json = "{\"log\":[]}";
-
-	file.print(json);
+	if (z == 1) file.print("{\"log\":[]}");
 	file.close();
 
 	return true;
@@ -159,96 +182,57 @@ TODO    : use const char* message, FIX time issue ( no timestamp before NTP ), S
 bool writeLogFile(String message, int newLine, int output)
 {
 	// Write to Serial
-	if (output == 1 || output == 3)
-	{
-		if (logOutput == 0)
-		{
-			#if (DEBUG == 1)
-			if (newLine == 0)
-				Serial.print(message);
-			else
-				Serial.println(message);
-			#endif
-		}
-	}
+	#if (DEBUG == 1)
+	if ((output == 1 || output == 3) && logOutput == 0)
+		newLine == 0 ? Serial.print(message) : Serial.println(message);
+	#endif
 
 	// Write to Log only if Filesystem is UP
-	if (setupFS())
+	if (!setupFS())
+		return false;
+
+	if ( output == 2 || output == 3 )
 	{
-		// Write to Log
-		if (output == 2 || output == 3)
+		DynamicJsonDocument jsonBuffer(6000);
+		File file = LittleFS.open(LOG_FILE, "r");
+
+		if (!file || file.size() < 10)
 		{
-			DynamicJsonDocument jsonBuffer(6000);
+			writeLogFile(fOpen + LOG_FILE, 1);
+			if (saveLogFile(1))
+				writeLogFile(nLOG, 1);
+		}
+		else
+		{
+			std::unique_ptr<char[]> buf(new char[file.size()]);
+			file.readBytes(buf.get(), file.size());
+			file.close();
 
-			File file = LittleFS.open(LOG_FILE, "r");
-			if (!file)
+			if (deserializeJson(jsonBuffer, buf.get()))
 			{
-				writeLogFile(fOpen + LOG_FILE, 1);
-				if (saveLogFile(1)) // Create proper initial Log File
-					writeLogFile(nLOG, 1);
+				writeLogFile(faParse + String(LOG_FILE), 1);
+				return false;
 			}
-			else
+
+			JsonArray logData = jsonBuffer["log"];
+			JsonObject logEntry = logData.createNestedObject();
+
+			logEntry["id"] = timeClient.getEpochTime(); // Timestamp
+			logEntry["id2"] = 1;								  // Message Type
+			logEntry["id3"] = message;						  // Message
+
+			if (logData.size() > sizeLog)
+				logData.remove(0); // Remove oldest entry
+
+			File writeFile = LittleFS.open(LOG_FILE, "w");
+			if (!writeFile || serializeJson(jsonBuffer, writeFile) == 0)
 			{
-				size_t size = file.size();
-				if (size < 10)
-				{
-					if (saveLogFile(1)) // Create proper initial Log File
-						writeLogFile(nLOG, 1);
-				}
-				else
-				{
-					std::unique_ptr<char[]> buf(new char[size]);
-					file.readBytes(buf.get(), size);
-					file.close();
-
-					DeserializationError error = deserializeJson(jsonBuffer, buf.get());
-
-					if (error)
-					{
-						writeLogFile(faParse + String(LOG_FILE), 1);
-						return false;
-					}
-					else
-					{
-						JsonArray logData = jsonBuffer["log"];
-						JsonObject LogWritedata = logData.createNestedObject();
-
-						long int tps = timeClient.getEpochTime();
-						// NEEDS TO BE EXTENDED IN ENTIRE CORE TO PROPERLY SETUP WORNING / INFO MESSAGE TYPE
-						int type = 1;
-
-						LogWritedata["id"] = tps;		 // Timestamp
-						LogWritedata["id2"] = type;	 // Message Type
-						LogWritedata["id3"] = message; // Message
-
-						if (logData.size() > sizeLog)
-							logData.remove(0); // - remove first record / oldest
-
-						// Let's now write Fresh log input
-						File file = LittleFS.open(LOG_FILE, "w");
-						if (!file)
-						{
-							writeLogFile(fOpen + LOG_FILE, 1);
-							if (saveLogFile(1)) // Create proper initial Log File
-								writeLogFile(nLOG, 1);
-						}
-						else
-						{
-							// if ( rootLog.prettyPrintTo(file) == 0 )
-							if (serializeJson(jsonBuffer, file) == 0)
-							{
-								writeLogFile(fWrite + LOG_FILE, 1);
-								//*message = fWrite + LOG_FILE;
-								file.close();
-								return false;
-							}
-						}
-					}
-				}
-				file.close();
+				writeLogFile(fWrite + LOG_FILE, 1);
+				writeFile.close();
+				return false;
 			}
+			writeFile.close();
 		}
 	}
-
 	return true;
 }

@@ -36,7 +36,7 @@ void setupHttpServer()
 	server.on("/css/dashboard.css", []() {
 		if (!handleFileRead("/css/dashboard.css"))				// send it if it exists
 			server.send(404, "text/plain", "404: Not Found"); // otherwise, respond with a 404 (Not Found) error
-		});
+	});
 
 	server.serveStatic("/img", LittleFS, "/img");
 
@@ -189,8 +189,8 @@ Comments: - */
 void sendDeviceInfo()
 {
 	char data[460];
-	int len = snprintf(data, sizeof(data), "{\"result\":[{\"Name\":\"Firmware\",\"Value\":\"%s\"},{\"Name\":\"Chip ID\",\"Value\":\"%s\"},{\"Name\":\"CPU Frequency(MHz)\",\"Value\":\"%u\"},{\"Name\":\"Free Heap\",\"Value\":\"%u\"},{\"Name\":\"DeviceName\",\"Value\":\"%s\"},{\"Name\":\"Uptime\",\"Value\":\"%s\"},{\"Name\":\"DeviceIP\",\"Value\":\"%s\"},{\"Name\":\"MAC address\",\"Value\":\"%s\"},{\"Name\":\"FreeSPIFFS\",\"Value\":\"%ld\"}]}",
-							 FIRMWARE, chipID, ESP.getCpuFreqMHz(), ESP.getFreeHeap(), deviceName, showDuration().c_str(), WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), GetMeFSinfo().toInt());
+	snprintf(data, sizeof(data), "{\"result\":[{\"Name\":\"Firmware\",\"Value\":\"%s\"},{\"Name\":\"Chip ID\",\"Value\":\"%s\"},{\"Name\":\"CPU Frequency(MHz)\",\"Value\":\"%u\"},{\"Name\":\"Free Heap\",\"Value\":\"%u\"},{\"Name\":\"DeviceName\",\"Value\":\"%s\"},{\"Name\":\"Uptime\",\"Value\":\"%s\"},{\"Name\":\"DeviceIP\",\"Value\":\"%s\"},{\"Name\":\"MAC address\",\"Value\":\"%s\"},{\"Name\":\"FreeSPIFFS\",\"Value\":\"%ld\"}]}",
+							 FIRMWARE, chipID, ESP.getCpuFreqMHz(), ESP.getFreeHeap(), deviceName, showDuration(), WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), GetMeFSinfo().toInt());
 
 	// 3 is indicator of JSON already formated reply
 	sendJSONheaderReply(3, data);
@@ -267,29 +267,38 @@ void sendWebhook(const char* localURL, const char* data)
 }
 
 
-/* ======================================================================
+/* ============================================================================
 Function: sendJSONheaderReply
-Purpose : Display as an response Web Header with JSON reply
-Input   : byte type , String message
-Output  :
-Comments:*/
+Purpose : Sends a JSON response to the client with the appropriate header and
+          message format based on the specified type.
+Input   : byte type - Specifies the type of response:
+                      0 = Error, 1 = Success, 2 = Info, 3 = Raw JSON message.
+          String message - The message content to include in the JSON response.
+Output  : None
+Comments: - Formats the JSON response according to the type, using the keys 
+            "Error", "success", or "Info" for types 0, 1, and 2, respectively.
+          - Sends the JSON response with the "Access-Control-Allow-Origin" header 
+            for cross-origin resource sharing (CORS).
+          - Type 3 sends the message as a raw JSON object without additional formatting.
+          - Utilizes the `F()` macro to store string literals in flash memory, 
+            optimizing memory usage. */
 void sendJSONheaderReply(byte type, String message)
 {
 	String output;
-	switch (type)
+	switch ( type )
 	{
-	case 0:
-		output = F("{\"Error\":\"") + message + F("\"}");
-		break;
-	case 1:
-		output = F("{\"success\":\"") + message + F("\"}");
-		break;
-	case 2:
-		output = F("{\"Info\":\"") + message + F("\"}");
-		break;
-	case 3:
-		output = message;
-		break;
+		case 0:
+			output = F("{\"Error\":\"") + message + F("\"}");
+			break;
+		case 1:
+			output = F("{\"success\":\"") + message + F("\"}");
+			break;
+		case 2:
+			output = F("{\"Info\":\"") + message + F("\"}");
+			break;
+		case 3:
+			output = message;
+			break;
 	}
 
 	server.sendHeader("Access-Control-Allow-Origin", "*");
@@ -317,8 +326,8 @@ Comments: - Firmware Update Version Check done server side
 String firmwareOnlineUpdate(byte what)
 {
 	String message;
-	String prefix;
-	t_httpUpdate_return ret;
+   String prefix = (what == 1) ? "LittleFS" : "Firmware";
+   t_httpUpdate_return ret;
 
 	#if defined(ESP8266)
 	ESPhttpUpdate.rebootOnUpdate(false);
@@ -327,9 +336,8 @@ String firmwareOnlineUpdate(byte what)
 	httpUpdate.rebootOnUpdate(false);
 	#endif
 
-	if (what == 1)
+	if ( what == 1 )
 	{
-		prefix = "LittleFS";
 		#if defined(ESP8266)
 		ret = ESPhttpUpdate.updateFS(espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", SERIAL_NUMBER);
 		#elif defined(ESP32)
@@ -372,7 +380,6 @@ String firmwareOnlineUpdate(byte what)
 	}
 	else if (what == 2)
 	{
-		prefix = "Firmware";
 		#if defined(ESP8266)
 		ret = ESPhttpUpdate.update(espClient, "http://192.168.1.101/StergoWeather/firmwareCheck.php", FIRMWARE);
 		#elif defined(ESP32)
@@ -382,22 +389,22 @@ String firmwareOnlineUpdate(byte what)
 
 	switch (ret)
 	{
-	case HTTP_UPDATE_FAILED:
-		#if defined(ESP8266)
-		writeLogFile("HTTP UPDATE FAIL " + String(ESPhttpUpdate.getLastErrorString()), 1, 3);
-		#elif defined(ESP32)
-		writeLogFile("HTTP UPDATE FAIL " + String(httpUpdate.getLastErrorString()), 1, 3);
-		#endif
-		message = F("{\"Error\":\"Failed\"}");
-		break;
-	case HTTP_UPDATE_NO_UPDATES:
-		writeLogFile(prefix + F(" Up2Date"), 1, 3);
-		message = F("{\"Info\":\"No Updates\"}");
-		break;
-	case HTTP_UPDATE_OK:
-		writeLogFile(prefix + F(" Update"), 1, 3);
-		message = F("{\"success\":\"Updating ..\"}");
-		break;
+		case HTTP_UPDATE_FAILED:
+			#if defined(ESP8266)
+			writeLogFile("HTTP UPDATE FAIL " + String(ESPhttpUpdate.getLastErrorString()), 1, 3);
+			#elif defined(ESP32)
+			writeLogFile("HTTP UPDATE FAIL " + String(httpUpdate.getLastErrorString()), 1, 3);
+			#endif
+			message = F("{\"Error\":\"Failed\"}");
+			break;
+		case HTTP_UPDATE_NO_UPDATES:
+			writeLogFile(prefix + F(" Up2Date"), 1, 3);
+			message = F("{\"Info\":\"No Updates\"}");
+			break;
+		case HTTP_UPDATE_OK:
+			writeLogFile(prefix + F(" Update"), 1, 3);
+			message = F("{\"success\":\"Updating ..\"}");
+			break;
 	}
 
 	return message;

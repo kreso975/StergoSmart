@@ -93,21 +93,12 @@ String SERIAL_NUMBER = String(PRODUCT) + "-" + chipID;
 #define SERIAL_BAUDRATE 9600
 #define WEBSERVER_PORT 80
 #define NTPSERVER "europe.pool.ntp.org"
-#define SSDPPORT 1900
-#define SSDPADRESS 239, 255, 255, 250
-
-//set local UDP port - using it for device 2 device communication (WiFi)
-#define LOCAL_UDP_PORT 4210
-#define NUMBER_OF_FOUND_SSDP 6
-IPAddress foundSSDPdevices[NUMBER_OF_FOUND_SSDP];
-int actualSSDPdevices = 0;
 
 #define configFile "/config.json"
 #define LOG_FILE "/log.json"
 
 byte logOutput = 0;  // 0 = Serial, 1 = LogFile
 #define sizeLog 30   // Log size = nr of records
-
 
 String fOpen = "Fail to open ";
 String fWrite = "Fail to write ";

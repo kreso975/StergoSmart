@@ -3,11 +3,15 @@
 
 /* ======================================================================
 Function: updateWeather
-Purpose : Main Loop handler for Weather
-Input   : 
-Output  : logic execution
-Comments: 
-TODO    : */
+Purpose : Main loop handler for weather-related operations
+Input   : None
+Output  : None
+Comments:
+          - Handles periodic weather sensor readings.
+          - Updates web-based location data at predefined intervals.
+          - Publishes data via MQTT at defined intervals, with error handling.
+TODO    : Optimize intervals or modularize components further if necessary.
+*/
 void updateWeather()
 {
 	// If MODULE WEATHER is detected on Setup
@@ -109,23 +113,27 @@ TODO:   : check if jsonDataBuffer not EMPTY before write to file. After
           sub functions so that we can go over again if needed
 
 Comments: -  */
-bool updateHistory(int z = 0) {
-	const char* json = "";
+bool updateHistory( int z = 0 )
+{
+	// Default empty JSON structure
+	const char* json = (z == 1) ? "{\"sensor\":[]}" : "";
 
+	// Open the file for writing
 	File file = LittleFS.open(HISTORY_FILE, "w");
-	if (!file)
+	if (!file) {
+		 //writeLogFile(F("Failed to open history file"), 1, 3);  // Added error logging
 		 return false;
+	}
 
-	// Clear/Delete history
+	// Log deletion of history if applicable
 	if (z == 1) {
-		 json = "{\"sensor\":[]}";
 		 writeLogFile(F("Delete History"), 1, 3);
 	}
 
+	// Write to the file
 	file.print(json);
 	file.close();
 
-	//writeLogFile(F("Update History"), 1);
 	return true;
 }
 
@@ -179,9 +187,10 @@ Purpose : Publish temperature, humidity, air pressure to JSON HTTP || WebHook
 Input   : -
 Output  : HTTP JSON
 Comments: -  */
-void sendMeasures(bool webhook) {
+void sendMeasures(bool webhook)
+{
 	const char* localURL = webLoc_server; // Only used if webhook is true
-	char data[100]; // Allocate a buffer for the data
+	char data[50]; // Allocate a buffer for the data
 
 	#ifdef MODULE_DS18B20
 	snprintf(data, sizeof(data), PSTR("{\"t\":\"%.2f\"}"), t);
@@ -193,12 +202,10 @@ void sendMeasures(bool webhook) {
 	snprintf(data, sizeof(data), PSTR("{\"t\":\"%.2f\",\"h\":\"%.2f\",\"p\":\"%.2f\"}"), t, h, P0);
 	#endif
 
-	if (webhook) {
-		 sendWebhook(localURL, data);
-	} else {
-		 // 3 is an indicator of JSON already formatted reply
-		 sendJSONheaderReply(3, data);
-	}
+	if ( webhook )
+		sendWebhook( localURL, data );
+	else
+		sendJSONheaderReply(3, data); // 3 is an indicator of JSON already formatted reply
 }
 
 /* ======================================================================

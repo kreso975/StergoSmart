@@ -8,4 +8,3 @@ Output  : true / false
 Comments: date:hour, type (warning, info), message
 TODO    : FIX time issue ( no timestamp before NTP ), START using TYPE clasification  */
 bool writeLogFile( String message, int newLine, int output = 2 );
-//bool writeLogFile( const char* message, int newLine, int output = 2 );
