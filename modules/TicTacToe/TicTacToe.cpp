@@ -430,8 +430,8 @@ void letsPlay(byte what, const char* who)
 				case 0:
 					#if (DEBUG == 1)
 					writeLogFile(F("It's a draw."), 1, 1);
+					//discord.send("Hello World!");
 					#endif
-					// sendTicTacWebhook(2);
 					break;
 				case 1:
 					#if (DEBUG == 1)
@@ -479,6 +479,7 @@ void playTicTacToe(const char* input)
 	char logMessage[100];
 	byte wantToPlay, selectPlayer;
 
+	// this should not be entered each time
 	checkIfHUBProxyPlay(input);
 
 	strncpy(playerName, parseAndExtract(input, "", " ", 2), sizeof(playerName) - 1);  	// Parsing Input from UDP, space as delimiter
@@ -490,7 +491,7 @@ void playTicTacToe(const char* input)
 	{
 		case WePlay:
 			wantToPlay = atoi(parseAndExtract(input, "WePlay=", " "));
-			if ( wantToPlay == 0 )
+			if ( !wantToPlay ) // Do not want to play == 0
 			{
 				// Remote don't want to play
 				#if (DEBUG == 1)
@@ -499,9 +500,10 @@ void playTicTacToe(const char* input)
 				printLogInPhase("WePlay");
 				#endif
 
+				resetTicTacToe();
 				break;
 			}
-			else if (wantToPlay == 1 && gameStarted == 1)
+			else if ( wantToPlay && gameStarted )
 			{
 				// We cannot play because we are already playing
 				// Here we can check if we are playing with the same player already
@@ -523,7 +525,7 @@ void playTicTacToe(const char* input)
 				resetTicTacToe();
 				break;
 			}
-			else if (wantToPlay == 1 && gameStarted == 0)
+			else if ( wantToPlay && !gameStarted )
 			{
 				// Init Start Game Values
 				startGameValues(playerName);
@@ -559,7 +561,7 @@ void playTicTacToe(const char* input)
 
 		case Player:
 			// First lets check if we can talk
-			if ( gameStarted == 0 )
+			if ( !gameStarted )
 			{
 				// I didnt sent Play Invitation so i just reply Yes I want to play
 				#if (DEBUG == 1)
@@ -581,7 +583,7 @@ void playTicTacToe(const char* input)
 
 				sendPacket("Player", randNumber, opponentIP, opponentUDPport);
 			}
-			else if ((selectPlayer == 1 || selectPlayer == 2) && gameStarted == 0)
+			else if ( (selectPlayer == 1 || selectPlayer == 2) && !gameStarted )
 			{
 				#if (DEBUG == 1)
 				writeLogFile(selectPlayer + " Selected to play as Player: " + String(selectPlayer), 1, 1);
@@ -594,7 +596,7 @@ void playTicTacToe(const char* input)
 
 				letsPlay(1, playerName);
 			}
-			else if (selectPlayer == 1 && gameStarted == 1 && turn == 0)
+			else if (selectPlayer == 1 && gameStarted && turn == 0)
 			{
 				// Opponent decided to play As player 1, lets register player as 1 and inform him he plays first, send him to play (-1)
 				player = selectPlayer;
@@ -605,7 +607,7 @@ void playTicTacToe(const char* input)
 
 				sendPacket("Move", -1, opponentIP, opponentUDPport);
 			}
-			else if (selectPlayer == 2 && gameStarted == 1 && turn == 0)
+			else if (selectPlayer == 2 && gameStarted && turn == 0)
 			{
 				// Opponent decided to play As player 2, lets register player as 2 and start play
 				player = selectPlayer;
@@ -629,7 +631,7 @@ void playTicTacToe(const char* input)
 			if ( receivedMove == -1 && turn == 0 )
 				letsPlay(1, playerName);
 
-			if (receivedMove >= 0 && gameStarted == 1)
+			if (receivedMove >= 0 && gameStarted )
 			{
 				// Check If we can play with this player
 				// compare if playerName was the one when Game initiated
@@ -736,7 +738,7 @@ void sendTicTacWebhook(byte where)
 		//writeLogFile(message, 1, 1);
 		// Create the JSON data
 		snprintf(data, sizeof(data), PSTR("{\"username\":\"%s\",\"avatar_url\":\"%s\",\"content\":\"%s\"}"), discordUsername, discordAvatar, message);
-
+		
 		// Send the webhook
 		sendWebhook(localURL, data);
 	}

@@ -21,6 +21,10 @@ extern unsigned long previousMillis;
 
 extern char mqtt_Humidity[120];
 
+extern int mqtt_interval;
+extern unsigned long mqtt_intervalHist;
+extern unsigned long mqtt_previousMillis;
+
 //DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor
 
 extern bool setupDS18B20();

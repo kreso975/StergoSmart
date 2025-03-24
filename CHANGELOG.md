@@ -5,11 +5,18 @@
   - implement httpupdate LittleFS
   - implement firmware update ESP32
   - start moving *.ino to .h and .cpp and place them to src folder 
- 
+  
  <br><br>
  
 ## **CHANGES:**
 **000.06.004** - in development 
+- WiFiManager fully decoupled from the rest of the code. All WiFi-related global variables have been moved into the WiFiManager class.
+- MQTTManager decoupled. added new functionalities. 
+- config.h WiFi and MQTT variables moved to classed including BME280 and DHTsensors
+- String getContentType(String filename), bool handleFileRead(String path) and void handleFileUpload() Moved from Filesystem.ino to handleHttp.ino because of Http server dependancy
+- replaced NTPClient.h with NTPClient_Generic.h.It's extended version of NTPClient with more checks on data 
+- replaced Adafruit_BME280.h with Bosch_BME280_Arduino.h. Smaler compiled code and repo is updated.
+- fix Weather.ino history.json write
 
 **000.06.003** 
 - rename MQTT file and class into MQTTManager  

@@ -2,6 +2,7 @@
 #define MODULE_TIC_TAC_TOE_H
 
 #include <Arduino.h>
+
 // Define the size of the Tic Tac Toe board
 #define BOARD_SIZE 9
 
@@ -55,7 +56,6 @@ extern bool didIaskedToPlay;
 #define REPLAYER "Remote Player"
 
 extern String SERTIC;
-
 extern void updateTicTacToe();
 extern void startGameValues( const char* playerName );
 extern void resetTicTacToe();

@@ -40,7 +40,7 @@ void turnSwitchState( int state )
     digitalWrite( RELAY, HIGH );
 
     relay01State = true;
-    if ( mqtt_start == 1 )
+    if ( mqttManager.getMqttStart() )
       sendSwitchMQTT();
 
     sendJSONheaderReply( 3, POWERON );
@@ -50,7 +50,7 @@ void turnSwitchState( int state )
     digitalWrite( RELAY, LOW );
 
     relay01State = false;
-    if (mqtt_start == 1)
+    if ( mqttManager.getMqttStart() )
       sendSwitchMQTT();
 
     sendJSONheaderReply( 3, POWEROFF );

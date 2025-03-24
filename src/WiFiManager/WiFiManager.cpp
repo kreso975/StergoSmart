@@ -9,6 +9,30 @@
 #include "WiFiManager.h"
 
 
+
+char wifi_ssid[20] = "";
+char wifi_password[20] = "";
+char wifi_StaticIP[16] = "";
+char wifi_gateway[16] = "";
+char wifi_subnet[16] = "";
+char wifi_DNS[16] = "";
+char wifi_hostname[20] = "StergoSmart";
+byte wifi_static = 0;
+byte wifi_runAS = 1;
+
+/******************************************************************************************************
+ *  CAPTIVE PORTAL - SETUP
+ *
+ *  TODO: 
+ *  
+ *
+ * hostname (wifi_hostname) for mDNS. Should work at least on windows. Try http://stergoweather.local *
+ * Set these to your desired softAP credentials. They are not configurable at runtime                 *
+ ******************************************************************************************************/
+char softAP_ssid[20] = "StergoSmart_ap";
+char softAP_pass[20] = "123456789";
+
+
 /* ======================== WiFiManager ==============================
 Class   : WiFiManager
 Purpose : Brain of WiFi behaviour
@@ -32,9 +56,14 @@ Methods :
 	 - void checkAPRestart(): Check if AP needs auto restart after 5 min 
      - void startWiFiScan(ScanCompleteCallback callback): Start the asynchronous scan with a callback */
      
-WiFiManager::WiFiManager(char *ssid, char *password, char *staticIP, char *gateway, char *subnet, char *DNS, char *hostname, byte &useStatic, char *ap_ssid, char *ap_pass, String chipID)
-    : wifi_ssid(ssid), wifi_password(password), wifi_StaticIP(staticIP), wifi_gateway(gateway), wifi_subnet(subnet), wifi_DNS(DNS), wifi_hostname(hostname), wifi_static(useStatic), softAP_ssid(ap_ssid), softAP_pass(ap_pass), chipID(chipID), ap_previousMillis(0), ap_intervalHist(300000), scanCompleteCallback(nullptr) {}
-
+WiFiManager::WiFiManager()
+    : ap_previousMillis(0),
+    ap_intervalHist(300000),
+    scanCompleteCallback(nullptr)
+{
+    // Constructor body (if needed)
+}
+     
 bool WiFiManager::disconnectSTA()
 {
     WiFi.disconnect(true);
@@ -61,7 +90,7 @@ bool WiFiManager::startSTA(int STAmode)
 
     if (STAmode == 0)
     {
-        WiFi.begin(wifi_ssid, wifi_password);
+        WiFi.begin(wifi_ssid, wifi_password); // Accessing globals directly
     }
     else if (STAmode == 1)
     {
@@ -87,6 +116,7 @@ bool WiFiManager::startSTA(int STAmode)
     return true;
 }
 
+
 /**
  * @brief Starts the Access Point (AP) mode on the ESP8266/ESP32 device.
  * 
@@ -102,9 +132,7 @@ bool WiFiManager::startSTA(int STAmode)
 bool WiFiManager::startAP()
 {
     WiFi.mode(WIFI_AP);
-    char tmp[40]; // Adjust size as needed
-    snprintf(tmp, sizeof(tmp), "%s_%s", softAP_ssid, chipID.c_str());
-    WiFi.softAP(tmp, softAP_pass);
+    WiFi.softAP(softAP_ssid, softAP_pass);
     delay(500);
     ap_previousMillis = millis();
     return true;
@@ -211,4 +239,64 @@ void WiFiManager::scanCompleteHandler(int networksFound, WiFiManager* instance)
 String WiFiManager::getScanResult()
 {
     return scanResult; // Return the stored scan result
+}
+
+const char* WiFiManager::getHostname() const
+{
+    return wifi_hostname;
+}
+
+void WiFiManager::setWifiHostname(const char* wifi_hostname)
+{
+    strlcpy(this->wifi_hostname, wifi_hostname, sizeof(this->wifi_hostname));
+}
+
+void WiFiManager::setSoftAPSSID(const char* softAP_ssid)
+{
+    strlcpy(this->softAP_ssid, softAP_ssid, sizeof(this->softAP_ssid));
+}
+
+void WiFiManager::setSoftAPPassword(const char* softAP_pass)
+{
+    strlcpy(this->softAP_pass, softAP_pass, sizeof(this->softAP_pass));
+}
+
+void WiFiManager::setWifiSSID(const char* wifi_ssid)
+{
+    strlcpy(this->wifi_ssid, wifi_ssid, sizeof(this->wifi_ssid));
+}
+
+void WiFiManager::setWifiPassword(const char* wifi_password)
+{
+    strlcpy(this->wifi_password, wifi_password, sizeof(this->wifi_password));
+}
+
+void WiFiManager::setWifiStaticIP(const char* wifi_StaticIP)
+{
+    strlcpy(this->wifi_StaticIP, wifi_StaticIP, sizeof(this->wifi_StaticIP));
+}
+
+void WiFiManager::setWifiGateway(const char* wifi_gateway)
+{
+    strlcpy(this->wifi_gateway, wifi_gateway, sizeof(this->wifi_gateway));
+}
+
+void WiFiManager::setWifiSubnet(const char* wifi_subnet)
+{
+    strlcpy(this->wifi_subnet, wifi_subnet, sizeof(this->wifi_subnet));
+}
+
+void WiFiManager::setWifiDNS(const char* wifi_DNS)
+{
+    strlcpy(this->wifi_DNS, wifi_DNS, sizeof(this->wifi_DNS));
+}
+
+void WiFiManager::setWifiRunAS(byte wifi_runAS)
+{
+    this->wifi_runAS = wifi_runAS;
+}
+
+void WiFiManager::setWifiStatic(byte wifi_static)
+{
+    this->wifi_static = wifi_static;
 }

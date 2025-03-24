@@ -12,6 +12,9 @@ unsigned long lastMeasureInterval = measureInterval;
 unsigned long previousMillis = intervalHist;
 
 char mqtt_Temperature[120];
+int mqtt_interval = 120;
+unsigned long mqtt_intervalHist;
+unsigned long mqtt_previousMillis;
 
 // Setup a oneWire instance to communicate with any OneWire devices
 OneWire oneWire(ONE_WIRE_BUS);

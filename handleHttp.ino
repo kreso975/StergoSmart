@@ -222,7 +222,7 @@ Comments: - */
 bool captivePortal()
 {
 	IPAddress ip;
-	if (!ip.fromString(server.hostHeader()) && server.hostHeader() != (String(wifi_hostname) + ".local"))
+	if (!ip.fromString(server.hostHeader()) && server.hostHeader() != (String(wifiManager.getHostname()) + ".local"))
 	{
 		server.sendHeader("Location", String("http://") + server.client().localIP().toString(), true);
 		server.send(302, "text/plain", ""); // Empty content inhibits Content-length header so we have to close the socket ourselves.
@@ -250,21 +250,22 @@ Output  :
 Comments: - I have local web server for forwarding Discord Webhook */
 void sendWebhook(const char* localURL, const char* data)
 {
-    HTTPClient http;
-    http.begin(espClient, localURL);
-    http.addHeader("Content-Type", "application/json"); // Set request as JSON
+	HTTPClient webhookHttp;  // Use a distinct name for the local variable
+	webhookHttp.begin(espClient, localURL);
+	webhookHttp.addHeader("Content-Type", "application/json"); // Set request as JSON
 
-    // Send POST request
-    int httpResponseCode = http.POST(data);
+	// Send POST request
+	int httpResponseCode = webhookHttp.POST(data);
 
-    #if (DEBUG == 1)
-    	char logMessage[50];
-		snprintf(logMessage, sizeof(logMessage), "HTTP Response code: %d", httpResponseCode);
-		writeLogFile(logMessage, 1, 1);
-    #endif
+	#if (DEBUG == 1)
+	char logMessage[50];
+	snprintf(logMessage, sizeof(logMessage), "HTTP Response code: %d", httpResponseCode);
+	writeLogFile(logMessage, 1, 1);
+	#endif
 
-    http.end();
+	webhookHttp.end();  // Ensure proper cleanup
 }
+
 
 
 /* ============================================================================
@@ -303,6 +304,33 @@ void sendJSONheaderReply(byte type, String message)
 
 	server.sendHeader("Access-Control-Allow-Origin", "*");
 	server.send(200, "application/json", output);
+}
+
+/* ============================================================================
+Function: getContentType
+Purpose : Determines the MIME type of a file based on its extension.
+Input   : String filename - The name of the file whose MIME type is to be determined.
+Output  : String - The corresponding MIME type as a string.
+Comments: - Supports common file extensions like .html, .css, .js, etc.
+          - Returns "text/plain" as a default for unsupported file extensions.
+          - Special handling for .txt files, which are treated as "text/html". */
+String getContentType(String filename)
+{
+	if (filename.endsWith(".html"))
+		return "text/html";
+	else if (filename.endsWith(".css"))
+		return "text/css";
+	else if (filename.endsWith(".js"))
+		return "application/javascript";
+	else if (filename.endsWith(".ico"))
+		return "image/x-icon";
+	else if (filename.endsWith(".gz"))
+		return "application/x-gzip";
+	else if (filename.endsWith(".json"))
+		return "application/json";
+	else if (filename.endsWith(".txt"))
+		return "text/html";
+	return "text/plain";
 }
 
 /* ======================== OTA Manager ==============================
@@ -408,4 +436,92 @@ String firmwareOnlineUpdate(byte what)
 	}
 
 	return message;
+}
+
+/* ============================================================================
+Function: handleFileRead
+Purpose : Sends the requested file to the client if it exists in the filesystem.
+Input   : String path - The requested file path.
+Output  : bool - Returns true if the file exists and is successfully sent to
+                 the client, otherwise returns false.
+Comments: - Automatically appends "index.html" to paths ending with "/".
+          - Prioritizes sending compressed (.gz) versions of files if available.
+          - Streams the file to the client using the MIME type determined by getContentType.
+          - Closes the file after streaming to free up resources. */
+bool handleFileRead(String path)
+{ // send the right file to the client (if it exists)
+
+	// writeLogFile( "handleFileRead: " + path, 1 );
+	if (path.endsWith("/"))
+		path += "index.html"; // If a folder is requested, send the index file
+
+	String contentType = getContentType(path); // Get the MIME type
+	String pathWithGz = path + ".gz";
+
+	if (LittleFS.exists(pathWithGz) || LittleFS.exists(path))
+	{													  // If the file exists, either as a compressed archive, or normal
+		if (LittleFS.exists(pathWithGz))		  // If there's a compressed version available
+			path += ".gz";							  // Use the compressed verion
+		File file = LittleFS.open(path, "r"); // Open the file
+		server.streamFile(file, contentType); // Send it to the client
+		file.close();								  // Close the file again
+		
+		return true;
+	}
+
+	// If the file doesn't exist, return false
+	// writeLogFile( "\tFile Not Found: " + path, 1 );
+	return false;
+}
+
+/* ============================================================================
+Function: handleFileUpload
+Purpose : Handles the upload of a new file to the LittleFS filesystem. Processes
+          file creation, writing, and finalization, with logging and JSON replies.
+Input   : None (relies on the `server.upload()` object for upload data).
+Output  : None
+Comments: - Handles three stages of an HTTP file upload:
+            1. UPLOAD_FILE_START: Prepares the file for writing.
+            2. UPLOAD_FILE_WRITE: Writes chunks of uploaded data to the file.
+            3. UPLOAD_FILE_END: Finalizes the upload, closes the file, and logs
+               the result.
+          - Generates appropriate log messages and JSON responses based on the
+            upload status (success or error).
+          - Requires LittleFS and HTTP server libraries to be included.
+TODO    : Add error handling for edge cases, such as filesystem errors or large files. */
+void handleFileUpload()
+{ // upload a new file to the LittleFS
+
+	HTTPUpload &upload = server.upload();
+	String filename = upload.filename;
+
+	if (upload.status == UPLOAD_FILE_START)
+	{
+		if (!filename.startsWith("/"))
+			filename = "/" + filename;
+
+		fsUploadFile = LittleFS.open(filename, "w"); // Open the file for writing in LittleFS (create if it doesn't exist)
+		filename = String();
+	}
+	else if (upload.status == UPLOAD_FILE_WRITE)
+	{
+		if (fsUploadFile)
+			fsUploadFile.write(upload.buf, upload.currentSize); // Write the received bytes to the file
+	}
+	else if (upload.status == UPLOAD_FILE_END)
+	{
+		if (fsUploadFile)
+		{								 // If the file was successfully created
+			fsUploadFile.close(); // Close the file again
+
+			// writeLogFile( "handleFileUpload Size: " + upload.totalSize, 1 );
+			writeLogFile(F("Success file upload: ") + filename, 1);
+			sendJSONheaderReply(1, F("Success file upload"));
+		}
+		else
+		{
+			writeLogFile(F("Error file upload: ") + filename, 1);
+			sendJSONheaderReply(0, F("Error file upload"));
+		}
+	}
 }

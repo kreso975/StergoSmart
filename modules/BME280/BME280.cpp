@@ -1,7 +1,6 @@
 #include "../../settings.h"
 #ifdef MODULE_BME280
 #include "BME280.h"
-#include <Wire.h>
 
 //*************************************************************************************************************
 /*
@@ -33,13 +32,11 @@ char mqtt_Humidity[120];
 char mqtt_Temperature[120];
 char mqtt_Pressure[120];
 
-Adafruit_BME280 bme;
+int mqtt_interval = 120;
+unsigned long mqtt_intervalHist;
+unsigned long mqtt_previousMillis;
 
-extern bool writeLogFile(String message, int newLine, int output);
-extern float Fahrenheit( float celsius );
-extern float Kelvin( float celsius );
-extern float iNHg( float hpa );
-extern float Meter( float feet );
+BME::Bosch_BME280 bme280{BMEaddr, 0, false};
 
 /* ======================================================================
 Function: setupBME280
@@ -49,16 +46,22 @@ Output  :
 Comments: - */
 bool setupBME280()
 {
-    Wire.begin(GPIO_SDA, GPIO_SCL); // 0, 2  
+    #if defined (ESP8266)
+        Wire.begin(GPIO_SDA, GPIO_SCL);
+    #elif defined (ESP32)
+        Wire.setPins(GPIO_SDA, GPIO_SCL);
+        Wire.begin();
+    #endif  
     Wire.setClock(100000);
 
     // Init BME280
-    if (!bme.begin(BMEaddr))
+    if ( bme280.begin() != 0 )
     {
         writeLogFile(F("No BME280 sensor, check wiring!"), 1, 3);
         detectModule = false;
         return false;
     }
+    
     writeLogFile(F("BME280 OK"), 1, 3);
     detectModule = true;
     return true;
@@ -73,8 +76,11 @@ Comments: */
 void getWeatherBME()
 {
     float h_tmp, t_tmp;
-    t_tmp = bme.readTemperature();
-    h_tmp = round(bme.readHumidity() * 100) / 100.0F;
+
+    bme280.measure();
+
+    t_tmp = bme280.getTemperature();
+    h_tmp = round(bme280.getHumidity() * 100) / 100.0F;
 
     // If we start getting totally wrong readings
     if ((t_tmp == 0 && h_tmp == 0) || isnan(h_tmp) || isnan(t_tmp) || t_tmp > 100 || t_tmp < -60)
@@ -87,9 +93,9 @@ void getWeatherBME()
         t = t_tmp;
         h = h_tmp;
         dp = t - 0.36 * (100.0 - h);
-        p = bme.readPressure();
+        p = bme280.getPressure();
 
-        if (t_measure == 1)
+        if ( t_measure ) // Convert to Fahrenheit ( 0 = Celzius, 1 = Fahrenheit)
             t = Fahrenheit(t);
 
         float R = 8.31432;
@@ -98,20 +104,20 @@ void getWeatherBME()
         float T = Kelvin(t); // Kelvin
 
         int tmp_pl_adj;
-        if (p_adjust == 1)
+        if ( p_adjust ) // Adjust by altitude 
         {
-            if (pa_unit == 1)
+            if ( pa_unit )  // 0 = Meter, 1 = Feet 
                 tmp_pl_adj = Meter(pl_adj);
             else
                 tmp_pl_adj = pl_adj;
 
             float Adjust = exp(-1 * g * M * tmp_pl_adj / (R * T));
-            P0 = (p / Adjust) / 100.0F;
+            P0 = ( p / Adjust );
         }
         else
-            P0 = p / 100.0F;
+            P0 = p;
 
-        if (p_measure == 1)
+        if ( p_measure ) // Set to iNHg ( 0 = hPa, 1 = in )
             P0 = iNHg(P0);
     }
 }

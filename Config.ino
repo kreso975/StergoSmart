@@ -22,28 +22,15 @@ bool initConfig( String* message )
 	configfile.close();
 
 	// Reserve the required space for jsonBuffer based on the file size
-	DynamicJsonDocument jsonConfig(size + 500); // Adding extra space for overhead
+	DynamicJsonDocument jsonConfig( 6000 ); // Adding extra space for overhead
   	DeserializationError error = deserializeJson( jsonConfig, buf.get());
-
+	
 	if ( error )
 	{
-		writeLogFile( faParse + String(error.c_str()), 1 );
+		writeLogFile( faParse + String(error.c_str()), 1, 3 );
 		return false;
 	}
 
-	mqtt_start = jsonConfig["mqtt_start"].as<byte>();
-  	// MQTT updates for Void loop to take in account Config interval
-	mqtt_interval = jsonConfig["mqtt_interval"].as<int>();
-	mqtt_intervalHist = 1000 * mqtt_interval;
-	mqtt_previousMillis = mqtt_intervalHist;     // time of last point added
-
-	mqtt_port = jsonConfig["mqtt_port"].as<int>();
-	strlcpy(mqtt_server, jsonConfig["mqtt_server"].as<String>().c_str(), sizeof(mqtt_server));
-	strlcpy(mqtt_clientName, jsonConfig["mqtt_clientName"].as<String>().c_str(), sizeof(mqtt_clientName));
-	strlcpy(mqtt_clientUsername, jsonConfig["mqtt_clientUsername"].as<String>().c_str(), sizeof(mqtt_clientUsername));
-	strlcpy(mqtt_clientPassword, jsonConfig["mqtt_clientPassword"].as<String>().c_str(), sizeof(mqtt_clientPassword));
-	strlcpy(mqtt_myTopic, jsonConfig["mqtt_myTopic"].as<String>().c_str(), sizeof(mqtt_myTopic));
- 	
 	//---
 	webLoc_start = jsonConfig["webLoc_start"].as<byte>();
 	strlcpy(webLoc_server, jsonConfig["webLoc_server"].as<String>().c_str(), sizeof(webLoc_server));
@@ -76,23 +63,44 @@ bool initConfig( String* message )
 	// Ensure null-terminated string
 	_devicename[sizeof(_devicename) - 1] = '\0';
 	
-
 	// -----
 	
 	strlcpy(moduleName, jsonConfig["moduleName"].as<String>().c_str(), sizeof(moduleName));
 
-	wifi_runAS = jsonConfig["wifi_runAS"].as<byte>();
-	strlcpy(wifi_hostname, jsonConfig["wifi_hostname"].as<String>().c_str(), sizeof(wifi_hostname));
-	strlcpy(softAP_ssid, jsonConfig["softAP_ssid"].as<String>().c_str(), sizeof(softAP_ssid));
-	strlcpy(softAP_pass, jsonConfig["softAP_pass"].as<String>().c_str(), sizeof(softAP_pass));
-	strlcpy(wifi_ssid, jsonConfig["wifi_SSID"].as<String>().c_str(), sizeof(wifi_ssid));
-	strlcpy(wifi_password, jsonConfig["wifi_password"].as<String>().c_str(), sizeof(wifi_password));
-	wifi_static = jsonConfig["wifi_static"].as<byte>();
-	strlcpy(wifi_StaticIP, jsonConfig["wifi_StaticIP"].as<String>().c_str(), sizeof(wifi_StaticIP));
-	strlcpy(wifi_gateway, jsonConfig["wifi_gateway"].as<String>().c_str(), sizeof(wifi_gateway));
-	strlcpy(wifi_subnet, jsonConfig["wifi_subnet"].as<String>().c_str(), sizeof(wifi_subnet));
-	strlcpy(wifi_DNS, jsonConfig["wifi_DNS"].as<String>().c_str(), sizeof(wifi_DNS));
-    
+	#ifdef MQTT_H													//================ MQTT Manager  ================
+		#ifdef MODULE_WEATHER
+		mqtt_interval = jsonConfig["mqtt_interval"].as<int>();
+		mqtt_intervalHist = 1000 * mqtt_interval;
+		mqtt_previousMillis = mqtt_intervalHist;     // time of last point added
+		#endif
+	// Extract values from jsonConfig and pass them to the setter methods
+	mqttManager.setMqttStart(jsonConfig["mqtt_start"].as<byte>());
+	mqttManager.setMqttPort(jsonConfig["mqtt_port"].as<int>());
+	mqttManager.setMqttServer(jsonConfig["mqtt_server"].as<String>().c_str());
+	mqttManager.setMqttClientName(jsonConfig["mqtt_clientName"].as<String>().c_str());
+	mqttManager.setMqttClientUsername(jsonConfig["mqtt_clientUsername"].as<String>().c_str());
+	mqttManager.setMqttClientPassword(jsonConfig["mqtt_clientPassword"].as<String>().c_str());
+	mqttManager.setMqttMyTopic(jsonConfig["mqtt_myTopic"].as<String>().c_str());
+	#endif															//================================================ 
+
+	#ifdef WIFIMANAGER_H											//================ WiFi Manager  ================
+	// Call the set methods with the extracted values
+	char tmp[20]; 
+	snprintf(tmp, sizeof(tmp), "%s_%s", jsonConfig["softAP_ssid"].as<const char*>(), chipID.c_str());
+	// Pass the formatted string to the WiFiManager instance
+	wifiManager.setSoftAPSSID(tmp);
+	wifiManager.setSoftAPPassword(jsonConfig["softAP_pass"].as<const char*>());
+	wifiManager.setWifiHostname(jsonConfig["wifi_hostname"].as<const char*>());
+	wifiManager.setWifiSSID(jsonConfig["wifi_SSID"].as<const char*>());
+	wifiManager.setWifiPassword(jsonConfig["wifi_password"].as<const char*>());
+	wifiManager.setWifiStatic(jsonConfig["wifi_static"].as<byte>());
+	wifiManager.setWifiStaticIP(jsonConfig["wifi_StaticIP"].as<const char*>());
+	wifiManager.setWifiGateway(jsonConfig["wifi_gateway"].as<const char*>());
+	wifiManager.setWifiSubnet(jsonConfig["wifi_subnet"].as<const char*>());
+	wifiManager.setWifiDNS(jsonConfig["wifi_DNS"].as<const char*>());
+	wifiManager.setWifiRunAS(jsonConfig["wifi_runAS"].as<byte>());
+	#endif															//================================================
+	
 	#ifdef MODULE_WEATHER										//=============== Weather Station  ==============
 		t_measure = jsonConfig["t_measure"].as<byte>();
 		strlcpy(mqtt_Temperature, jsonConfig["mqtt_Temperature"].as<String>().c_str(), sizeof(mqtt_Temperature));
@@ -166,7 +174,7 @@ bool writeToConfig( String* message )
 	configfile.readBytes(buf.get(), size);
 	configfile.close();
 
-	DynamicJsonDocument jsonConfig(size + 500); // Adding extra space for overhead
+	DynamicJsonDocument jsonConfig(5000); // Adding extra space for overhead
   	DeserializationError error = deserializeJson( jsonConfig, buf.get());
 
 	if ( error )
@@ -267,7 +275,7 @@ bool writeToConfig( String* message )
 		if ( server.arg("MQTTstateOn") == "1" )
 		{
 			// HERE WE MUST TELL THAT WE WILL START MQTT SERVICES
-			mqtt_start = 1;
+			mqttManager.setMqttStart(1);
 			if ( mqttManager.setupMQTT( message, true ) )
 			{
 				return true;
@@ -280,11 +288,9 @@ bool writeToConfig( String* message )
 		}
 		else if ( server.arg("MQTTstateOn") == "0" )
 		{
-			mqtt_start = 0;
-			
+			mqttManager.setMqttStart(0);
 			mqttManager.setupMQTT( message, false );
-			// reset interval times
-			mqtt_previousMillis = mqtt_intervalHist;     // time of last point added
+			
 			return true;
 		}
 	}
@@ -354,7 +360,7 @@ bool writeToConfig( String* message )
 			writeLogFile(msg, 1, 3);
 			*message = F("{\"success\":\"") + msg + F("\"}");
 
-			if (mqtt_start == 1)
+			if (mqttManager.getMqttStart())
 				if (!mqttManager.sendMQTT(mqtt_displayON, payload, true))
 					writeLogFile(F("Publish displayON: failed"), 1);
 
@@ -370,7 +376,7 @@ bool writeToConfig( String* message )
 			writeLogFile(msg, 1, 3);
 			*message = F("{\"success\":\"") + msg + F("\"}");
 
-			if (mqtt_start == 1)
+			if (mqttManager.getMqttStart())
 				if (!mqttManager.sendMQTT(mqtt_displayON, payload, true))
 					writeLogFile(F("Publish displayON: failed"), 1);
 			return true;

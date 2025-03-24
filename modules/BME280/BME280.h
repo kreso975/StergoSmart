@@ -2,7 +2,16 @@
 #define MODULE_BME280_H
 
 #include <Arduino.h> // Include the Arduino core header file
-#include <Adafruit_BME280.h>
+#include <Wire.h>
+#include <Bosch_BME280_Arduino.h>
+
+
+extern bool writeLogFile(String message, int newLine, int output);
+extern float Fahrenheit( float celsius );
+extern float Kelvin( float celsius );
+extern float iNHg( float hpa );
+extern float Meter( float feet );
+
 
 // BME280 GPIOs 2 (SDA),0 (SCL) are used for BME280
 // 72 (2,0) 74 (4,5)
@@ -23,12 +32,13 @@ extern unsigned long lastMeasureInterval;
 #define intervalHist 1000 * 60 * 15                         // 4 measures / hours - orig 1000 * 60 * 15 - 15min
 extern unsigned long previousMillis;
 
-
 extern char mqtt_Humidity[120];
 extern char mqtt_Temperature[120];
 extern char mqtt_Pressure[120];
 
-//Adafruit_BME280 bme;
+extern int mqtt_interval;
+extern unsigned long mqtt_intervalHist;
+extern unsigned long mqtt_previousMillis;
 
 extern bool setupBME280();
 extern void getWeatherBME();

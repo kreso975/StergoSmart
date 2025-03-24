@@ -16,7 +16,7 @@ const uint8_t kMatrixHeight = 8;
 const bool kMatrixSerpentineLayout = true;
 const bool kMatrixVertical = true;
 // 119 = 0, 74 = 1
-byte kMatrixOrientation = 1; // O = Normal, 1 = Diagonal flip (0 and 256 are on opposite diagonal side), 2 = Vertical flip, 3 = Horizontal flip
+byte kMatrixOrientation = 1; // O = Normal, 1 = Diagonal flip (0 and 256 are on opposite diagonal side)
 
 CRGB leds_plus_safety_pixel[NUM_LEDS + 1];
 CRGB *const leds(leds_plus_safety_pixel + 1);
@@ -719,7 +719,7 @@ void displayState()
 			itoa(maxBrightness, brightnessBuffer, 10);
 
 			// Send the color and brightness values via MQTT
-			if (mqtt_start == 1)
+			if ( mqttManager.getMqttStart() )
 			{
 				if (!mqttManager.sendMQTT(mqtt_Color, (char *)hexColor, true)) // Cast to char*
 					writeLogFile(F("Publish Color: failed"), 1);
@@ -728,7 +728,7 @@ void displayState()
 			}
 
 			sendJSONheaderReply( 1, "Updated" );
-			delay(5000);
+			//delay(5000);
 		}
 	}
 }
@@ -925,7 +925,7 @@ void callbackDisplayMQTT(char *topic, byte *payload, unsigned int length)
         itoa(maxBrightness, brightnessBuffer, 10);
 
         // Send the brightness value via MQTT
-        if (mqtt_start == 1)
+        if ( mqttManager.getMqttStart() )
         {
             if (!mqttManager.sendMQTT(mqtt_Brightness, brightnessBuffer, true))
                 writeLogFile(F("Publish Brightness: failed"), 1);

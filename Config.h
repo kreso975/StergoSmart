@@ -30,10 +30,10 @@
 #include <DNSServer.h>
 #include <LittleFS.h>
 #include <TimeLib.h>
-#include <NTPClient.h>
+#include <NTPClient_Generic.h>          // https://github.com/khoih-prog/NTPClient_Generic
+//#include <NTPClient.h>
 #include "ArduinoJson.h"  // 6.21.5
 #include <WiFiUdp.h>
-#include <PubSubClient.h>
 
 #if defined(ESP8266)                                         // -----------------  ESP8266  -----------------
   String chipID = String(ESP.getChipId());
@@ -71,6 +71,11 @@
 #elif ( STERGO_PROGRAM == 2 )  // TicTacToe
     #define MODULE_TICTACTOE
     #include "SSDP.h"
+    // mqtt variables are here untill i think of something. TT dies not need MQTT but there are several
+    // mqtt checks around the code, until then, this is hack
+    int mqtt_interval;
+    unsigned long mqtt_intervalHist;
+    unsigned long mqtt_previousMillis;
     #define MODEL_NAME "TT001"
 #endif
     
@@ -91,8 +96,10 @@
 String SERIAL_NUMBER = String(PRODUCT) + "-" + chipID;
 
 #define SERIAL_BAUDRATE 9600
+#define DNS_PORT 53
 #define WEBSERVER_PORT 80
 #define NTPSERVER "europe.pool.ntp.org"
+#define NTP_UPDATE 60000  // Update every 60 seconds
 
 #define configFile "/config.json"
 #define LOG_FILE "/log.json"
@@ -106,43 +113,12 @@ String fWrite = "Fail to write ";
 #define fsLarge " file size is too large"  //Used to be String
 #define faParse "Fail to parse json "      //Used to be String
 
-
-/******************************************************************************************************
- *  CAPTIVE PORTAL - SETUP
- *
- *  TODO: 
- *  
- *
- * hostname (wifi_hostname) for mDNS. Should work at least on windows. Try http://stergoweather.local *
- * Set these to your desired softAP credentials. They are not configurable at runtime                 *
- ******************************************************************************************************/
-char softAP_ssid[20] = "StergoSmart_ap";  //This value shows only if LittleFS not loaded
-char softAP_pass[20] = "123456789";       //
-#define DNS_PORT 53
-
-/** Should I connect to W LAN asap? */
-bool connect;
-
-byte webLoc_start, wifi_runAS, wifi_static, deviceType;
+byte webLoc_start, deviceType;
 byte randNumber;
 
 char _deviceType[2] = "1";  // Module device number - like BME280 = 1, Dalas = 2 and similar CHANGED SHOULD SWITCH TO MODEL_NAME + MODEL_NUMBER
 char deviceName[20] = ""; 
 char _devicename[28] = "";
-
-//htaccess - Not used anywhere in the code - maybe one day implement credentials for HTTP
-//char htaccess_username[20];
-//char htaccess_password[20];
-
-// Wifi Connection
-char wifi_hostname[20] = "StergoSmart";
-char wifi_ssid[20] = "";
-char wifi_password[20] = "";
-char wifi_StaticIP[16] = "";
-char wifi_gateway[16] = "";
-char wifi_subnet[16] = "";
-char wifi_DNS[16] = "";
-
 
 /******************************************************************************************************
  *  Time Intervals
@@ -162,11 +138,9 @@ char discord_avatar[120];
 // Module
 char moduleName[20] = "Test";
 
-
 // create Objects
 WiFiClient espClient;
 HTTPClient http;
-PubSubClient client(espClient);
 MQTTManager mqttManager;
 
 #if ( EXCLUDED_CODE == 9 )  //===============================================
@@ -188,7 +162,7 @@ DNSServer dnsServer;
 File fsUploadFile;
 
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, NTPSERVER, 0, 36e5); // 60 * 60 * 1000 == 1 hour
+NTPClient timeClient(ntpUDP, NTPSERVER, 0, NTP_UPDATE); // 60 * 60 * 1000 == 1 hour
 
 // startTime - When Device Started
 time_t startTime;
@@ -201,8 +175,7 @@ time_t adjustedTime;
 #endif                                                  //===============================================
 
 // Create an instance of the WiFiManager class
-WiFiManager wifiManager(wifi_ssid, wifi_password, wifi_StaticIP, wifi_gateway, wifi_subnet, wifi_DNS, wifi_hostname, wifi_static, softAP_ssid, softAP_pass, chipID);
-
+WiFiManager wifiManager;
 
 // Load Modules
 #ifdef MODULE_DISPLAY                             //====================== MODULE_DISPLAY ================
@@ -214,7 +187,11 @@ WiFiManager wifiManager(wifi_ssid, wifi_password, wifi_StaticIP, wifi_gateway, w
 
 // TicTacToe after Display because it setup some variables. Also possible to include .h but that is going to 2nd phase
 #ifdef MODULE_TICTACTOE                           //==================== MODULE_TICTACTOE ================
-  //#include "TicTacToe.h"
+  //#include "./modules/DiscordBot/DiscordBot.h"
+  //#include "./modules/DiscordBot/DiscordBot.cpp"
+
+  //DiscordBot discord; // Create a Discord_Webhook object
+
   #include "./modules/TicTacToe/TicTacToe.h"
   #include "./modules/TicTacToe/TicTacToe.cpp"
 #endif                                            //======================================================

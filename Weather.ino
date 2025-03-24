@@ -40,7 +40,7 @@ void updateWeather()
 			}
 		}
 
-		if ( mqtt_start == 1 )
+		if ( mqttManager.getMqttStart() )
 		{
 			String message;
 			if ( millis() - mqtt_previousMillis > mqtt_intervalHist )
@@ -51,8 +51,7 @@ void updateWeather()
 					mqttManager.setupMQTT(&message, 1);
 					sendMeasuresMQTT();
 				}
-			}
-			
+			}	
 		}
 	}
 }
@@ -120,15 +119,17 @@ bool updateHistory( int z = 0 )
 
 	// Open the file for writing
 	File file = LittleFS.open(HISTORY_FILE, "w");
-	if (!file) {
-		 //writeLogFile(F("Failed to open history file"), 1, 3);  // Added error logging
-		 return false;
+	if ( !file )
+	{
+		#if (DEBUG == 1)
+		writeLogFile(F("Failed to open history file"), 1, 3);  // Added error logging
+		#endif
+		return false;
 	}
 
 	// Log deletion of history if applicable
-	if (z == 1) {
-		 writeLogFile(F("Delete History"), 1, 3);
-	}
+	if ( z == 1 )
+		writeLogFile(F("Delete History"), 1, 3);
 
 	// Write to the file
 	file.print(json);
@@ -220,7 +221,7 @@ bool MainSensorConstruct()
 	File file = LittleFS.open(HISTORY_FILE, "r");
 	if (!file)
 	{
-		if (updateHistory(1)) // Create proper initial History File
+		if ( updateHistory(1) ) // Create proper initial History File
 			writeLogFile(F("Delete History 1"), 1, 1);
 	}
 	else
@@ -233,7 +234,7 @@ bool MainSensorConstruct()
 
 		if ( size < 4 )
 		{
-			if (updateHistory(1)) // Create proper initial History File
+			if ( updateHistory(1) ) // Create proper initial History File
 				writeLogFile(F("Delete History 2"), 1, 1);
 		}
 		else
@@ -243,12 +244,12 @@ bool MainSensorConstruct()
 			file.close();
 
 			// Reserve the required space for jsonBuffer based on the file size
-			DynamicJsonDocument jsonBuffer(size + 500); // Adding extra space for overhead
+			DynamicJsonDocument jsonBuffer( 10000 ); // Adding extra space for overhead
 			DeserializationError error = deserializeJson(jsonBuffer, buf.get());
 
-			if (error)
+			if ( error )
 			{
-				writeLogFile(error.c_str(), 1, 1);
+				writeLogFile(error.c_str(), 1, 3);
 				return false;
 			}
 			else
@@ -261,8 +262,7 @@ bool MainSensorConstruct()
 				{
 					long int tps = now();
 					previousMillis = currentMillis;
-
-					if (tps > 0 && tps < 2085974400)
+					if ( tps > 0 && tps < 2085974400 )
 					{
 						Sensordata.add(tps);			// Timestamp
 						Sensordata.add(round2(t)); // Temperature
@@ -286,7 +286,7 @@ bool MainSensorConstruct()
 						}
 						else
 						{
-							if (serializeJson(jsonBuffer, file) == 0)
+							if ( serializeJson(jsonBuffer, file) == 0 )
 							{
 								writeLogFile(fWrite + HISTORY_FILE, 1, 1);
 								file.close();

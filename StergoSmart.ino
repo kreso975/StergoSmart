@@ -66,7 +66,7 @@ void setup()
 		writeLogFile(F("WiFi Connected, IP: "), 0, 1);
 		writeLogFile(WiFi.localIP().toString(), 1, 1);
 		#endif
-		MDNS.begin( wifi_hostname );
+		MDNS.begin( wifiManager.getHostname() );
 
 		timeClient.begin();
 		timeClient.update();
@@ -80,12 +80,15 @@ void setup()
 		// Seed for generating Random number
 		randomSeed(analogRead(0));
 
-		if ( mqtt_start == 1 )
+		if ( mqttManager.getMqttStart() )
 			mqttManager.setupMQTT( &message, true );
 			
 		// Start ntpUDP
 		// We need it for M-SEARCH over UDP - SSDP discovery
 		ntpUDP.begin( LOCAL_UDP_PORT );
+
+		//discord.begin(channel_id, token);
+		//discord.send("Ulazni!");
 	}
 	else
 	{
@@ -113,7 +116,8 @@ void loop()
 
 	if ( WiFi.getMode() == WIFI_STA )
 	{
-		if ( timeClient.update() )					// check for Update time
+		// check for Update time
+		if ( timeClient.update() )
 			setTime(timeClient.getEpochTime());
 
 		// We will not run anything if we are in WIN message mode

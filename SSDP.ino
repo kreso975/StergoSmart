@@ -190,13 +190,14 @@ char *parseAndExtract(const char *input, const char *key, const char *delimiter,
 	memset(output, 0, sizeof(output)); // Clear the output buffer
 
 	// Key-based extraction (similar to extractValue)
-	if (key && strlen(key) > 0)
+	if ( key && strlen(key) > 0 )
 	{
-		const char *startPtr = strstr(input, key); // Find the key
+		const char *startPtr = strstr(input, key);	// Find the key
 		if (!startPtr)
-			return output;									  // Key not found, return empty string
-		startPtr += strlen(key);						  // Move to the value after the key
-		const char *endPtr = strchr(startPtr, ' '); // Find the next space or end of string
+			return output;									 	// Key not found, return empty string
+
+		startPtr += strlen(key);						 	// Move to the value after the key
+		const char *endPtr = strchr(startPtr, ' ');	// Find the next space or end of string
 		if (!endPtr)
 			endPtr = input + strlen(input);				 // If no space, set endPtr to end of input
 		strncpy(output, startPtr, endPtr - startPtr); // Copy the value into output
@@ -213,17 +214,18 @@ char *parseAndExtract(const char *input, const char *key, const char *delimiter,
 	char *values[5];
 	int i = 0;
 
-	while (token != NULL && i < 5)
+	while ( token != NULL && i < 5 )
 	{
 		values[i++] = token;
 		token = strtok(NULL, delimiter);
 	}
 
-	if (part >= 0 && part < 5 && values[part])
+	if ( part >= 0 && part < 5 && values[part] )
 	{
 		strncpy(output, values[part], sizeof(output) - 1);
 		output[sizeof(output) - 1] = '\0'; // Ensure null-termination
 	}
+
 	return output; // Return the parsed part or an empty string
 }
 

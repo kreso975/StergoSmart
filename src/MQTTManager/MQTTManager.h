@@ -6,11 +6,13 @@
 #include <PubSubClient.h>
 #include <WiFiClient.h>
 
-
-extern PubSubClient client;
+extern WiFiClient espClient;
 extern bool writeLogFile( String message, int newLine, int output);
 
 typedef std::function<void(char*, byte*, unsigned int)> CallbackType;
+
+extern std::vector<const char*> subscriptionList;
+
 
 /**
  * @class MQTTmanager
@@ -57,44 +59,50 @@ typedef std::function<void(char*, byte*, unsigned int)> CallbackType;
  * mqttManager.listCallbacks();
  * @endcode
  */
-class MQTTManager {
+class MQTTManager
+{
 public:
+    MQTTManager(); // Declare the constructor
     void registerCallback(CallbackType callback, int id);
     void initCallback(PubSubClient& client);
     void updateMQTT();
     bool setupMQTT(String* message, boolean runState);
     bool sendMQTT(char* Topic, char* Payload, bool retain);
+
+    // public setter methods for these private variables
+    void setMqttStart(byte mqttStart);
+    void setMqttServer(const char* server);
+    void setMqttPort(int port);
+    void setMqttClientName(const char* clientName);
+    void setMqttClientUsername(const char* clientUsername);
+    void setMqttClientPassword(const char* clientPassword);
+    void setMqttMyTopic(const char* myTopic);
+
+    byte getMqttStart() const; 
     /*
     void unregisterCallback(int id);
     void listCallbacks() const;
     */
 
 private:
+    byte mqtt_start;
+    char mqtt_server[20];
+    int mqtt_port;
+    char mqtt_clientName[23];
+    char mqtt_clientUsername[50];
+    char mqtt_clientPassword[50];
+    char mqtt_myTopic[120];
+    static const unsigned long mqttTempDownInt;                     // 15 minutes
+    byte mqtt_connectTry;                                           // How many times we will try to connect to MQTT before we put it to sleep
+    byte mqttTempDown;                                              // If we couldn't reconnect, mqtt_start is set to 0, and mqttTempDown is set to 1
+    unsigned long lastmqttTempDownMillis;                           // Time of the last point added
+
+    PubSubClient client; // Encapsulated PubSubClient within MQTTManager
+
     void callbackMQTT(char* topic, byte* payload, unsigned int length);
     bool MQTTreconnect();
     std::vector<std::pair<int, CallbackType>> callbacks;
 };
-
-extern std::vector<const char*> subscriptionList;
-
-// Global variables
-extern byte mqtt_connectTry; // How many times we will try to connect to MQTT before we put it to sleep
-extern byte mqttTempDown; // If we couldn't reconnect, mqtt_start is set to 0, and mqttTempDown is set to 1
-#define mqttTempDownInt 1000 * 60 * 15 // 15 minutes
-extern unsigned long lastmqttTempDownMillis; // Time of the last point added
-
-extern byte mqtt_start;
-extern char mqtt_server[20];
-extern int mqtt_port;
-extern char mqtt_clientName[23];
-extern char mqtt_clientUsername[50];
-extern char mqtt_clientPassword[50];
-extern char mqtt_myTopic[120];
-
-// Time Interval for sending MQTT data
-extern int mqtt_interval;
-extern unsigned long mqtt_intervalHist;
-extern unsigned long mqtt_previousMillis;
 
 
 #endif // MQTT_H

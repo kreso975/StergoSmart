@@ -41,8 +41,10 @@ GUI editor : [Smart Stergo GUI project](https://github.com/kreso975/StergoSmartG
 >   
 >
 > **Libraries Needed:**  
-> NTPClient by Fabrice Weinberg  **v3.2.1**  
-> Adafruit BME280 Library by Adafruit **v2.2.4**  
+> NTPClient by Fabrice Weinberg  **v3.2.1**  || <= v000.6.003   
+> NTPClient_Generic by Fabrice Weinberg, Khoi Hoang  **v3.7.5**  || v000.6.004 >=  
+> Adafruit BME280 Library by Adafruit **v2.2.4** || <= v000.6.003  
+> Bosch_BME280_Arduino by Frank Hafele **v1.1.0**  || v000.6.004 >=  
 > Adafruit Unified Sensor by Adafruit **v1.1.15**  
 > DHT sensor library by Adafruit **v1.4.6**  
 > Adafruit BusIO by Adafruit **v1.17.0**  
@@ -61,8 +63,7 @@ GUI editor : [Smart Stergo GUI project](https://github.com/kreso975/StergoSmartG
 >	Upload speed: 115000  
 >	CPU Frequency: 80 or 160 MHz  
 >	Crystal Frequency: 26MHz  
->		// WS: Flash size: 1M(FS: 160KB OTA: ~422KB)  
->		// PS: Flash size: 1M(FS: 192KB OTA: ~406KB)  
+>		Flash size: 1M(FS: 160KB OTA: ~422KB)  
 >	Flash mode: DOUT (because of sonnof EU)  
 >	Flash Frequency: 80MH  
 >	Reset method: no dtr (aka ck)  

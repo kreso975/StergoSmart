@@ -4,6 +4,7 @@
 #include <Arduino.h> // Include the Arduino core header file
 #include <DHT.h>
 
+// 
 #define DHTPIN 0            // what pin we're connected to
 //#define DHTTYPE DHT11     // DHT 11
 #define DHTTYPE DHT22       // DHT 22 (AM2302), AM2321
@@ -25,6 +26,10 @@ extern unsigned long previousMillis;
 
 extern char mqtt_Humidity[120];
 extern char mqtt_Temperature[120];
+
+extern int mqtt_interval;
+extern unsigned long mqtt_intervalHist;
+extern unsigned long mqtt_previousMillis;
 
 //DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor
 

@@ -15,6 +15,10 @@ unsigned long previousMillis = intervalHist;
 char mqtt_Temperature[120];
 char mqtt_Humidity[120];
 
+int mqtt_interval = 120;
+unsigned long mqtt_intervalHist;
+unsigned long mqtt_previousMillis;
+
 DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor
 
 extern bool writeLogFile(String message, int newLine, int output);
