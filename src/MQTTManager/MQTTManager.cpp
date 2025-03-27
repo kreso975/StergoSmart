@@ -6,7 +6,6 @@
 
 #include "../../settings.h"
 #include "MQTTManager.h"
-#include <Arduino.h>
 
 const unsigned long MQTTManager::mqttTempDownInt = 1000 * 60 * 15;  // 15 minutes
 
@@ -109,7 +108,9 @@ TODO:
 Comments:*/
 bool MQTTManager::setupMQTT(String *message, boolean runState)
 {
-	String msg;
+	char tempMessage[128]; // Adjust the size if needed
+	const char *msg;
+
 	if (runState)
 	{
 		if (!client.connected())
@@ -120,34 +121,39 @@ bool MQTTManager::setupMQTT(String *message, boolean runState)
 			{
 				if (MQTTreconnect())
 				{
-					msg = F("Success MQTT Start");
-					String tempMessage = F("{\"success\":\"") + msg + F("\"}");
-					*message = tempMessage;
-					writeLogFile(msg, 1, 3);
-					return true;
+					msg = "Success MQTT Start";
 				}
+				else
+				{
+					*message = ""; // Handle connection failure here, if needed.
+					return false;
+				}
+			}
+			else
+			{
+				msg = "Success MQTT already running";
 			}
 		}
 		else
 		{
-			msg = F("Success MQTT already running");
-			String tempMessage = F("{\"success\":\"") + msg + F("\"}");
-			*message = tempMessage;
-			writeLogFile(msg, 1, 3);
-			return true;
+			msg = "Success MQTT already running";
 		}
 	}
 	else
 	{
 		if (client.connected())
+		{
 			client.disconnect();
-		msg = F("Success MQTT Stop");
-		String tempMessage = F("{\"success\":\"") + msg + F("\"}");
-		*message = tempMessage;
-		writeLogFile(msg, 1, 3);
-		return true;
+		}
+		msg = "Success MQTT Stop";
 	}
-	return false;
+
+	// Perform snprintf only once at the end
+	snprintf(tempMessage, sizeof(tempMessage), "{\"success\":\"%s\"}", msg);
+	*message = String(tempMessage);
+
+	writeLogFile(String(msg), 1, 3);
+	return true;
 }
 
 bool MQTTManager::MQTTreconnect()

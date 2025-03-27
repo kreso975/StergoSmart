@@ -26,7 +26,7 @@
  * LOLIN D1 mini       = 2   // v02
  * ESP32C6             = 3   // v03
  */
-#define STERGO_PROGRAM_BOARD 2
+#define STERGO_PROGRAM_BOARD 1
 
 /*
  * STERGO_PLUG :
@@ -42,9 +42,6 @@
 #define MODEL_FRENDLY_NAME "Stergo Smart"
 #define COMPANY_URL "http://www.stergo.hr"
 
-// Excluded Code to be included
-// 0 = None to be included
-#define EXCLUDED_CODE 1
 
 // 1 true | 0 false  / Serial.print 
 #define DEBUG 0

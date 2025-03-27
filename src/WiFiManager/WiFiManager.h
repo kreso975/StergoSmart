@@ -1,6 +1,14 @@
 #ifndef WIFIMANAGER_H
 #define WIFIMANAGER_H
 
+#include <Arduino.h>                // Include the Arduino core header file                   
+
+#if defined(ESP8266)                // -----------------  ESP8266  -----------------
+  #include <ESP8266WiFi.h>
+#elif defined(ESP32)                // -----------------  ESP32  -----------------
+  #include <WiFi.h>
+#endif                              // -------------------------------------------
+
 #define DEBUG_WIFI_MANAGER 1
 
 //htaccess - Not used anywhere in the code - maybe one day implement credentials for HTTP

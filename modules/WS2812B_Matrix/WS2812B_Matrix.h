@@ -97,7 +97,9 @@ extern const uint8_t FontWidth;
 
 extern void updateDisplay();
 extern void drawLetter(int posx, int posy, char letter, CRGB color, int orientation, CRGB *buffer = nullptr);
+#ifdef MODULE_WEATHER										//=============== Weather Station  ==============
 extern void drawTempHum( int x, int y, CRGB colorText, bool isTemperature );
+#endif
 extern void drawTime( int x, int y, CRGB colorTime, bool colon, bool seconds );
 extern void drawDate( CRGB *buffer, int x, int y, CRGB colorDate );
 extern void displayMessage(CRGB *buffer, CRGB colorScroll, const char *message, int numSpaces, int orientation);

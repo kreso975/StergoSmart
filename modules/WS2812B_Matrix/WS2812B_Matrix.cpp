@@ -80,7 +80,6 @@ Comments: Updates the display with time, date, temperature, humidity, or message
 TODO    : */
 void updateDisplay()
 {
-	
 	if (displayON == 1) // if display is SET ON
 	{	
 		unsigned long currentMillis = millis();
@@ -102,13 +101,17 @@ void updateDisplay()
 				if (currentMillis - lastDisplayChange >= displayRotateInterval)
 				{
 					lastDisplayChange = currentMillis;
+					#ifdef MODULE_WEATHER										//=============== Weather Station  ==============
 					displayMode = (displayMode + 1) % 4; // Rotate between 4 display modes
+					#elif
+					displayMode = (displayMode + 1) % 2; // Rotate between 4 display modes
+					#endif
 				}
 
 				switch (displayMode)
 				{
 					case 0:
-						displayRotateInterval = 4000; // 4 sec
+						displayRotateInterval = 3000; // 4 sec
 						drawDate(tempBufferDate, 1, 0, displayColor);
 						for (int i = 0; i < NUM_LEDS; i++)
 						{
@@ -116,17 +119,19 @@ void updateDisplay()
 						}
 						break;
 					case 1:
-						displayRotateInterval = 10000;						 // 10 sec
-						drawTime(1, 0, displayColor, true, false); // Display time
+						displayRotateInterval = 15000;					// 10 sec
+						drawTime(1, 0, displayColor, true, false); 	// Display time
 						break;
+					#ifdef MODULE_WEATHER											//=============== Weather Station  ==============
 					case 2:
-						displayRotateInterval = 5000;					 // 5 sec
-						drawTempHum(0, 0, displayColor, true); // Display Temperature true
+						displayRotateInterval = 3000;					 	// 5 sec
+						drawTempHum(0, 0, displayColor, true); 		// Display Temperature true
 						break;
 					case 3:
-						displayRotateInterval = 4000;						// 4 sec
-						drawTempHum(0, 0, displayColor, false); // Display Humidity - false
+						displayRotateInterval = 3000;						// 4 sec
+						drawTempHum(0, 0, displayColor, false); 		// Display Humidity - false
 						break;
+					#endif
 				}
 			}
 		}
@@ -172,6 +177,7 @@ void drawLetter(int posx, int posy, char letter, CRGB color, int orientation, CR
 	}
 }
 
+#ifdef MODULE_WEATHER										//=============== Weather Station  ==============
 void drawTempHum(int x, int y, CRGB colorText, bool isTemperature)
 {
 	char tmpStr[10];
@@ -203,6 +209,7 @@ void drawTempHum(int x, int y, CRGB colorText, bool isTemperature)
 		x += FontWidth + 1; // Move to the next position
 	}
 }
+#endif
 
 void drawTime(int x, int y, CRGB colorTime, bool colon, bool seconds)
 {

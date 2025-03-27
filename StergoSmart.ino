@@ -27,7 +27,6 @@ void setup()
 
 	#if ( DEBUG == 1 )
 	Serial.begin ( SERIAL_BAUDRATE );
-	//Serial.setDebugOutput(true);
 	#endif
 	delay(1000);
 	
@@ -36,12 +35,10 @@ void setup()
 
 	// We will Init config to load needed data and choose next steps based on that config
 	initConfig ( &message );
-	
-	deviceType = atoi(_deviceType);
 
-	#ifdef MODULE_WEATHER
+	#ifdef MODULE_WEATHER   							//===================  MODULE WEATHER ===========
 	setupWeather();
-	#endif
+	#endif													//===============================================
 	
 	#ifdef MODULE_SWITCH
 	setupSwitch();
@@ -68,6 +65,10 @@ void setup()
 		#endif
 		MDNS.begin( wifiManager.getHostname() );
 
+		// Start ntpUDP
+		// We need it for M-SEARCH over UDP - SSDP discovery and NTP time sync
+		ntpUDP.begin( LOCAL_UDP_PORT );
+
 		timeClient.begin();
 		timeClient.update();
 		setTime(timeClient.getEpochTime());
@@ -80,15 +81,10 @@ void setup()
 		// Seed for generating Random number
 		randomSeed(analogRead(0));
 
+		#ifdef MQTT_H										//=================== MQTT Manager ==============
 		if ( mqttManager.getMqttStart() )
 			mqttManager.setupMQTT( &message, true );
-			
-		// Start ntpUDP
-		// We need it for M-SEARCH over UDP - SSDP discovery
-		ntpUDP.begin( LOCAL_UDP_PORT );
-
-		//discord.begin(channel_id, token);
-		//discord.send("Ulazni!");
+		#endif												//===============================================
 	}
 	else
 	{
@@ -97,7 +93,6 @@ void setup()
 		#endif
 		setupHttpServer();
 	}
-	
 }
 
 
@@ -116,36 +111,36 @@ void loop()
 
 	if ( WiFi.getMode() == WIFI_STA )
 	{
-		// check for Update time
+		// Check and update time
 		if ( timeClient.update() )
 			setTime(timeClient.getEpochTime());
-
+  
 		// We will not run anything if we are in WIN message mode
-		// Dirty fix for not to run anything if we are in WIN message mode
+		// Skip operations if in WIN message mode (dirty fix)
 		#ifdef MODULE_DISPLAY						//=================  MODULE DISPLAY =============
 		if ( !messageWinON )
 		{
 		#endif											//===============================================
-			
+  
 			#ifdef MODULE_WEATHER   				//===================  MODULE WEATHER ===========
 			updateWeather();
 			#endif   									//===============================================
-													
+  
+			#ifdef MQTT_H								//=================== MQTT Manager ==============
 			mqttManager.updateMQTT();
-			
-			#ifdef MODULE_TICTACTOE					//=================  MODULE TICTACTOE =========== 
+			#endif   									//===============================================
+  
+			#ifdef MODULE_TICTACTOE					//=================  MODULE TICTACTOE ===========
 			updateTicTacToe();
-			#endif										//===============================================
+			#endif   									//===============================================
+  
+		#ifdef MODULE_DISPLAY						//=================  MODULE DISPLAY =============
+		}
 
-			#ifdef MODULE_DISPLAY					//=================  MODULE DISPLAY =============
-			updateDisplay();
-		}
-		else
-		{
-			updateDisplay();
-		}
+		updateDisplay();
 		#endif											//===============================================
-	}
+  }
+  
 
 	// This should be renamed to updateSwitch and handled in Switch.ino
 	#if ( defined( MODULE_SWITCH ) && ( STERGO_PLUG == 2 || STERGO_PLUG == 3 ) )  //===============================================

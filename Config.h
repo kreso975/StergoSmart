@@ -7,7 +7,7 @@
   #include "ESP8266WebServer.h"
   #include "ESP8266httpUpdate.h"
   #include <ESP8266mDNS.h>
-  #include <ESP8266SSDP.h>  // SSDP (Simple Service Discovery Protocol) service
+  #include <ESP8266SSDP.h>            // SSDP (Simple Service Discovery Protocol) service
   extern "C" {
     #include "user_interface.h"
   }
@@ -16,11 +16,11 @@
 #elif defined(ESP32)                                         // -----------------  ESP32  -----------------
   #include <WiFi.h>
   #include <HTTPClient.h>
-  #include <FS.h>        // File System for Web Server Files
+  #include <FS.h>                     // File System for Web Server Files
   #include <WebServer.h>
   #include <HTTPUpdate.h>
   #include <ESPmDNS.h>
-  #include <ESP32SSDP.h> // 2.0.0 https://github.com/luc-github/ESP32SSDP/releases
+  #include <ESP32SSDP.h>              // 2.0.0 https://github.com/luc-github/ESP32SSDP/releases
   #include "esp_system.h"
   #include <esp_netif.h>
   #include "esp_wifi.h"
@@ -31,7 +31,6 @@
 #include <LittleFS.h>
 #include <TimeLib.h>
 #include <NTPClient_Generic.h>          // https://github.com/khoih-prog/NTPClient_Generic
-//#include <NTPClient.h>
 #include "ArduinoJson.h"  // 6.21.5
 #include <WiFiUdp.h>
 
@@ -49,20 +48,21 @@
 
 #include "Filesystem.h"     //
 #include "./src/WiFiManager/WiFiManager.h"
-#include "./src/MQTTManager/MQTTManager.h"
-
 
 #if ( STERGO_PROGRAM == 0 )  // Power Plug | Switch
+    #define MODULE_MQTT
     #define MODULE_SWITCH
     #include "Switch.h"
     #include "SSDP.h"
     #define MODULE_TICTACTOE
 #elif ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 4 || STERGO_PROGRAM == 5 )  // Weather Station BME280 | DHT | DS18B20
+    #define MODULE_MQTT
     #define MODULE_WEATHER
     #include "Weather.h"
     #define MODULE_TICTACTOE
     #include "SSDP.h"
 #elif ( STERGO_PROGRAM == 3 )  // Weather Station and Switch BME280
+    #define MODULE_MQTT
     #define MODULE_WEATHER
     #include "Weather.h"
     #define MODULE_SWITCH
@@ -71,17 +71,18 @@
 #elif ( STERGO_PROGRAM == 2 )  // TicTacToe
     #define MODULE_TICTACTOE
     #include "SSDP.h"
-    // mqtt variables are here untill i think of something. TT dies not need MQTT but there are several
-    // mqtt checks around the code, until then, this is hack
-    int mqtt_interval;
-    unsigned long mqtt_intervalHist;
-    unsigned long mqtt_previousMillis;
     #define MODEL_NAME "TT001"
 #endif
-    
+														//================================================
 #if ( STERGO_SCREEN == 1 )
     #define MODULE_DISPLAY
+    #define MODULE_MQTT
 #endif
+
+#ifdef MODULE_MQTT                  //================ MQTT Manager  ================
+#include "./src/MQTTManager/MQTTManager.h"
+MQTTManager mqttManager;
+#endif	
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -113,24 +114,11 @@ String fWrite = "Fail to write ";
 #define fsLarge " file size is too large"  //Used to be String
 #define faParse "Fail to parse json "      //Used to be String
 
-byte webLoc_start, deviceType;
-byte randNumber;
+byte deviceType, randNumber;
 
-char _deviceType[2] = "1";  // Module device number - like BME280 = 1, Dalas = 2 and similar CHANGED SHOULD SWITCH TO MODEL_NAME + MODEL_NUMBER
 char deviceName[20] = ""; 
 char _devicename[28] = "";
 
-/******************************************************************************************************
- *  Time Intervals
- *
- *  TODO: 
- *
- ******************************************************************************************************/
-char webLoc_server[120];
-// Time Interval for sending Wb Location data / targeting scripts to send data via HTTP POST method
-int webLoc_interval = 1000 * 60 * 1;                    // 1000 * 60 * 1 = 1min
-unsigned long webLoc_intervalHist;
-unsigned long webLoc_previousMillis = webLoc_interval;  // time of last point added
 
 char discord_url[130];
 char discord_avatar[120];
@@ -141,15 +129,6 @@ char moduleName[20] = "Test";
 // create Objects
 WiFiClient espClient;
 HTTPClient http;
-MQTTManager mqttManager;
-
-#if ( EXCLUDED_CODE == 9 )  //===============================================
-// TEST WITH SSL
-#define host "nas.local"
-#define httpsPort 8081
-#define fingerprint "71 0A 87 39 FA D0 38 FA 74 97 A9 41 67 3F 49 B1 1D FA 2E 01"
-WiFiClientSecure wiFiClient;
-#endif  //===============================================
 
 DNSServer dnsServer;
 #if defined(ESP8266)                                    //====================== ESP8266 ================
@@ -187,11 +166,6 @@ WiFiManager wifiManager;
 
 // TicTacToe after Display because it setup some variables. Also possible to include .h but that is going to 2nd phase
 #ifdef MODULE_TICTACTOE                           //==================== MODULE_TICTACTOE ================
-  //#include "./modules/DiscordBot/DiscordBot.h"
-  //#include "./modules/DiscordBot/DiscordBot.cpp"
-
-  //DiscordBot discord; // Create a Discord_Webhook object
-
   #include "./modules/TicTacToe/TicTacToe.h"
   #include "./modules/TicTacToe/TicTacToe.cpp"
 #endif                                            //======================================================

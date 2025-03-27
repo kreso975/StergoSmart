@@ -17,6 +17,9 @@
 - replaced NTPClient.h with NTPClient_Generic.h.It's extended version of NTPClient with more checks on data 
 - replaced Adafruit_BME280.h with Bosch_BME280_Arduino.h. Smaler compiled code and repo is updated.
 - fix Weather.ino history.json write
+- direct Discord webhook publish only for boards > 1M, WiFiClientSecure is big after compile
+- bool sendWebhook(const char *url, const char *data, bool secure) updated to handle also discord 
+- TicTacToe rename playTicTacToe to manageTicTacToeGame, restructured function letsPlay 
 
 **000.06.003** 
 - rename MQTT file and class into MQTTManager  

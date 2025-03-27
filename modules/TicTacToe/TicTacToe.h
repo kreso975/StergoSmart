@@ -14,7 +14,7 @@ extern int HUBproxy_port;
 // External functions
 extern void updateSSDP();
 extern char* parseAndExtract(const char* input, const char* key, const char* delimiter, int part);
-extern void sendWebhook(const char* localURL, const char* data);
+extern bool sendWebhook(const char* localURL, const char* data, bool secure);
 
 // Config.ino
 extern byte tictac_start, tictac_interval, tictac_webhook, tictac_discord;
@@ -23,6 +23,9 @@ extern byte tictac_start, tictac_interval, tictac_webhook, tictac_discord;
 extern byte difficulty;
 extern int board[BOARD_SIZE];
 
+enum TurnPhase { INIT_GAME = 1, PLAY_MOVE = 2 };
+enum PlayerRole { Player1 = 1, Player2 = 2 };
+enum GameOutcome { DRAW = 0, LOSS = -1, WIN = 1 };
 enum GamePhases { WePlay, Player, Move, Invalid };
 extern GamePhases gamephase;
 
@@ -64,11 +67,12 @@ extern int win( const int board[BOARD_SIZE] );
 extern int minimax( int board[BOARD_SIZE], int player, byte depth );
 extern void computerMove( int board[BOARD_SIZE] );
 extern bool playerMove(int board[BOARD_SIZE], byte moveToPlay);
-extern void letsPlay( byte what, const char* who );
-extern void playTicTacToe(const char* input);
+extern void letsPlay(TurnPhase what, const char* who);
+extern void manageTicTacToeGame(const char* input);
 extern void inviteDeviceTicTacToe();
 extern void sendTicTacWebhook(byte where);
 extern void checkIfHUBProxyPlay(const char *message);
+extern void checkGameOver();
 #if (DEBUG == 1)
    extern void draw( int board[BOARD_SIZE] );
    extern void printLogInPhase(String where);

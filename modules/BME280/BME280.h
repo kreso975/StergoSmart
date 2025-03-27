@@ -40,6 +40,13 @@ extern int mqtt_interval;
 extern unsigned long mqtt_intervalHist;
 extern unsigned long mqtt_previousMillis;
 
+// Time Interval for sending Wb Location data / targeting scripts to send data via HTTP POST method
+extern byte webLoc_start;
+extern char webLoc_server[120];
+extern int webLoc_interval;                                 // 1000 * 60 * 1 = 1min
+extern unsigned long webLoc_intervalHist;
+extern unsigned long webLoc_previousMillis;                 // time of last point added
+
 extern bool setupBME280();
 extern void getWeatherBME();
 

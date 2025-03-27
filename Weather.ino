@@ -204,7 +204,7 @@ void sendMeasures(bool webhook)
 	#endif
 
 	if ( webhook )
-		sendWebhook( localURL, data );
+		sendWebhook( localURL, data, false );
 	else
 		sendJSONheaderReply(3, data); // 3 is an indicator of JSON already formatted reply
 }
@@ -262,7 +262,7 @@ bool MainSensorConstruct()
 				{
 					long int tps = now();
 					previousMillis = currentMillis;
-					if ( tps > 0 && tps < 2085974400 )
+					if ( tps > 1740841248 && tps < 2085974400 )
 					{
 						Sensordata.add(tps);			// Timestamp
 						Sensordata.add(round2(t)); // Temperature

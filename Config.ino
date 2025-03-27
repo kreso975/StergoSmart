@@ -31,21 +31,12 @@ bool initConfig( String* message )
 		return false;
 	}
 
-	//---
-	webLoc_start = jsonConfig["webLoc_start"].as<byte>();
-	strlcpy(webLoc_server, jsonConfig["webLoc_server"].as<String>().c_str(), sizeof(webLoc_server));
-	// WebHook updates for Void loop to take in account Config interval
-	webLoc_interval = jsonConfig["webLoc_interval"].as<int>();
-	webLoc_intervalHist = 1000 * webLoc_interval;
-	webLoc_previousMillis = webLoc_intervalHist;     // time of last point added
- 	//---
-
 	// Discord
 	strlcpy(discord_url, jsonConfig["discord_url"].as<String>().c_str(), sizeof(discord_url));
 	strlcpy(discord_avatar, jsonConfig["discord_avatar"].as<String>().c_str(), sizeof(discord_avatar));
 
 	//---
-	strlcpy(_deviceType, jsonConfig["deviceType"].as<String>().c_str(), sizeof(_deviceType));
+	deviceType = jsonConfig["deviceType"].as<String>().toInt();
 	strlcpy(deviceName, jsonConfig["deviceName"].as<String>().c_str(), sizeof(deviceName));
 	
 	// generate _devicename
@@ -102,6 +93,13 @@ bool initConfig( String* message )
 	#endif															//================================================
 	
 	#ifdef MODULE_WEATHER										//=============== Weather Station  ==============
+		webLoc_start = jsonConfig["webLoc_start"].as<byte>();
+		strlcpy(webLoc_server, jsonConfig["webLoc_server"].as<String>().c_str(), sizeof(webLoc_server));
+		// WebHook updates for Void loop to take in account Config interval
+		webLoc_interval = jsonConfig["webLoc_interval"].as<int>();
+		webLoc_intervalHist = 1000 * webLoc_interval;
+		webLoc_previousMillis = webLoc_intervalHist;     // time of last point added
+
 		t_measure = jsonConfig["t_measure"].as<byte>();
 		strlcpy(mqtt_Temperature, jsonConfig["mqtt_Temperature"].as<String>().c_str(), sizeof(mqtt_Temperature));
 		
@@ -118,7 +116,7 @@ bool initConfig( String* message )
 		#endif
 	#endif                                             //================================================
 
-    #ifdef MODULE_SWITCH      								//=============== Power Switch ===================
+   #ifdef MODULE_SWITCH      									//=============== Power Switch ===================
 		strlcpy(mqtt_switch, jsonConfig["mqtt_switch"].as<String>().c_str(), sizeof(mqtt_switch));
 		strlcpy(mqtt_switch2, jsonConfig["mqtt_switch2"].as<String>().c_str(), sizeof(mqtt_switch2));
 	#endif           										  		//================================================
@@ -197,7 +195,7 @@ bool writeToConfig( String* message )
       	jsonConfig[name] = server.arg(name).toInt();
 
 	
-	#ifdef MODULE_WEATHER     											//=============== Weather Station ==============
+	#ifdef MODULE_WEATHER     											//=============== Weather Station ================
 		
 		String stringArray_2[] = { "mqtt_Temperature", "mqtt_Humidity", "mqtt_Pressure" };
 		String intArray_2[] = { "t_measure", "p_measure", "p_adjust", "pa_unit", "pl_adj" };
@@ -228,16 +226,16 @@ bool writeToConfig( String* message )
 		for ( byte i = 0; i < NAMES_IN_USE_2; i++ )
 			if ( server.hasArg(intArray_2[i]) )
 				jsonConfig[intArray_2[i]] = server.arg(intArray_2[i]).toInt();
-	#endif
+	#endif																	//================================================
 
-	#ifdef	MODULE_SWITCH     											//=============== Power Switch ==============
+	#ifdef MODULE_SWITCH     											//=============== Power Switch ===================
 		String stringArray_3[] = {"mqtt_switch", "mqtt_switch2"};
 		for ( const auto& name : stringArray_3 )
 			if ( server.hasArg(name) )
 				jsonConfig[name] = server.arg(name);
-	#endif
+	#endif																	//================================================
 
-	#ifdef	MODULE_DISPLAY     											//=============== Display Clock ==============
+	#ifdef MODULE_DISPLAY     											//=============== Display Clock ==================
 		String stringArray_4[] = {"mqtt_displayON", "mqtt_Brightness", "mqtt_Color", "displayColor"};
 		for ( const auto& name : stringArray_4 )
 			if ( server.hasArg(name) )
@@ -247,7 +245,7 @@ bool writeToConfig( String* message )
 		for (const auto& name : intArray_3)
 			if ( server.hasArg(name) )
 				jsonConfig[name] = server.arg(name).toInt();
-	#endif 
+	#endif																	//================================================ 
   
 	
 	File file = LittleFS.open( configFile, "w" );
@@ -269,6 +267,7 @@ bool writeToConfig( String* message )
 	file.close();
   
   	String msg;
+	#ifdef MQTT_H													//================ MQTT Manager  ================
 	// Let's check if we have change request for MQTT state (start/stop)
 	if ( server.hasArg("MQTTstateOn") ) // Check if MQTT was started or Stopped
 	{
@@ -294,8 +293,11 @@ bool writeToConfig( String* message )
 			return true;
 		}
 	}
+	#endif															//================================================
 
-	// Let's check if we have change request for MWebHookQTT state (start/stop)
+	// WebHook
+	#ifdef MODULE_WEATHER     									//=============== Weather Station ===============
+	// Let's check if we have change request for WebHook state (start/stop)
 	if ( server.hasArg("WhookStateOn") ) // Check if WebHook was started or Stopped
 	{
 		if ( server.arg("WhookStateOn") == "1" )
@@ -316,8 +318,9 @@ bool writeToConfig( String* message )
 			return true;
 		}
 	}
+	#endif															//================================================
 
-	#ifdef MODULE_TICTACTOE
+	#ifdef MODULE_TICTACTOE									  	//=============== Tic Tac Toe  ===================
 	// Let's check if we have change request for Tic Tac Toe state (start/stop)
 	if ( server.hasArg("TicTacStateOn") ) // Check if TicTac was started or Stopped
 	{
@@ -340,8 +343,9 @@ bool writeToConfig( String* message )
 			return true;
 		}
 	}
-	#endif
-	#ifdef MODULE_DISPLAY
+	#endif															//================================================
+
+	#ifdef MODULE_DISPLAY     									//=============== Display Clock ==================
 	if ( server.hasArg("timeZone") ) // Check if TicTac was started or Stopped
 	{
 		String timeZoneStr = server.arg("timeZone");
@@ -360,9 +364,11 @@ bool writeToConfig( String* message )
 			writeLogFile(msg, 1, 3);
 			*message = F("{\"success\":\"") + msg + F("\"}");
 
+			#ifdef MQTT_H                  //================ MQTT Manager  ================
 			if (mqttManager.getMqttStart())
 				if (!mqttManager.sendMQTT(mqtt_displayON, payload, true))
 					writeLogFile(F("Publish displayON: failed"), 1);
+			#endif								//================================================
 
 			return true;
 		}
@@ -376,13 +382,16 @@ bool writeToConfig( String* message )
 			writeLogFile(msg, 1, 3);
 			*message = F("{\"success\":\"") + msg + F("\"}");
 
+			#ifdef MQTT_H                  //================ MQTT Manager  ================
 			if (mqttManager.getMqttStart())
 				if (!mqttManager.sendMQTT(mqtt_displayON, payload, true))
 					writeLogFile(F("Publish displayON: failed"), 1);
+			#endif								//================================================
+
 			return true;
 		}
 	}
-	#endif
+	#endif															//================================================
 
 	// After every save of config Let's load it again
 	if ( !initConfig( message ) )

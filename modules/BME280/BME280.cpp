@@ -36,6 +36,12 @@ int mqtt_interval = 120;
 unsigned long mqtt_intervalHist;
 unsigned long mqtt_previousMillis;
 
+byte webLoc_start;
+char webLoc_server[120];
+int webLoc_interval = 1000 * 60 * 1;                    // 1000 * 60 * 1 = 1min
+unsigned long webLoc_intervalHist;
+unsigned long webLoc_previousMillis;             // time of last point added
+
 BME::Bosch_BME280 bme280{BMEaddr, 0, false};
 
 /* ======================================================================
@@ -83,7 +89,7 @@ void getWeatherBME()
     h_tmp = round(bme280.getHumidity() * 100) / 100.0F;
 
     // If we start getting totally wrong readings
-    if ((t_tmp == 0 && h_tmp == 0) || isnan(h_tmp) || isnan(t_tmp) || t_tmp > 100 || t_tmp < -60)
+    if ( (t_tmp == 0 && h_tmp == 0) || isnan(h_tmp) || isnan(t_tmp) || t_tmp > 100 || t_tmp < -60 )
     {
         writeLogFile(F("Fail read BME280!"), 1, 3);
         return;

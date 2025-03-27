@@ -10,6 +10,10 @@
 #define DHTTYPE DHT22       // DHT 22 (AM2302), AM2321
 //#define DHTTYPE DHT21     // DHT 21 (AM2301)
 
+extern bool writeLogFile(String message, int newLine, int output);
+extern float Fahrenheit( float celsius );
+extern float Kelvin( float celsius );
+
 extern bool measureFirstRun;
 extern bool detectModule;
 
@@ -31,6 +35,12 @@ extern int mqtt_interval;
 extern unsigned long mqtt_intervalHist;
 extern unsigned long mqtt_previousMillis;
 
+// Time Interval for sending Wb Location data / targeting scripts to send data via HTTP POST method
+extern byte webLoc_start;
+extern char webLoc_server[120];
+extern int webLoc_interval;                                 // 1000 * 60 * 1 = 1min
+extern unsigned long webLoc_intervalHist;
+extern unsigned long webLoc_previousMillis;                 // time of last point added
 //DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor
 
 extern bool setupDHT();

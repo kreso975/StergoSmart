@@ -244,29 +244,62 @@ void handleNotFound()
 
 /* ======================================================================
 Function: sendWebhook
-Purpose : Sending data as HTTP POST to selected URL
-Input   : localURL = URL where to send | data = JSON payload
-Output  :
-Comments: - I have local web server for forwarding Discord Webhook */
-void sendWebhook(const char* localURL, const char* data)
+Purpose : Sending data as HTTP POST to the selected URL, with optional security
+Input   : url = URL where to send | data = JSON payload | secure = toggle for secure (HTTPS) or non-secure (HTTP) connection
+Output  : Returns true if the request was successful, false otherwise
+Comments: - Supports both secure (HTTPS) and non-secure (HTTP) requests
+          - Can be used with local web servers or remote webhooks, such as Discord
+          - Debugging logs success or failure if DEBUG is enabled */
+bool sendWebhook(const char *url, const char *data, bool secure)
 {
-	HTTPClient webhookHttp;  // Use a distinct name for the local variable
-	webhookHttp.begin(espClient, localURL);
-	webhookHttp.addHeader("Content-Type", "application/json"); // Set request as JSON
+	bool success = false;
+	HTTPClient http; // Shared HTTPClient instance
 
-	// Send POST request
-	int httpResponseCode = webhookHttp.POST(data);
+	#if (STERGO_PROGRAM_BOARD > 1)											// ============== ONLY BOARDS WITH MORE THEN 1MM ===============
+	if (secure)
+	{
+		WiFiClientSecure *client = new WiFiClientSecure; // Create secure client
+		if (client)
+		{
+			client->setInsecure();					// Optional: Disable SSL certificate validation if needed
+			client->setBufferSizes(5024, 5024); // Adjust buffer sizes
+			if (http.begin(*client, url))
+			{ // Use secure client with HTTPClient
+				http.addHeader("Content-Type", "application/json");
+				int httpCode = http.POST(data);
+				success = ( httpCode > 0 && ( httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_NO_CONTENT ) );
+				http.end(); // Clean up
+			}
+			delete client; // Free memory
+		}
+	}
+	else
+	#endif																		// ============== ONLY BOARDS WITH MORE THEN 1MM ===============//
+	{
+		// Non-secure HTTP request using espClient
+		if (http.begin(espClient, url))
+		{
+			http.addHeader("Content-Type", "application/json");
+			int httpCode = http.POST(data);
+			success = (httpCode > 0 && (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_NO_CONTENT));
+			http.end(); // Clean up
+		}
+	}
 
+// Consolidated debugging section
 	#if (DEBUG == 1)
-	char logMessage[50];
-	snprintf(logMessage, sizeof(logMessage), "HTTP Response code: %d", httpResponseCode);
-	writeLogFile(logMessage, 1, 1);
+	if (success)
+	{
+		writeLogFile(F("HTTP OK"), 1, 1); // Log success
+	}
+	else
+	{
+		writeLogFile(F("HTTP ERROR"), 1, 1); // Log failure
+	}
 	#endif
 
-	webhookHttp.end();  // Ensure proper cleanup
+	return success;
 }
-
-
 
 /* ============================================================================
 Function: sendJSONheaderReply

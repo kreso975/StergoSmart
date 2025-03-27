@@ -101,6 +101,7 @@ void updateTicTacToe()
 	// We Have config setting for manualy start/stop Tic Tac Toe
 	if (tictac_start == 1)
 	{
+		// this should be removed out from TicTacToe, it belongs to UDP and SSDP
 		updateSSDP();
 
 		// Time interval to ask net devices to play tic tac toe
@@ -121,9 +122,9 @@ void updateTicTacToe()
 		if ((millis() - ticTacLastPlayed > ticTacLastPlayedInterval) && (gameStarted == 1 && turn > 0 || didIaskedToPlay))
 		{
 			#if (DEBUG == 1) //---------------------------------------
-			if (gameStarted == 1 && turn > 0)
+			if ( gameStarted == 1 && turn > 0 )
 				writeLogFile(F("Inside LastPlayedTicTac measure because gameStarted == 1 and turn > 0"), 1, 1);
-			else if (didIaskedToPlay)
+			else if ( didIaskedToPlay )
 				writeLogFile(F("Inside LastPlayedTicTac measure because didIaskedToPlay == true"), 1, 1);
 			else
 				writeLogFile(F("Inside LastPlayedTicTac measure"), 1, 1);
@@ -190,12 +191,12 @@ Comments:
 TODO    : */
 int win(const int board[BOARD_SIZE])
 {
-	if (turn > 0)
+	if ( turn > 0 )
 	{
 		// list of possible winning positions
 		const byte wins[8][3] = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {0, 3, 6}, {1, 4, 7}, {2, 5, 8}, {0, 4, 8}, {2, 4, 6}};
 		byte winPos;
-		for (winPos = 0; winPos < 8; ++winPos)
+		for ( winPos = 0; winPos < 8; ++winPos )
 		{
 			if (board[wins[winPos][0]] != 0 && board[wins[winPos][0]] == board[wins[winPos][1]] && board[wins[winPos][0]] == board[wins[winPos][2]])
 				return board[wins[winPos][2]];
@@ -218,15 +219,15 @@ int minimax(int board[BOARD_SIZE], int player, byte depth)
 {
 	// check if there is a winner
 	int winner = win(board);
-	if (winner != 0)
+	if ( winner != 0 )
 		return winner * player;
 
 	int move = -1;
 	int score = -2;
 	byte i;
-	for (i = 0; i < BOARD_SIZE; ++i)
+	for ( i = 0; i < BOARD_SIZE; ++i )
 	{
-		if (board[i] == 0)
+		if ( board[i] == 0 )
 		{
 			board[i] = player;
 			int thisScore = 0;
@@ -242,8 +243,10 @@ int minimax(int board[BOARD_SIZE], int player, byte depth)
 			board[i] = 0;
 		}
 	}
+	
 	if (move == -1)
 		return 0;
+
 	return score;
 }
 
@@ -261,21 +264,21 @@ void computerMove(int board[BOARD_SIZE])
 	{
 		int score = -2;
 		byte i;
-		for (i = 0; i < BOARD_SIZE; ++i)
+		for ( i = 0; i < BOARD_SIZE; ++i )
 		{
-			if (board[i] == 0)
+			if ( board[i] == 0 )
 			{
 				board[i] = 1;
 				int tempScore = -minimax(board, -1, 0);
 
-				#if (DEBUG == 1)
+				#if ( DEBUG == 1 )
 				char logMessage[50];
 				snprintf(logMessage, sizeof(logMessage), PSTR("Temp Score: %d"), tempScore);
 				writeLogFile(logMessage, 1, 1);
 				#endif
 
 				board[i] = 0;
-				if (tempScore > score)
+				if ( tempScore > score )
 				{
 					score = tempScore;
 					move = i;
@@ -351,62 +354,68 @@ bool playerMove(int board[BOARD_SIZE], byte moveToPlay)
 /* ======================================================================
 Function: letsPlay
 Purpose : Main logic for playing TicTacToe
-Input   : what = 1 / Init Game // who
-			 what = 2 / Play move
-Output  : What in next step in Game Play
+Input   : TurnPhase what (INIT_GAME or PLAY_MOVE)
+          const char* who (Player name)
+Output  : Executes the next step in game play
 Comments:
-TODO    : */
-void letsPlay(byte what, const char* who)
+TODO    : Streamlined structure for readability
+===================================================================== */
+void letsPlay(TurnPhase what, const char *who)
 {
 	char replyPacket[100];
 
-	if ( what == 1 )
+	switch ( what )
 	{
-		startGameValues(who);
+		case INIT_GAME:
+			// Initialize game values
+			startGameValues(who);
 
-		if ( player ==  1 )
-			sendPacket( "Move", -1, opponentIP, opponentUDPport );
-
-		if ( player == 2 )
-		{
-			#if (DEBUG == 1)
-			printLogInPhase("LetsPlay_w1p2");
-			#endif
-
-			computerMove(board);
+			switch ( static_cast<PlayerRole>(player) )
+			{
+				case Player1:
+						sendPacket("Move", -1, opponentIP, opponentUDPport);
+						break;
 			
+				case Player2:
+						computerMove(board);
+						#if (DEBUG == 1)
+						printLogInPhase("LetsPlay_w1p2");
+						draw(board);
+						#endif
+						sendPacket("Move", sentMove, opponentIP, opponentUDPport);
+						break;
+			
+				default:
+						#if (DEBUG == 1)
+						writeLogFile(F("Invalid player role"), 1, 1);
+						#endif
+						break;
+			}
+			break;
+
+		case PLAY_MOVE:
 			#if (DEBUG == 1)
-			draw(board);
+			printLogInPhase("LetsPlay_w2");
 			#endif
 
-			sendPacket("Move", sentMove, opponentIP, opponentUDPport);
-		}
-	}
-	else if ( what == 2 )
-	{
-		#if (DEBUG == 1)
-		printLogInPhase("LetsPlay_w2");
-		#endif
-
-		if ( turn < BOARD_SIZE && win(board) == 0 )
-		{
-			if ( (turn + player) % 2 == 0 )
+			// Not All moves are played and still no winner
+			if ( turn < BOARD_SIZE && win(board) == 0 )
 			{
-				computerMove(board);
-				#if (DEBUG == 1)
-				draw(board);
-				#endif
-				
-				sendPacket("Move", sentMove, opponentIP, opponentUDPport);
-			}
-			else
-			{
-				if ( playerMove(board, receivedMove) )
+				if ( (turn + player) % 2 == 0 )
+				{
+					computerMove(board);
+					#if (DEBUG == 1)
+					draw(board);
+					#endif
+					sendPacket("Move", sentMove, opponentIP, opponentUDPport);
+				}
+				else if ( playerMove(board, receivedMove) )
 				{
 					#if (DEBUG == 1)
 					draw(board);
 					#endif
-
+					
+					// Not All moves are played and still no winner
 					if ( turn < BOARD_SIZE && win(board) == 0 )
 					{
 						computerMove(board);
@@ -421,59 +430,26 @@ void letsPlay(byte what, const char* who)
 					sendPacket("Move", -1, opponentIP, opponentUDPport);
 				}
 			}
-		}
 
-		if ( (turn < BOARD_SIZE && win(board) != 0) || turn == BOARD_SIZE )
-		{
-			switch (win(board))
-			{
-				case 0:
-					#if (DEBUG == 1)
-					writeLogFile(F("It's a draw."), 1, 1);
-					//discord.send("Hello World!");
-					#endif
-					break;
-				case 1:
-					#if (DEBUG == 1)
-					draw(board);
-					writeLogFile(F("You lose. I won!"), 1, 1);
-					#endif
-					#ifdef MODULE_DISPLAY
-					// this should be in display module
-					if ( displayON == 1 )
-					{
-						renderWIN = true;
-						messageWinON = true;
-						messageON = true;
-						server.stop(); // Stopping webServer because it scrambles scroll buffer if accessed during scroll
-						prevMilMesLife = millis();
-					}
-					#endif
-					sendTicTacWebhook(1);
-					sendTicTacWebhook(2);
-					break;
-				case -1:
-					#if (DEBUG == 1)
-					writeLogFile(F("You win!"), 1, 1);
-					#endif
-					break;
-			}
-			  
+			// End of game logic = Check after every move
+			checkGameOver();
+			break;
+
+		default:
 			#if (DEBUG == 1)
-			writeLogFile(F("Reseting game lets start over"),1,1);
+			writeLogFile(F("Invalid game phase"), 1, 1);
 			#endif
-			resetTicTacToe();
-		}
+			break;
 	}
 }
 
 /* ======================================================================
-Function: playTicTacToe
+Function: manageTicTacToeGame
 Purpose : initial Tic Tac Toe Manager
 Input   : String input - UDP ASCII message received
 Output  :
 TODO    :  */
-void playTicTacToe(const char* input)
+void manageTicTacToeGame(const char* input)
 {
 	char replyPacket[100];
 	char logMessage[100];
@@ -487,7 +463,7 @@ void playTicTacToe(const char* input)
 
 	int gamePhase = getGamePhase(input);
 	//writeLogFile(String("Game Phase: ") + gamePhase, 1, 1);
-	switch (gamePhase)
+	switch ( gamePhase )
 	{
 		case WePlay:
 			wantToPlay = atoi(parseAndExtract(input, "WePlay=", " "));
@@ -594,7 +570,7 @@ void playTicTacToe(const char* input)
 				printLogInPhase("Player");
 				#endif
 
-				letsPlay(1, playerName);
+				letsPlay(INIT_GAME, playerName);
 			}
 			else if (selectPlayer == 1 && gameStarted && turn == 0)
 			{
@@ -616,7 +592,7 @@ void playTicTacToe(const char* input)
 				printLogInPhase("Player");
 				#endif
 
-				letsPlay(2, playerName);
+				letsPlay(PLAY_MOVE, playerName);
 				//sendPacket("Move", -1, opponentIP, 4210);
 			}
 			break;
@@ -629,7 +605,7 @@ void playTicTacToe(const char* input)
 			#endif
 			// MyTurn to play but no Turn Played
 			if ( receivedMove == -1 && turn == 0 )
-				letsPlay(1, playerName);
+				letsPlay(INIT_GAME, playerName);
 
 			if (receivedMove >= 0 && gameStarted )
 			{
@@ -645,7 +621,7 @@ void playTicTacToe(const char* input)
 					writeLogFile(logMessage, 1, 1);
 					#endif 											// ----------------------------------------
 
-					letsPlay(2, playerName);
+					letsPlay(PLAY_MOVE, playerName);
 				}
 				else
 				{
@@ -675,11 +651,11 @@ Output  :
 TODO    : In here We Can have settup for Playing UDP, UDP Hub proxy, Game Server or MQTT */
 void inviteDeviceTicTacToe()
 {
-	char replyPacket[100];
-
 	// Let's check if we are already playing
-	if ( gameStarted == 0 )
+	// Not Playing
+	if ( !gameStarted )
 	{
+		char replyPacket[100];
 		// We are randomly picking 3 times one of available addresses
 		randNumber = random(0, actualSSDPdevices);
 
@@ -719,7 +695,7 @@ Purpose : Send Webhook to Discord or WebServer
 Input   : where = 1 / Send to Discord
 			 where = 2 / Send to WebServer
 Output  :
-TODO    :  We should build 2 different calls 1. Discord, 2 Webhook
+TODO    :  We should build 2 different calls 1. Discord, 2 Discord Webhook Proxy
 			  Without Secure Client it's not possible to send to Discord Directly */
 void sendTicTacWebhook(byte where)
 {
@@ -740,7 +716,14 @@ void sendTicTacWebhook(byte where)
 		snprintf(data, sizeof(data), PSTR("{\"username\":\"%s\",\"avatar_url\":\"%s\",\"content\":\"%s\"}"), discordUsername, discordAvatar, message);
 		
 		// Send the webhook
-		sendWebhook(localURL, data);
+		sendWebhook(localURL, data, false);
+		#if ( STERGO_PROGRAM_BOARD > 1 ) // Only boards with more then 1MB
+		// also check if url is for Discord or for proxy
+		//sendWebhook(localURL, data, true);
+		#endif
+
+		// Send Discord
+		//sendToDiscord(data);
 	}
 }
 
@@ -776,6 +759,51 @@ void checkIfHUBProxyPlay(const char *message)
 	
 	opponentIP = ntpUDP.remoteIP();           // Let's fetch the IP and save it for later use
    opponentUDPport = ntpUDP.remotePort();    // Let's fetch the port and save it for later use
+}
+
+void checkGameOver()
+{
+	if ( ( turn < BOARD_SIZE && win(board) != 0 ) || turn == BOARD_SIZE )
+	{
+		 switch ( win(board) )
+		 {
+			  case DRAW:
+					#if (DEBUG == 1)
+					writeLogFile(F("It's a draw."), 1, 1);
+					#endif
+					break;
+
+			  case LOSS:
+					#if (DEBUG == 1)
+					draw(board);
+					writeLogFile(F("You win!"), 1, 1);
+					#endif
+					break;
+
+			  case WIN:
+					#if (DEBUG == 1)
+					draw(board); // Optional: display the board for a loss
+					writeLogFile(F("You lose. I won!"), 1, 1);
+					#endif
+					#ifdef MODULE_DISPLAY
+					if ( displayON == 1 )
+					{
+						 renderWIN = true;
+						 messageWinON = true;
+						 messageON = true;
+						 server.stop();
+						 prevMilMesLife = millis();
+					}
+					#endif
+					sendTicTacWebhook(1); // Webhook only for WIN
+					break;
+		 }
+
+		 #if (DEBUG == 1)
+		 writeLogFile(F("Resetting game; let's start over"), 1, 1);
+		 #endif
+		 resetTicTacToe();
+	}
 }
 
 #if (DEBUG == 1)

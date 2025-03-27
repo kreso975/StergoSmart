@@ -19,12 +19,13 @@ int mqtt_interval = 120;
 unsigned long mqtt_intervalHist;
 unsigned long mqtt_previousMillis;
 
+byte webLoc_start;
+char webLoc_server[120];
+int webLoc_interval = 1000 * 60 * 1;                    // 1000 * 60 * 1 = 1min
+unsigned long webLoc_intervalHist;
+unsigned long webLoc_previousMillis;             // time of last point added
+
 DHT dht(DHTPIN, DHTTYPE); // Initialize DHT sensor
-
-extern bool writeLogFile(String message, int newLine, int output);
-extern float Fahrenheit( float celsius );
-extern float Kelvin( float celsius );
-
 
 /* ======================================================================
 Function: setupDHT
@@ -78,9 +79,7 @@ void getWeatherDHT()
 		dp = t-0.36*(100.0-h);
 
 		if ( t_measure == 1 )
-			t = Fahrenheit(t);
-	
-	    float T = Kelvin(t); // Kelvin             
+			t = Fahrenheit(t);         
   	}
 }
 
