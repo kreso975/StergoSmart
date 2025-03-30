@@ -26,7 +26,7 @@
  * LOLIN D1 mini       = 2   // v02
  * ESP32C6             = 3   // v03
  */
-#define STERGO_PROGRAM_BOARD 1
+#define STERGO_PROGRAM_BOARD 2
 
 /*
  * STERGO_PLUG :
@@ -38,7 +38,7 @@
 #define STERGO_PLUG 1
 
 // Firmware Version always part of this file
-#define FW_VERSION "000.06.004"                 // Check releaseLog for details
+#define FW_VERSION "000.06.005"                 // Check releaseLog for details
 #define MODEL_FRENDLY_NAME "Stergo Smart"
 #define COMPANY_URL "http://www.stergo.hr"
 

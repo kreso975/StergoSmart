@@ -37,9 +37,8 @@
 - Optimization in WiFiManager.cpp
 - functions.ino showDuration() converted from String to const 
 - optimized Filesystem.ino
-- functions.ino removed String extractValue(const String& str, const String& key) and merged into SSDP.ino char *parseAndExtract(const char *input, const char *key, const char *delimiter, int part)
-  Changelog for UDP Functionality
-  ---------------------------------
+- functions.ino removed String extractValue(const String& str, const String& key) and merged into SSDP.ino char *parseAndExtract(const char *input, const char *key, const char *delimiter, int part)  
+  Changelog for UDP Functionality  
   - Added a modular approach for handling UDP packets with specific keywords using the `subscribeUDP` function.
   - Implemented a `UDPSubscription` struct to store the keyword and corresponding callback function.
   - Created an array to hold subscriptions and a function to register keywords and callbacks.
