@@ -9,17 +9,21 @@
  <br><br>
  
 ## **CHANGES:**
-**000.06.004** - in development 
-- WiFiManager fully decoupled from the rest of the code. All WiFi-related global variables have been moved into the WiFiManager class.
-- MQTTManager decoupled. added new functionalities. 
-- config.h WiFi and MQTT variables moved to classed including BME280 and DHTsensors
-- String getContentType(String filename), bool handleFileRead(String path) and void handleFileUpload() Moved from Filesystem.ino to handleHttp.ino because of Http server dependancy
-- replaced NTPClient.h with NTPClient_Generic.h.It's extended version of NTPClient with more checks on data 
-- replaced Adafruit_BME280.h with Bosch_BME280_Arduino.h. Smaler compiled code and repo is updated.
-- fix Weather.ino history.json write
-- direct Discord webhook publish only for boards > 1M, WiFiClientSecure is big after compile
-- bool sendWebhook(const char *url, const char *data, bool secure) updated to handle also discord 
-- TicTacToe rename playTicTacToe to manageTicTacToeGame, restructured function letsPlay 
+**000.06.005** - in development 
+
+**000.06.004**
+ - WiFiManager: Fully decoupled from the rest of the code. All WiFi-related global variables have been moved into the WiFiManager class.  
+ - MQTTManager: Decoupled from the code and enhanced with new functionalities.  
+ - Config.h: WiFi and MQTT variables moved into classes, including BME280 and DHTsensors.  
+ - HTTP Server Dependency: Functions String getContentType(String filename), bool handleFileRead(String path), and void handleFileUpload() have been moved from Filesystem.ino to handleHttp.ino due to HTTP server dependency.  
+ - NTP Client: Replaced NTPClient.h with NTPClient_Generic.h, which is an extended version of NTPClient with additional data validation checks.  
+ - Daylight Saving Time (DST): Added a variable byte DST and a bool isDST() function to check and add Daylight Saving Time to the clock (not applied to timestamps of history and logs).  
+ - BME280 Sensor: Replaced Adafruit_BME280.h with Bosch_BME280_Arduino.h, resulting in smaller compiled code, and the repository has been updated.  
+ - Weather.ino: Fixed history.json write operation.  
+ - Discord Webhook: Enabled direct Discord webhook publishing only for boards with >1M flash memory, as WiFiClientSecure significantly increases compiled code size.  
+ - sendWebhook: Updated bool sendWebhook(const char *url, const char *data, bool secure) to support Discord-specific functionality.  
+ - TicTacToe: Renamed playTicTacToe to manageTicTacToeGame and restructured the letsPlay function for better management.  
+ - WS2812B_Matrix: Optimized text scrolling to reduce memory usage and improve free heap availability.  
 
 **000.06.003** 
 - rename MQTT file and class into MQTTManager  

@@ -253,28 +253,29 @@ Comments: - Supports both secure (HTTPS) and non-secure (HTTP) requests
 bool sendWebhook(const char *url, const char *data, bool secure)
 {
 	bool success = false;
-	HTTPClient http; // Shared HTTPClient instance
+	static HTTPClient http; // Shared HTTPClient instance
 
-	#if (STERGO_PROGRAM_BOARD > 1)											// ============== ONLY BOARDS WITH MORE THEN 1MM ===============
+	#if (STERGO_PROGRAM_BOARD > 1)											// ============== ONLY BOARDS WITH MORE THEN 1MB ===============
+	#include <WiFiClientSecure.h>
 	if (secure)
 	{
-		WiFiClientSecure *client = new WiFiClientSecure; // Create secure client
-		if (client)
+		WiFiClientSecure client; // Allocate on the stack
+		client.setInsecure(); // Optional: Disable SSL certificate validation
+		#if defined(ESP8266)
+		client.setBufferSizes(512, 512); // Adjust buffer sizes for ESP8266 only
+		#elif defined(ESP32)
+		// No buffer size adjustment needed for ESP32
+		#endif
+		if (http.begin(client, url))
 		{
-			client->setInsecure();					// Optional: Disable SSL certificate validation if needed
-			client->setBufferSizes(5024, 5024); // Adjust buffer sizes
-			if (http.begin(*client, url))
-			{ // Use secure client with HTTPClient
-				http.addHeader("Content-Type", "application/json");
-				int httpCode = http.POST(data);
-				success = ( httpCode > 0 && ( httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_NO_CONTENT ) );
-				http.end(); // Clean up
-			}
-			delete client; // Free memory
+			http.addHeader("Content-Type", "application/json");
+			int httpCode = http.POST(data);
+			success = (httpCode > 0 && (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_NO_CONTENT));
+			http.end(); // Clean up
 		}
 	}
 	else
-	#endif																		// ============== ONLY BOARDS WITH MORE THEN 1MM ===============//
+	#endif																		// ============== ONLY BOARDS WITH MORE THEN 1MB ===============//
 	{
 		// Non-secure HTTP request using espClient
 		if (http.begin(espClient, url))
@@ -286,16 +287,13 @@ bool sendWebhook(const char *url, const char *data, bool secure)
 		}
 	}
 
-// Consolidated debugging section
 	#if (DEBUG == 1)
+	static const char successLog[] = "HTTP OK";
+	static const char errorLog[] = "HTTP ERROR";
 	if (success)
-	{
-		writeLogFile(F("HTTP OK"), 1, 1); // Log success
-	}
+		writeLogFile(successLog, 1, 1);
 	else
-	{
-		writeLogFile(F("HTTP ERROR"), 1, 1); // Log failure
-	}
+		writeLogFile(errorLog, 1, 1);
 	#endif
 
 	return success;

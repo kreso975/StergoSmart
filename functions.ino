@@ -65,3 +65,29 @@ const char* showDuration()
 
   return uptime;
 }
+
+/* ============================================================================
+Function: isDST
+Purpose : Determines whether the current time falls within Daylight Saving Time (DST) 
+          based on predefined rules for the European region (e.g., DST starts on the 
+          last Sunday of March and ends on the last Sunday of October at 02:00).
+Input   : None (uses `now()` function for the current time and adjusts it with the 
+          global timeZoneOffset).
+Output  : bool - Returns true if the current time is in DST, false otherwise.
+Comments: The function calculates DST boundaries by checking the current month, day, 
+          and hour and applying rules specific to the European DST schedule. Ensure 
+          that the `now()` function is properly configured to provide the current time. 
+          Adapt these rules if applying to regions with different DST schedules.
+TODO    : None */
+bool isDST()
+{
+  int months = month(now() + timeZoneOffset);
+  int days = day(now() + timeZoneOffset);
+  int hours = hour(now() + timeZoneOffset);
+
+  // Example: DST starts on last Sunday of March and ends on last Sunday of October
+  if ((months > 3 && months < 10) || (months == 3 && (days - weekday() + 7) > 24 && hours >= 2) || (months == 10 && (days - weekday() + 7) <= 24 && hours < 2))
+    return true;
+
+  return false;
+}

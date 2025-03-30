@@ -6,6 +6,7 @@
 #include <vector>
 
 // external functions
+extern bool isDST();
 extern void sendJSONheaderReply(byte type, String message);
 extern bool writeLogFile( String message, int newLine, int output);
 
@@ -13,7 +14,7 @@ extern bool writeLogFile( String message, int newLine, int output);
 extern MQTTManager mqttManager;
 extern time_t adjustedTime;
 
-#define LED_PIN 0           // 74 = 0, 119 = 2
+#define LED_PIN 0                   // 74 = 0, 119 = 2
 #define COLOR_ORDER GRB
 #define CHIPSET WS2812B
 #define POWER_VOLTAGE 5             // set Voltage
@@ -50,10 +51,6 @@ extern byte displayMode;
 extern CRGB tempBufferText[];            // Buffer for text
 extern CRGB tempBufferParticles[];       // Buffer for particles
 extern CRGB tempBufferDate[];            // Buffer for date
-
-extern CRGB *displayBuffer;            // Pointer to store the SCROLL MESSAGE buffer
-extern int bufferSize;
-//CRGB tempBufferMessage[NUM_LEDS];       // Buffer for message - not in use
 
 
 // PARTICLES for FIREWORKS
@@ -104,7 +101,7 @@ extern void drawTime( int x, int y, CRGB colorTime, bool colon, bool seconds );
 extern void drawDate( CRGB *buffer, int x, int y, CRGB colorDate );
 extern void displayMessage(CRGB *buffer, CRGB colorScroll, const char *message, int numSpaces, int orientation);
 extern void renderDisplayMessage( unsigned long currentMillis );
-extern void drawWIN( const byte coords[][2], int size, CRGB *buffer, CRGB color );
+extern void drawWIN(const byte coords[][2], int size, CRGB *buffer, CRGB color, int orientation);
 extern void drawText( CRGB *buffer );
 extern void renderDisplayWin( unsigned long currentMillis );
 

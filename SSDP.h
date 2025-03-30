@@ -16,6 +16,7 @@ int actualSSDPdevices = 0;
 // Declare function because of default param provided
 void sendUDP(const char* payloadUDP, IPAddress ssdpDeviceIP = (0,0,0,0), int udpPort = LOCAL_UDP_PORT );
 char* parseAndExtract(const char* input, const char* key, const char* delimiter, int part = -1);
+
 // Time interval for udp SSDP M-SEARCH
 bool measureSSDPFirstRun = true;
 const long intervalSSDP = 1000 * 60 * 10;   // 1000 * 60 * 10 - 10min

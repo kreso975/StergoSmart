@@ -244,7 +244,7 @@ bool MainSensorConstruct()
 			file.close();
 
 			// Reserve the required space for jsonBuffer based on the file size
-			DynamicJsonDocument jsonBuffer( 10000 ); // Adding extra space for overhead
+			DynamicJsonDocument jsonBuffer( 9000 ); // Adding extra space for overhead
 			DeserializationError error = deserializeJson(jsonBuffer, buf.get());
 
 			if ( error )

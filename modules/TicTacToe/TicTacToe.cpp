@@ -443,6 +443,51 @@ void letsPlay(TurnPhase what, const char *who)
 	}
 }
 
+void checkGameOver()
+{
+	if ( ( turn < BOARD_SIZE && win(board) != 0 ) || turn == BOARD_SIZE )
+	{
+		 switch ( win(board) )
+		 {
+			  case DRAW:
+					#if (DEBUG == 1)
+					writeLogFile(F("It's a draw."), 1, 1);
+					#endif
+					break;
+
+			  case LOSS:
+					#if (DEBUG == 1)
+					draw(board);
+					writeLogFile(F("You win!"), 1, 1);
+					#endif
+					break;
+
+			  case WIN:
+					#if (DEBUG == 1)
+					draw(board); // Optional: display the board for a loss
+					writeLogFile(F("You lose. I won!"), 1, 1);
+					#endif
+					#ifdef MODULE_DISPLAY
+					if ( displayON )
+					{
+						 renderWIN = true;
+						 messageWinON = true;
+						 messageON = true;
+						 server.stop();
+						 prevMilMesLife = millis();
+					}
+					#endif
+					sendTicTacWebhook(1); // Webhook only for WIN
+					break;
+		 }
+
+		 #if (DEBUG == 1)
+		 writeLogFile(F("Resetting game; let's start over"), 1, 1);
+		 #endif
+		 resetTicTacToe();
+	}
+}
+
 /* ======================================================================
 Function: manageTicTacToeGame
 Purpose : initial Tic Tac Toe Manager
@@ -462,12 +507,11 @@ void manageTicTacToeGame(const char* input)
 	playerName[sizeof(playerName) - 1] = '\0'; // Ensure null-termination
 
 	int gamePhase = getGamePhase(input);
-	//writeLogFile(String("Game Phase: ") + gamePhase, 1, 1);
 	switch ( gamePhase )
 	{
 		case WePlay:
 			wantToPlay = atoi(parseAndExtract(input, "WePlay=", " "));
-			if ( !wantToPlay ) // Do not want to play == 0
+			if ( !wantToPlay ) // Do not want to WePlay = 0
 			{
 				// Remote don't want to play
 				#if (DEBUG == 1)
@@ -550,7 +594,7 @@ void manageTicTacToeGame(const char* input)
 			}
 
 			selectPlayer = atoi(parseAndExtract(input, "Player=", " "));
-			if (selectPlayer == 0)
+			if ( selectPlayer == 0 ) // Not selected
 			{
 				// We need to make a decision Player 1 || 2
 				// We Send What Player are We, and Assign his
@@ -563,13 +607,10 @@ void manageTicTacToeGame(const char* input)
 			{
 				#if (DEBUG == 1)
 				writeLogFile(selectPlayer + " Selected to play as Player: " + String(selectPlayer), 1, 1);
-				#endif
-				player = selectPlayer;
-
-				#if (DEBUG == 1)
 				printLogInPhase("Player");
 				#endif
 
+				player = selectPlayer;
 				letsPlay(INIT_GAME, playerName);
 			}
 			else if (selectPlayer == 1 && gameStarted && turn == 0)
@@ -716,94 +757,49 @@ void sendTicTacWebhook(byte where)
 		snprintf(data, sizeof(data), PSTR("{\"username\":\"%s\",\"avatar_url\":\"%s\",\"content\":\"%s\"}"), discordUsername, discordAvatar, message);
 		
 		// Send the webhook
-		sendWebhook(localURL, data, false);
+		
 		#if ( STERGO_PROGRAM_BOARD > 1 ) // Only boards with more then 1MB
-		// also check if url is for Discord or for proxy
-		//sendWebhook(localURL, data, true);
+		// Check if url is for Discord or for proxy
+		if (strstr(discord_url, "discordapp.com") != NULL) // The substring "discord.com" is present in discord_url
+			sendWebhook(localURL, data, true);
+	  	else
+	  		sendWebhook(localURL, data, false);
+		#else
+		// Send to Discord Webhook Proxy
+		sendWebhook(localURL, data, false);
 		#endif
-
-		// Send Discord
-		//sendToDiscord(data);
 	}
 }
 
 // This is used to detect if opponent wants to play not over ProxyHub but directly
 void checkIfHUBProxyPlay(const char *message)
 {
-	// Check if the input contains two semicolons and set HUBproxy_play accordingly
-	const char* firstSemicolon = strstr(message, ";");
-	const char* secondSemicolon = firstSemicolon ? strstr(firstSemicolon + 1, ";") : NULL;
- 
-	// Check if the input contains two semicolons and set HUBproxy_play accordingly
-	HUBproxy_play = (firstSemicolon != NULL && secondSemicolon != NULL) ? 1 : 0;
- 
-	if ( HUBproxy_play == 1 )
-	{
-	  // Extract opponent IP and UDP port if the message has a prefix
-	  char opponentIPStr[16]; // Temporary variable to hold IP address string
-	  strncpy(opponentIPStr, message, firstSemicolon - message);
-	  opponentIPStr[firstSemicolon - message] = '\0'; // Null-terminate the string
- 
-	  // Set the opponentIP variable
-	  opponentIP.fromString(opponentIPStr);
- 
-	  char opponentUDPportStr[6]; // Temporary variable to hold port number string
-	  strncpy(opponentUDPportStr, firstSemicolon + 1, secondSemicolon - firstSemicolon - 1);
-	  opponentUDPportStr[secondSemicolon - firstSemicolon - 1] = '\0'; // Null-terminate the string
- 
-	  // Convert port number string to integer
-	  opponentUDPport = atoi(opponentUDPportStr);
+    // Locate the first semicolon in the message
+    const char* firstSemicolon = strchr(message, ';');
+    const char* secondSemicolon = firstSemicolon ? strchr(firstSemicolon + 1, ';') : NULL;
 
-	  return;
-	}
-	
-	opponentIP = ntpUDP.remoteIP();           // Let's fetch the IP and save it for later use
-   opponentUDPport = ntpUDP.remotePort();    // Let's fetch the port and save it for later use
-}
+    // Check if the message contains at least two semicolons
+    // This determines whether it has the ProxyHub prefix
+    HUBproxy_play = (firstSemicolon && secondSemicolon) ? 1 : 0;
 
-void checkGameOver()
-{
-	if ( ( turn < BOARD_SIZE && win(board) != 0 ) || turn == BOARD_SIZE )
-	{
-		 switch ( win(board) )
-		 {
-			  case DRAW:
-					#if (DEBUG == 1)
-					writeLogFile(F("It's a draw."), 1, 1);
-					#endif
-					break;
+    if (HUBproxy_play)
+    {
+        // Extract opponent's IP address from the message
+        char opponentIPStr[16] = {0}; // Initialize a temporary array for the IP string
+        strncpy(opponentIPStr, message, firstSemicolon - message); // Copy IP substring
+        opponentIP.fromString(opponentIPStr); // Convert to IP object
 
-			  case LOSS:
-					#if (DEBUG == 1)
-					draw(board);
-					writeLogFile(F("You win!"), 1, 1);
-					#endif
-					break;
+        // Extract opponent's UDP port from the message
+        char opponentUDPportStr[6] = {0}; // Initialize a temporary array for the port string
+        strncpy(opponentUDPportStr, firstSemicolon + 1, secondSemicolon - firstSemicolon - 1); // Copy port substring
+        opponentUDPport = atoi(opponentUDPportStr); // Convert to integer
 
-			  case WIN:
-					#if (DEBUG == 1)
-					draw(board); // Optional: display the board for a loss
-					writeLogFile(F("You lose. I won!"), 1, 1);
-					#endif
-					#ifdef MODULE_DISPLAY
-					if ( displayON == 1 )
-					{
-						 renderWIN = true;
-						 messageWinON = true;
-						 messageON = true;
-						 server.stop();
-						 prevMilMesLife = millis();
-					}
-					#endif
-					sendTicTacWebhook(1); // Webhook only for WIN
-					break;
-		 }
+        return; // Exit the function since ProxyHub data is processed
+    }
 
-		 #if (DEBUG == 1)
-		 writeLogFile(F("Resetting game; let's start over"), 1, 1);
-		 #endif
-		 resetTicTacToe();
-	}
+    // Default behavior: retrieve remote IP and port if no ProxyHub prefix
+    opponentIP = ntpUDP.remoteIP();        // Fetch and save remote IP
+    opponentUDPport = ntpUDP.remotePort(); // Fetch and save remote port
 }
 
 #if (DEBUG == 1)
@@ -818,27 +814,29 @@ void drawNumberedBoard()
 	writeLogFile(" 6 | 7 | 8 ",1,1);
 }
 
-char displayChar( int c )
-{
-	return (c == -1) ? 'X' : (c == 0) ? ' ' : (c == 1) ? 'O' : 0;
-}
-
 // Display in Serial played moves after every move
 void draw(int board[BOARD_SIZE])
 {
-	byte vn;
-	String bm = F("\n ");
-	for (vn = 0; vn < BOARD_SIZE; ++vn)
-	{
-		bm += String(displayChar(board[vn]));
-		if (vn == 2 || vn == 5)
-			bm += F("\n---+---+---\n ");
-		else if (vn == 8)
-			bm += F(" ");
-		else
-			bm += F(" | ");
-	}
-	writeLogFile(bm, 1, 1);
+   byte vn; // Variable to iterate through the board
+   String bm = F("\n "); // Start building the board output
+
+   for (vn = 0; vn < BOARD_SIZE; ++vn)
+   {
+      // Append the correct character ('X', 'O', or ' ') to the output
+      char cellChar = (board[vn] == -1) ? 'X' : (board[vn] == 0) ? ' ' : (board[vn] == 1) ? 'O' : ' ';
+      bm += cellChar;
+
+      // Add separators and row dividers based on position
+      if ((vn + 1) % 3 == 0 && vn != BOARD_SIZE - 1) // After every row except the last one
+         bm += F("\n---+---+---\n ");
+      else if (vn == BOARD_SIZE - 1) // Last cell
+         bm += F(" ");
+      else // Column separators
+         bm += F(" | ");
+   }
+
+   // Write the formatted board to the log file
+   writeLogFile(bm, 1, 1);
 }
 
 // to Optimize code.

@@ -25,9 +25,10 @@ GUI editor : [Smart Stergo GUI project](https://github.com/kreso975/StergoSmartG
 - WiFi manager
 - SSDP
 - WS2812b matrix 8x32.
-- Clock displaying Time, Date, Temperature, Humidity, Message
+- Clock displaying Time (TimeZones, DST - Daylight Saving Time), Date, Temperature, Humidity, Message
 - UDP Tic Tac Toe
 - Tic Tac Toe winners Publish as Webhook (Discord channel)
+- Discord Webhook as webhook proxy for boards <= 1MB
   
 > [!IMPORTANT]
 > **Works with LittleFS v => v000.01.105**  

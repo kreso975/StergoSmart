@@ -50,7 +50,6 @@ void setup()
 	FastLED.setBrightness(maxBrightness);
 
 	timeZoneOffset = 3600 * timeZone;	// Used for accurate display of local Time
-
 	setupDisplay(); // Set init values
 	#endif
 
@@ -73,6 +72,7 @@ void setup()
 		timeClient.update();
 		setTime(timeClient.getEpochTime());
 		startTime = now();
+		DST = isDST() ? 1 : 0;					// Check if DST is active	
 
 		setupHttpServer();
 		// If we are connected to WLAN we can start SSDP (Simple Service Discovery Protocol) service
@@ -113,7 +113,11 @@ void loop()
 	{
 		// Check and update time
 		if ( timeClient.update() )
+		{
 			setTime(timeClient.getEpochTime());
+			DST = isDST() ? 1 : 0;					// Check if DST is active	
+		}
+			
   
 		// We will not run anything if we are in WIN message mode
 		// Skip operations if in WIN message mode (dirty fix)

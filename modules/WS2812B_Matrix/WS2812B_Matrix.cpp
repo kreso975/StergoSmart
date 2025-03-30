@@ -1,6 +1,6 @@
 #include "../../Config.h"
 #ifdef MODULE_DISPLAY
-#include "../../settings.h"
+
 #include "WS2812B_Matrix.h"
 
 byte maxBrightness = 35;
@@ -23,8 +23,8 @@ CRGB *const leds(leds_plus_safety_pixel + 1);
 
 CRGB displayColor = CRGB(255, 0, 0); // Red default
 
-// TimeZone is adjustable in config.json
-int timeZone = 1;
+int timeZone = 1;		// TimeZone is adjustable in config.json
+byte DST = 0; 			// Daylight Saving time;
 long timeZoneOffset; // Adjust for your timezone +1 - in Setup after config
 
 unsigned long displayInterval = 1000; // Interval for display - default
@@ -35,12 +35,13 @@ unsigned long lastDisplayChange = 0;
 byte displayMode = 0;
 
 CRGB tempBufferText[NUM_LEDS];			// Buffer for text
-CRGB tempBufferParticles[NUM_LEDS]; // Buffer for particles
+CRGB tempBufferParticles[NUM_LEDS]; 	// Buffer for particles
 CRGB tempBufferDate[NUM_LEDS];			// Buffer for date
 
-CRGB *displayBuffer = nullptr; // Pointer to store the SCROLL MESSAGE buffer
-int bufferSize = 0;
-CRGB tempBufferMessage[NUM_LEDS]; // Buffer for message - not in use
+static CRGB *displayBuffer = nullptr; // Pointer to store the SCROLL MESSAGE buffer
+static int bufferSize = 0;
+static char previousMessage[256] = "";
+static int previousNumSpaces = 0;
 
 // PARTICLES for FIREWORKS
 // Global variables for initial velocity, gradual deceleration, and other parameters
@@ -50,6 +51,16 @@ const int PARTICLE_LIFE = 70;
 const int PARTICLE_COUNT = 20;
 const int EXPLOSION_FREQUENCY = 2; // 0 - 9 : 0 = no explosion, 9 = explosion every time
 const int UPDATE_RATE = 50;
+
+enum SHOW_MODE
+{
+	CLOCK_DATE = 0,
+	CLOCK_TIME = 1,
+	#ifdef MODULE_WEATHER										//=============== Weather Station  ==============
+	CLOCK_TEMPERATURE = 2,
+	CLOCK_HUMIDITY = 3,
+	#endif
+};
 
 const char *messageDisplay = "";
 static int scrollPosition = 0; // Make scrollPosition static
@@ -80,12 +91,12 @@ Comments: Updates the display with time, date, temperature, humidity, or message
 TODO    : */
 void updateDisplay()
 {
-	if (displayON == 1) // if display is SET ON
+	if ( displayON ) // if display is SET ON
 	{	
 		unsigned long currentMillis = millis();
-		if (messageON)
+		if ( messageON )
 		{
-			if (messageWinON)
+			if ( messageWinON )
 				renderDisplayWin(currentMillis); // Display Win message - moved to separate function
 			else
 				renderDisplayMessage(currentMillis); // Display Message - moved to separate function
@@ -95,7 +106,7 @@ void updateDisplay()
 			if (currentMillis - dispPrevMils >= displayInterval)
 			{
 				FastLED.clearData();
-				adjustedTime = now() + timeZoneOffset; // Adjust time by Time Zone offset
+				adjustedTime = now() + timeZoneOffset + (DST ? 3600 : 0); // Adjust time by Time Zone and DST offset
 				dispPrevMils = currentMillis;
 
 				if (currentMillis - lastDisplayChange >= displayRotateInterval)
@@ -108,26 +119,23 @@ void updateDisplay()
 					#endif
 				}
 
-				switch (displayMode)
+				switch ( displayMode )
 				{
-					case 0:
+					case CLOCK_DATE:
 						displayRotateInterval = 3000; // 4 sec
 						drawDate(tempBufferDate, 1, 0, displayColor);
-						for (int i = 0; i < NUM_LEDS; i++)
-						{
-							leds[i] = tempBufferDate[i];
-						}
+						memcpy(leds, tempBufferDate, NUM_LEDS * sizeof(leds[0]));
 						break;
-					case 1:
+					case CLOCK_TIME:
 						displayRotateInterval = 15000;					// 10 sec
 						drawTime(1, 0, displayColor, true, false); 	// Display time
 						break;
-					#ifdef MODULE_WEATHER											//=============== Weather Station  ==============
-					case 2:
+					#ifdef MODULE_WEATHER										//=============== Weather Station  ==============
+					case CLOCK_TEMPERATURE:
 						displayRotateInterval = 3000;					 	// 5 sec
 						drawTempHum(0, 0, displayColor, true); 		// Display Temperature true
 						break;
-					case 3:
+					case CLOCK_HUMIDITY:
 						displayRotateInterval = 3000;						// 4 sec
 						drawTempHum(0, 0, displayColor, false); 		// Display Humidity - false
 						break;
@@ -163,11 +171,11 @@ void drawLetter(int posx, int posy, char letter, CRGB color, int orientation, CR
 						if (bit == 1)
 							(buffer ? buffer[XYsafe(kMatrixWidth - 1 - drawX, kMatrixHeight - 1 - drawY)] : leds[XYsafe(kMatrixWidth - 1 - drawX, kMatrixHeight - 1 - drawY)]) = color;
 						break;
-					case 2: // Vertical flip
+					case 2: // Horizontal flip on normal orientation
 						if (bit == 1)
 							(buffer ? buffer[XYsafe(drawX, kMatrixHeight - 1 - drawY)] : leds[XYsafe(drawX, kMatrixHeight - 1 - drawY)]) = color;
 						break;
-					case 3: // Horizontal flip
+					case 3: // Vertical flip on Diagonal orientation
 						if (bit == 1)
 							(buffer ? buffer[XYsafe(kMatrixWidth - 1 - drawX, drawY)] : leds[XYsafe(kMatrixWidth - 1 - drawX, drawY)]) = color;
 						break;
@@ -184,7 +192,7 @@ void drawTempHum(int x, int y, CRGB colorText, bool isTemperature)
 	// colorText.nscale8(maxBrightness);
 
 	x = 4;
-	if (isTemperature)
+	if ( isTemperature )
 	{
 		dtostrf(t, 3, 0, tmpStr);
 		drawLetter(x, 0, 'C', colorText, kMatrixOrientation);
@@ -217,15 +225,13 @@ void drawTime(int x, int y, CRGB colorTime, bool colon, bool seconds)
 	int minutes = minute(adjustedTime);
 	int secs = second(adjustedTime);
 
-	// colorTime.nscale8(maxBrightness);
-
 	// Display time on LED matrix with swapped positions
 	x -= 0;
 	drawLetter(x, y, minutes % 10 + '0', colorTime, kMatrixOrientation);
 	x += FontWidth + 1;
 	drawLetter(x, y, minutes / 10 + '0', colorTime, kMatrixOrientation);
 	x += FontWidth;
-	if (colon)
+	if ( colon )
 	{
 		if (secs % 2 == 0)
 			drawLetter(x - 1, y, ':', colorTime, kMatrixOrientation);
@@ -287,10 +293,6 @@ TODO    : */
 void displayMessage(CRGB *buffer, CRGB colorScroll, const char *message, int numSpaces, int orientation)
 {
 	static bool bufferInitialized = false;
-	static CRGB *displayBuffer = nullptr; // Pointer to store the buffer
-	static int bufferSize = 0;
-	static char previousMessage[256] = "";
-	static int previousNumSpaces = 0;
 
 	const char *convertedMessage = convertToSingleByte(message);
 
@@ -298,14 +300,13 @@ void displayMessage(CRGB *buffer, CRGB colorScroll, const char *message, int num
 	if (strcmp(previousMessage, convertedMessage) != 0 || previousNumSpaces != numSpaces)
 	{
 		if (displayBuffer != nullptr) // Free the old buffer if it exists
-			delete[] displayBuffer;
+    		delete[] displayBuffer;
 
 		// Calculate the new buffer size
 		bufferSize = (strlen(convertedMessage) + numSpaces) * 6 * kMatrixHeight;
 		displayBuffer = new CRGB[bufferSize]; // Allocate memory for the new buffer
 
-		for (int i = 0; i < bufferSize; i++) // Initialize the buffer with the new message and spaces
-			displayBuffer[i] = CRGB::Black;
+		memset(displayBuffer, 0, bufferSize * sizeof(CRGB)); // Clear the buffer SET to BLACK
 
 		// Add spaces in front of the message
 		for (int i = 0; i < numSpaces; i++)
@@ -385,7 +386,7 @@ void displayMessage(CRGB *buffer, CRGB colorScroll, const char *message, int num
 		}
 	}
 
-	if (orientation == 1)
+	if ( orientation == 1 )
 	{
 		scrollPosition--;
 		if (scrollPosition < 0)
@@ -399,15 +400,6 @@ void displayMessage(CRGB *buffer, CRGB colorScroll, const char *message, int num
 	}
 }
 
-void freeDisplayMessageBuffer()
-{
-	if (displayBuffer != nullptr)
-	{
-		delete[] displayBuffer;
-		displayBuffer = nullptr;
-	}
-}
-
 void renderDisplayMessage(unsigned long currentMillis)
 {
 	//
@@ -416,19 +408,30 @@ void renderDisplayMessage(unsigned long currentMillis)
 	{
 		FastLED.clearData();
 		previousMillisMessage = currentMillis;
-		memset(tempBufferMessage, 0, sizeof(tempBufferMessage));												// Clear temp buffer
-		displayMessage(tempBufferMessage, displayColor, messageDisplay, 6, kMatrixOrientation);	// Update temp buffer | using buffer if we want add something over / effect
+		memset(tempBufferText, 0, sizeof(tempBufferText));													// Clear temp buffer
+		displayMessage(tempBufferText, displayColor, messageDisplay, 6, kMatrixOrientation);	// Update temp buffer | using buffer if we want add something over / effect
 
-		for (int i = 0; i < NUM_LEDS; i++) // Fill LEDS from buffer
-			leds[i] = tempBufferMessage[i];
+		memcpy(leds, tempBufferText, NUM_LEDS * sizeof(CRGB));
 	}
 
 	if (currentMillis - prevMilMesLife >= displayMessageLife)
 	{
-		server.begin();																					 // We have stop it when set messageON = true in displayState()
-		memset(tempBufferMessage, 0, sizeof(tempBufferMessage)); // Clear temp buffer
-		freeDisplayMessageBuffer();
-		messageON = false; // Set messageON to false after 10 seconds
+		server.begin();																					// We have stop it when set messageON = true in displayState()
+		memset(tempBufferText, 0, sizeof(tempBufferText)); 									// Clear temp buffer
+		
+		if (displayBuffer != nullptr) 
+		{
+			delete[] displayBuffer;																		// Free dynamically allocated memory - NEED a HEAP :)
+			displayBuffer = nullptr;																	// Avoid dangling pointers
+	  	}
+ 
+	  	// Reset all static variables
+	  	bufferSize = 0;
+	  	memset(previousMessage, 0, sizeof(previousMessage)); // Clear previous message buffer
+	  	previousNumSpaces = 0;
+
+		messageDisplay = ""; 																			// Clear messageDisplay - it free up Heap
+		messageON = false; 																				// Set messageON to false after 10 seconds
 		#if ( DEBUG == 1 )
 		writeLogFile(F("Scroll text END, messageON = false, server.begin"), 1, 1);
 		#endif
@@ -605,14 +608,14 @@ void renderDisplayWin(unsigned long currentMillis)
 {
 	FastLED.clearData();
 	// DRAW WIN WITH FIREWORKS
-	if (renderWIN)
+	if ( renderWIN )
 	{
 		if (currentMillis - previousMillisText >= intervalText)
 		{
 			writeLogFile("renderWIN", 1, 1);
 			previousMillisText = currentMillis;
-			memset(tempBufferText, 0, sizeof(tempBufferText)); // Clear temp buffer
-			drawText(tempBufferText);													 // Update temp buffer
+			memset(tempBufferText, 0, sizeof(tempBufferText));					// Clear temp buffer
+			drawText(tempBufferText);													// Update temp buffer
 		}
 	}
 
@@ -621,24 +624,24 @@ void renderDisplayWin(unsigned long currentMillis)
 	{
 		writeLogFile("render Particle", 1, 1);
 		previousMillisParticles = currentMillis;
-		memset(tempBufferParticles, 0, sizeof(tempBufferParticles)); // Clear temp buffer
-		addParticles(tempBufferParticles);													 // Update temp buffer
+		memset(tempBufferParticles, 0, sizeof(tempBufferParticles)); 		// Clear temp buffer
+		addParticles(tempBufferParticles);											// Update temp buffer
 	}
 
 	// Combine buffers
 	for (int i = 0; i < NUM_LEDS; i++)
-		leds[i] = tempBufferText[i] + tempBufferParticles[i]; // Combine buffers tempBufferText[i] +
+		leds[i] = tempBufferText[i] + tempBufferParticles[i]; 				// Combine buffers tempBufferText[i] +
 
 	if (currentMillis - prevMilMesLife >= displayMessageLife)
 	{
 		FastLED.clearData();
-		memset(tempBufferText, 0, sizeof(tempBufferText));					 // Clear temp buffer
-		memset(tempBufferParticles, 0, sizeof(tempBufferParticles)); // Clear temp buffer
-		messageON = false;																					 // Set messageON to false after 10 seconds
+		memset(tempBufferText, 0, sizeof(tempBufferText));					 	// Clear temp buffer
+		memset(tempBufferParticles, 0, sizeof(tempBufferParticles)); 		// Clear temp buffer
+		messageON = false;																// Set messageON to false after 10 seconds
 		messageWinON = false;
 		renderWIN = true;
-		resetParticles(); // Clear the particles vector
-		server.begin();		// We have stop it when set messageON = true in displayState()
+		resetParticles(); 																// Clear the particles vector
+		server.begin();																	// We have stop it when set messageON = true in displayState()
 	}
 }
 
@@ -681,7 +684,7 @@ void displayState()
 		}
 		*/
 		// No need to use if we have display OFF
-		if (displayON == 1)
+		if ( displayON )
 		{
 			if (server.hasArg("messageDisplay"))
 			{

@@ -73,7 +73,7 @@
     #include "SSDP.h"
     #define MODEL_NAME "TT001"
 #endif
-														//================================================
+
 #if ( STERGO_SCREEN == 1 )
     #define MODULE_DISPLAY
     #define MODULE_MQTT
@@ -82,7 +82,7 @@
 #ifdef MODULE_MQTT                  //================ MQTT Manager  ================
 #include "./src/MQTTManager/MQTTManager.h"
 MQTTManager mqttManager;
-#endif	
+#endif	                            //================================================
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -118,7 +118,6 @@ byte deviceType, randNumber;
 
 char deviceName[20] = ""; 
 char _devicename[28] = "";
-
 
 char discord_url[130];
 char discord_avatar[120];
