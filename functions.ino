@@ -66,6 +66,39 @@ const char* showDuration()
   return uptime;
 }
 
+
+int lastSunday(int month, int year)
+{
+  int lastDay;
+
+  // Determine last day of the month
+  if ( month == 2 )
+  {
+    // Leap year check
+    bool leap = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+    lastDay = leap ? 29 : 28;
+  } else if ( month == 4 || month == 6 || month == 9 || month == 11 ) {
+    lastDay = 30;
+  } else {
+    lastDay = 31;
+  }
+
+  // Build time_t for last day of the month
+  tmElements_t tm;
+  tm.Year = year - 1970;
+  tm.Month = month;
+  tm.Day = lastDay;
+  tm.Hour = 0;
+  tm.Minute = 0;
+  tm.Second = 0;
+
+  time_t t = makeTime(tm);
+  int wd = weekday(t); // Sunday = 1, Saturday = 7
+
+  // Adjust to get last Sunday
+  return lastDay - ((wd + 6) % 7); // Normalize to 0-based Sunday
+}
+
 /* ============================================================================
 Function: isDST
 Purpose : Determines whether the current time falls within Daylight Saving Time (DST) 
@@ -81,12 +114,15 @@ Comments: The function calculates DST boundaries by checking the current month, 
 TODO    : None */
 bool isDST()
 {
-  int months = month(now() + timeZoneOffset);
-  int days = day(now() + timeZoneOffset);
-  int hours = hour(now() + timeZoneOffset);
+  int y = year(now() + timeZoneOffset);
+  int m = month(now() + timeZoneOffset);
+  int d = day(now() + timeZoneOffset);
+  int h = hour(now() + timeZoneOffset);
 
-  // Example: DST starts on last Sunday of March and ends on last Sunday of October
-  if ((months > 3 && months < 10) || (months == 3 && (days - weekday() + 7) > 24 && hours >= 2) || (months == 10 && (days - weekday() + 7) <= 24 && hours < 2))
+  int startDST = lastSunday(3, y);  // March
+  int endDST = lastSunday(10, y);   // October
+
+  if ( (m > 3 && m < 10) || ( m == 3 && ( d > startDST || ( d == startDST && h >= 2 ) ) ) || ( m == 10 && ( d < endDST || ( d == endDST && h < 2 ) ) ) )
     return true;
 
   return false;

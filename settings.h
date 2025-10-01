@@ -13,7 +13,7 @@
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 1
+#define STERGO_PROGRAM 4
 
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
@@ -25,15 +25,17 @@
  * ESP8266 default 01S = 1   // v01
  * LOLIN D1 mini       = 2   // v02
  * ESP32C6             = 3   // v03
+ * ESP32C3             = 4   // v04
  */
-#define STERGO_PROGRAM_BOARD 2
+#define STERGO_PROGRAM_BOARD 1
 
 /*
  * STERGO_PLUG :
  * 
- * Native Board relay = 1   // Relay Switch - RS
- * Sonoff S26         = 2   // Plug Switch  - PS
- * Sonoff T4EU1C      = 3   // Light Switch - LS
+ * Native Board relay = 1   // Relay Switch       - RS
+ * Sonoff S26         = 2   // Plug Switch        - PS
+ * Sonoff T4EU1C      = 3   // Light Switch       - LS
+ * Izymo Transmitter  = 4   // Izymo Transmitter  - IT
  */
 #define STERGO_PLUG 1
 

@@ -5,9 +5,10 @@
 /*
  * Different models used for Plug / Switch
  * 
- * Native Board relay = 1   // Relay Switch - RS
- * Sonoff S26         = 2   // Plug Switch  - PS
- * Sonoff T4EU1C      = 3   // Light Switch - LS
+ * Native Board relay = 1   // Relay Switch       - RS
+ * Sonoff S26         = 2   // Plug Switch        - PS
+ * Sonoff T4EU1C      = 3   // Light Switch       - LS
+ * Izymo Transmitter  = 4   // Izymo Transmitter  - IT
  */
 
 
@@ -20,6 +21,9 @@
 #elif ( STERGO_PLUG == 3 && STERGO_PROGRAM == 0 )   //===============================================
   #define MODEL_PREFIX "LS0"
   #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "1"
+#elif ( STERGO_PLUG == 4 && STERGO_PROGRAM == 0 )   //===============================================
+  #define MODEL_PREFIX "IT0"
+  #define MODEL_NAME MODEL_PREFIX TOSTRING(STERGO_SCREEN) "1"
 #endif                                              //===============================================
 
 #if ( STERGO_PLUG == 1 )                  //===============================================
@@ -31,6 +35,10 @@
   #define RELAY 12                        // relay connected to  GPIO12 && RED light
   #define BUTTON01 0
 #elif ( STERGO_PLUG == 3 )                //===============================================
+  #define LED  13                         // BLUE LIGHT
+  #define RELAY 12                        // relay connected to  GPIO12 && RED light
+  #define BUTTON01 0
+#elif ( STERGO_PLUG == 4 )                //===============================================
   #define LED  13                         // BLUE LIGHT
   #define RELAY 12                        // relay connected to  GPIO12 && RED light
   #define BUTTON01 0

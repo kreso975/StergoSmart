@@ -6,10 +6,12 @@
   - implement firmware update ESP32
   - start moving *.ino to .h and .cpp and place them to src folder 
   
+  
  <br><br>
  
 ## **CHANGES:**
 **000.06.005** - in development 
+- functions.ino - fix DST - wrong detection of last sunday in October
 
 **000.06.004**
  - WiFiManager: Fully decoupled from the rest of the code. All WiFi-related global variables have been moved into the WiFiManager class.  
