@@ -42,31 +42,31 @@ GUI editor : [Smart Stergo GUI project](https://github.com/kreso975/StergoSmartG
 >   
 >
 > **Libraries Needed:**  
-> NTPClient by Fabrice Weinberg  **v3.2.1**  || <= v000.6.003   
-> NTPClient_Generic by Fabrice Weinberg, Khoi Hoang  **v3.7.5**  || v000.6.004 >=  
+> NTPClient by Fabrice Weinberg  **v3.2.1**  <= v000.6.003   
+> NTPClient_Generic by Fabrice Weinberg, Khoi Hoang   v000.6.004 >=  **v3.7.5**  
 > Adafruit BME280 Library by Adafruit **v2.2.4** || <= v000.6.003  
 > Bosch_BME280_Arduino by Frank Hafele **v1.1.0**  || v000.6.004 >=  
 > Adafruit Unified Sensor by Adafruit **v1.1.15**  
-> DHT sensor library by Adafruit **v1.4.6**  
-> Adafruit BusIO by Adafruit **v1.17.0**  
-> Arduinojson by Benoit Blanchon **v5.13.5** || v000.5.103 >= **v6.21.5**  
+> DHT sensor library by Adafruit **v1.4.7**  
+> Adafruit BusIO by Adafruit **v1.17.4**  
+> Arduinojson by Benoit Blanchon **v5.13.5** || v000.5.103 >= **v6.21.6**  
 > PubSubClient by Nick O'Leary **v2.8**  
 > OneWire by Jim Studt, Tom Pollard.. **v2.3.8**  
-> DallasTemperature by Miles Burton **v4.0.3**  
-> Time by Michael Margolis **v1.6.1**  
+> DallasTemperature by Miles Burton **v4.0.6**  
+> Time by Michael Margolis / Paul Stoffregen **v1.6.1**  
 > FastLED by Daniel Garcia **v3.7.8**  
 
 > [!NOTE]
 > **Compile setup: ** 
 > ESP8266 : TOOLS >>  
 >	Board: Generic ESP8266 Module  
->	Biolt in LED: 2  
+>	Bilt in LED: 2  
 >	Upload speed: 115000  
 >	CPU Frequency: 80 or 160 MHz  
 >	Crystal Frequency: 26MHz  
 >		Flash size: 1M(FS: 160KB OTA: ~422KB)  
 >	Flash mode: DOUT (because of sonnof EU)  
->	Flash Frequency: 80MH  
+>	Flash Frequency: 80MHz  
 >	Reset method: no dtr (aka ck)  
 >	Debug port: Disabled  
 >	Debug Level: None  

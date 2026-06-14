@@ -45,7 +45,7 @@
 
 // Main settings for StergoSmart
 #include "settings.h"
-
+#include "functions.h"
 #include "Filesystem.h"     //
 #include "./src/WiFiManager/WiFiManager.h"
 
@@ -100,7 +100,7 @@ String SERIAL_NUMBER = String(PRODUCT) + "-" + chipID;
 #define DNS_PORT 53
 #define WEBSERVER_PORT 80
 #define NTPSERVER "europe.pool.ntp.org"
-#define NTP_UPDATE 60000  // Update every 60 seconds
+#define NTP_UPDATE 900000   // 15 minutes
 
 #define configFile "/config.json"
 #define LOG_FILE "/log.json"
@@ -141,6 +141,8 @@ File fsUploadFile;
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, NTPSERVER, 0, NTP_UPDATE); // 60 * 60 * 1000 == 1 hour
+unsigned long nextNtpSync = 0;
+bool timeValid = false;
 
 // startTime - When Device Started
 time_t startTime;

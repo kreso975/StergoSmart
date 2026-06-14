@@ -127,3 +127,48 @@ bool isDST()
 
   return false;
 }
+
+/* ============================================================================
+Function: isNtpTimeValid
+Purpose : Validates whether the received NTP epoch timestamp is within a sane and
+          expected range, preventing corrupted or nonsensical time values from
+          being applied to the system clock.
+Input   : unsigned long epoch - Raw epoch timestamp returned by the NTP client.
+Output  : bool - Returns true if the timestamp is valid, false otherwise.
+Comments: Rejects timestamps earlier than 2020 (to avoid 1970/garbage values) and
+          rejects values above 2147483647 (to avoid overflow or corrupted packets).
+          Ensures the device never applies invalid or broken NTP time.
+TODO    : None
+*/
+bool isNtpTimeValid(unsigned long epoch) {
+    if (epoch < 1577836800UL) return false;   // before 2020
+    if (epoch > 2147483647UL) return false;   // overflow
+    return true;
+}
+
+/* ============================================================================
+Function: safeNtpUpdate
+Purpose : Performs a non-blocking NTP update by repeatedly calling the NTP
+          client's update() method while enforcing a timeout to prevent the
+          ESP8266 from freezing due to network delays or stalled NTP responses.
+Input   : unsigned long timeoutMs - Maximum allowed duration for the update
+          attempt before aborting (default: 200 ms).
+Output  : bool - Returns true if the NTP update succeeded within the timeout,
+          false if the operation timed out.
+Comments: Prevents the device from hanging when timeClient.update() blocks.
+          Uses a loop with a timeout and yields via delay(1) to keep WiFi and
+          system tasks responsive. Essential for long-term stability.
+TODO    : None
+*/
+bool safeNtpUpdate(unsigned long timeoutMs) {
+    unsigned long start = millis();
+
+    while (!timeClient.update()) {
+        if (millis() - start > timeoutMs) {
+            return false;   // timeout → avoid freeze
+        }
+        delay(1);           // yield
+    }
+
+    return true;
+}

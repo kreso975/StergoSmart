@@ -22,7 +22,7 @@ void setupSSDP()
 
 	// Register the TicTacToe handler for the keyword "TicTac"
 	// These needs to be moved 
-	subscribeUDP("TicTac", manageTicTacToeGame);
+	subscribeUDP("TicTac", manageTicTacToeGame); // This should be only if Tic Tac Toe is Part of Core
 	subscribeUDP("Arduino", arduinoHandler);
 	subscribeUDP("Stergo", StergoHandler);
 }

@@ -112,12 +112,36 @@ void loop()
 	if ( WiFi.getMode() == WIFI_STA )
 	{
 		// Check and update time
-		if ( timeClient.update() )
-		{
-			setTime(timeClient.getEpochTime());
-			DST = isDST() ? 1 : 0;					// Check if DST is active	
+		unsigned long nowMs = millis();
+
+		if (!timeValid) {
+			// FAST MODE (boot)
+			if (nowMs > nextNtpSync) {
+				if (safeNtpUpdate()) {
+						unsigned long epoch = timeClient.getEpochTime();
+						if (isNtpTimeValid(epoch)) {
+							setTime(epoch);
+							DST = isDST() ? 1 : 0;
+							timeValid = true;
+							nextNtpSync = nowMs + NTP_UPDATE;  // switch to slow mode
+						}
+				}
+				nextNtpSync = nowMs + 5000;  // retry in 5 sec
+			}
 		}
-			
+		else {
+			// NORMAL MODE
+			if (nowMs > nextNtpSync) {
+				if (safeNtpUpdate()) {
+						unsigned long epoch = timeClient.getEpochTime();
+						if (isNtpTimeValid(epoch)) {
+							setTime(epoch);
+							DST = isDST() ? 1 : 0;
+						}
+				}
+				nextNtpSync = nowMs + NTP_UPDATE;  // 15 minutes
+			}
+		}	
   
 		// We will not run anything if we are in WIN message mode
 		// Skip operations if in WIN message mode (dirty fix)

@@ -12,6 +12,9 @@
 ## **CHANGES:**
 **000.06.005** - in development 
 - functions.ino - fix DST - wrong detection of last sunday in October
+- added fix for NTP freeze
+- added smoother NTP update not using built in update
+- Updated libraries: Arduinojson 6.21.6, DHT sensor library by Adafruit v1.4.7, DallasTemperature by Miles Burton v4.0.6 
 
 **000.06.004**
  - WiFiManager: Fully decoupled from the rest of the code. All WiFi-related global variables have been moved into the WiFiManager class.  

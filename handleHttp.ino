@@ -255,10 +255,10 @@ bool sendWebhook(const char *url, const char *data, bool secure)
 	bool success = false;
 	static HTTPClient http; // Shared HTTPClient instance
 
-	#if (STERGO_PROGRAM_BOARD > 1)											// ============== ONLY BOARDS WITH MORE THEN 1MB ===============
-	#include <WiFiClientSecure.h>
 	if (secure)
 	{
+		#if (STERGO_PROGRAM_BOARD > 1)											// ============== ONLY BOARDS WITH MORE THEN 1MB ===============
+		#include <WiFiClientSecure.h>
 		WiFiClientSecure client; // Allocate on the stack
 		client.setInsecure(); // Optional: Disable SSL certificate validation
 		#if defined(ESP8266)
@@ -273,9 +273,9 @@ bool sendWebhook(const char *url, const char *data, bool secure)
 			success = (httpCode > 0 && (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_NO_CONTENT));
 			http.end(); // Clean up
 		}
+		#endif																			// ============== ONLY BOARDS WITH MORE THEN 1MB ===============
 	}
 	else
-	#endif																		// ============== ONLY BOARDS WITH MORE THEN 1MB ===============//
 	{
 		// Non-secure HTTP request using espClient
 		if (http.begin(espClient, url))
