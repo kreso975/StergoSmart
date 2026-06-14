@@ -6,7 +6,6 @@
   - implement firmware update ESP32
   - start moving *.ino to .h and .cpp and place them to src folder 
   
-  
  <br><br>
  
 ## **CHANGES:**
@@ -15,6 +14,7 @@
 - added fix for NTP freeze
 - added smoother NTP update not using built in update
 - Updated libraries: Arduinojson 6.21.6, DHT sensor library by Adafruit v1.4.7, DallasTemperature by Miles Burton v4.0.6 
+- fixed compile non Matrix version
 
 **000.06.004**
  - WiFiManager: Fully decoupled from the rest of the code. All WiFi-related global variables have been moved into the WiFiManager class.  

@@ -144,6 +144,10 @@ NTPClient timeClient(ntpUDP, NTPSERVER, 0, NTP_UPDATE); // 60 * 60 * 1000 == 1 h
 unsigned long nextNtpSync = 0;
 bool timeValid = false;
 
+int timeZone = 1;		// TimeZone is adjustable in config.json
+byte DST = 0; 			// Daylight Saving time;
+long timeZoneOffset; // Adjust for your timezone +1 - in Setup after config
+
 // startTime - When Device Started
 time_t startTime;
 time_t adjustedTime;

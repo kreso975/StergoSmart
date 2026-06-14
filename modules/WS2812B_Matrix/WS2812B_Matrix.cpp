@@ -23,10 +23,6 @@ CRGB *const leds(leds_plus_safety_pixel + 1);
 
 CRGB displayColor = CRGB(255, 0, 0); // Red default
 
-int timeZone = 1;		// TimeZone is adjustable in config.json
-byte DST = 0; 			// Daylight Saving time;
-long timeZoneOffset; // Adjust for your timezone +1 - in Setup after config
-
 unsigned long displayInterval = 1000; // Interval for display - default
 unsigned long dispPrevMils = displayInterval;
 
