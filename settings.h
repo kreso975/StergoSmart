@@ -7,17 +7,17 @@
  * STERGO_PROGRAM :
  *
  * PowerSwitch                  = 0
- * StergoWeather BME280         = 1
+ * StergoWeather BME280         = 1 // Must configure in modules BME280/BME280.h set GPIO_SDA and GPIO_SCL
  * TicTacToe                    = 2
  * StergoWeather+PowerSwitch    = 3
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 1
+#define STERGO_PROGRAM 4
 
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
-#define STERGO_SCREEN 0
+#define STERGO_SCREEN 1
 
 /*
  * STERGO_PROGRAM_BOARD :
@@ -37,7 +37,7 @@
  * Sonoff T4EU1C      = 3   // Light Switch       - LS
  * Izymo Transmitter  = 4   // Izymo Transmitter  - IT
  */
-#define STERGO_PLUG 1
+#define STERGO_PLUG 4
 
 // Firmware Version always part of this file
 #define FW_VERSION "000.06.005"                 // Check releaseLog for details

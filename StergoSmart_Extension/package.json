@@ -1,0 +1,17 @@
+{
+  "name": "stergo-config",
+  "displayName": "Stergo Config",
+  "version": "0.0.1",
+  "publisher": "kresimir",
+  "engines": { "vscode": "^1.50.0" },
+  "activationEvents": ["onCommand:stergosmart.configure"],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "stergosmart.configure",
+        "title": "StergoSmart: Configure"
+      }
+    ]
+  }
+}

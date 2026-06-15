@@ -15,8 +15,8 @@ extern float Meter( float feet );
 
 // BME280 GPIOs 2 (SDA),0 (SCL) are used for BME280
 // 72 (2,0) 74 (4,5)
-#define GPIO_SDA 4
-#define GPIO_SCL 5
+#define GPIO_SDA 2
+#define GPIO_SCL 0
 #define BMEaddr 0x76 //BME280 address not all running on same address 0x76 || 0x77
 
 extern bool measureFirstRun;

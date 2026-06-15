@@ -1,5 +1,5 @@
 ## **TODO:**
-  - Filesystem/setupFS() - Implement fail over if SPIFFS get corrupted - copy content from web loc or Upload or 
+  - Filesystem/setupFS() - Implement fail over if littleFS get corrupted - copy content from web loc or Upload or 
     https://github.com/spacehuhn/esp8266_deauther/blob/master/esp8266_deauther/webfiles.h or start updateOTA for SPIFFS
   - Firmware update OTA, with more info - Your firmware is up to date, Firmware XXX available etc  
   - implement httpupdate LittleFS
@@ -15,6 +15,7 @@
 - added smoother NTP update not using built in update
 - Updated libraries: Arduinojson 6.21.6, DHT sensor library by Adafruit v1.4.7, DallasTemperature by Miles Burton v4.0.6 
 - fixed compile non Matrix version
+- Added VSCode extension for simple settings config.
 
 **000.06.004**
  - WiFiManager: Fully decoupled from the rest of the code. All WiFi-related global variables have been moved into the WiFiManager class.  
