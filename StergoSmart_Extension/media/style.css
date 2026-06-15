@@ -1,3 +1,7 @@
+/* -------------------------------------------------- */
+/* BASE LAYOUT + GLOBAL STYLES                        */
+/* -------------------------------------------------- */
+
 body {
     font-family: Segoe UI, sans-serif;
     padding: 20px;
@@ -16,6 +20,12 @@ h2 {
     gap: 18px;
 }
 
+/* Space between grid sections */
+.grid + .grid {
+    margin-top: 24px;
+}
+
+/* Main section container */
 .section {
     border: 1px solid #444;
     padding: 14px;
@@ -23,12 +33,39 @@ h2 {
     background: #252526;
 }
 
+/* -------------------------------------------------- */
+/* LABELS + INPUTS                                    */
+/* -------------------------------------------------- */
+
 label {
     display: block;
     margin-bottom: 8px;
     font-weight: bold;
     color: #9cdcfe;
 }
+
+.section label {
+    margin-top: 12px;
+}
+
+.section > label:first-of-type {
+    margin-top: 0;
+}
+
+.text-input {
+    width: 100%;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background: #222;
+    color: #eee;
+    margin-top: 4px;
+    box-sizing: border-box;   /* ← THIS FIXES EVERYTHING */
+}
+
+/* -------------------------------------------------- */
+/* LIST GROUP (for clickable items)                   */
+/* -------------------------------------------------- */
 
 .list-group {
     margin-bottom: 4px;
@@ -56,6 +93,10 @@ label {
     box-shadow: 0 0 6px #1a8cd8;
 }
 
+/* -------------------------------------------------- */
+/* BUTTONS                                            */
+/* -------------------------------------------------- */
+
 button {
     background: #0e639c;
     color: white;
@@ -69,4 +110,85 @@ button {
 
 button:hover {
     background: #1177bb;
+}
+
+/* -------------------------------------------------- */
+/* SCREEN ROWS (label + input + description)          */
+/* -------------------------------------------------- */
+
+.screen-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+/* Labels: no fixed width, no forcing */
+.screen-row label {
+    display: inline-block;
+    margin: 0;
+}
+
+/* Input column — keep your widths, align to RIGHT */
+.screen-input {
+    width: 30px !important;
+    padding: 4px 8px;
+    margin-left: auto;      /* ← pushes input to the right */
+    text-align: center;
+}
+
+.screen-input-text {
+    width: 50px !important;
+    padding: 4px 8px;
+    margin-left: auto;      /* ← pushes input to the right */
+    text-align: center;
+}
+
+/* Description column */
+.screen-desc {
+    color: #888;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-left: 6px;
+}
+
+
+/* -------------------------------------------------- */
+/* SENSOR GRID (BME + DHT side-by-side)               */
+/* -------------------------------------------------- */
+
+.sensor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+/* Orange bordered sensor blocks */
+.sensor-block {
+    border: 1px solid #d97a00;
+    background: #2b2b2b;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+/* Title above sensor blocks */
+.sensor-title {
+    color: #ffb74d;
+    font-size: 18px;
+    margin-bottom: 12px;
+    margin-top: 0;
+}
+
+/* Sensor block title */
+.sensor-block > label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #ffb74d;
+}
+
+/* Collapse to one column on smaller screens */
+@media (max-width: 700px) {
+    .sensor-grid {
+        grid-template-columns: 1fr;
+    }
 }

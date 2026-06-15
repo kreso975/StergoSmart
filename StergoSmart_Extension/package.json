@@ -1,8 +1,8 @@
 {
   "name": "stergosmart-config",
   "displayName": "StergoSmart Config",
-  "version": "0.0.1",
-  "publisher": "kresimir",
+  "version": "0.1.0",
+  "publisher": "kreso975",
   "repository": {
     "type": "git",
     "url": "https://github.com/kreso975/StergoSmart"
