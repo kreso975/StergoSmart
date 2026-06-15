@@ -16,7 +16,12 @@ const uint8_t kMatrixHeight = 8;
 const bool kMatrixSerpentineLayout = true;
 const bool kMatrixVertical = true;
 // 78 bedroom clock = 0, 74 = 1
-byte kMatrixOrientation = 0; // O = Normal, 1 = Diagonal flip (0 and 256 are on opposite diagonal side)
+//byte kMatrixOrientation = 0; // O = Normal, 1 = Diagonal flip (0 and 256 are on opposite diagonal side)
+#ifndef MATRIX_ORIENTATION
+#define MATRIX_ORIENTATION 0
+#endif
+
+byte kMatrixOrientation = MATRIX_ORIENTATION;
 
 CRGB leds_plus_safety_pixel[NUM_LEDS + 1];
 CRGB *const leds(leds_plus_safety_pixel + 1);

@@ -13,8 +13,10 @@ extern bool writeLogFile( String message, int newLine, int output);
 // external variables
 extern MQTTManager mqttManager;
 extern time_t adjustedTime;
-
-#define LED_PIN 2                   // 74 = 0, 78 = 2
+                  
+#ifndef LED_PIN
+#define LED_PIN 2 // 74 = 0, 78 = 2
+#endif
 #define COLOR_ORDER GRB
 #define CHIPSET WS2812B
 #define POWER_VOLTAGE 5             // set Voltage

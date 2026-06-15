@@ -16,6 +16,7 @@
 - Updated libraries: Arduinojson 6.21.6, DHT sensor library by Adafruit v1.4.7, DallasTemperature by Miles Burton v4.0.6 
 - fixed compile non Matrix version
 - Added VSCode extension for simple settings config.
+- Updated settings.h - including default settings value for other components like BME, Led Matrix etc
 
 **000.06.004**
  - WiFiManager: Fully decoupled from the rest of the code. All WiFi-related global variables have been moved into the WiFiManager class.  
