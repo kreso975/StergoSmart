@@ -133,4 +133,4 @@ You may modify it freely for personal or project use.
 
 **Config Extension** 
   
-<div style="display: flex; justify-content: center;"> <img src="./media/screenConfigExtension.png?raw=true" alt="Config Extension" title="Config Extension" style="width: 90%;"> </div>
+<div style="display: flex; justify-content: center;"> <img src="./media/screenConfigExtension.png?raw=true" alt="Config Extension" title="Config Extension" style="width: 100%;"> </div>
