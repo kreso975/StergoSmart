@@ -21,6 +21,13 @@
 #define GPIO_SCL 5
 #define BMEaddr 0x76 //BME280 address not all running on same address 0x76 || 0x77
 
+// DHT MODELS
+#define DHTPIN 0            // what pin we're connected to
+//#define DHTTYPE DHT11     // DHT 11
+//#define DHTTYPE DHT21     // DHT 21 (AM2301
+#define DHTTYPE DHT22       // DHT 22 (AM2302), AM2321
+
+
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
 #define STERGO_SCREEN 1

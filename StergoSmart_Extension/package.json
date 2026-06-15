@@ -1,8 +1,12 @@
 {
-  "name": "stergo-config",
-  "displayName": "Stergo Config",
+  "name": "stergosmart-config",
+  "displayName": "StergoSmart Config",
   "version": "0.0.1",
   "publisher": "kresimir",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kreso975/StergoSmart"
+  },
   "engines": { "vscode": "^1.50.0" },
   "activationEvents": ["onCommand:stergosmart.configure"],
   "main": "./extension.js",

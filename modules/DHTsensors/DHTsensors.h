@@ -5,9 +5,13 @@
 #include <DHT.h>
 
 // 
+#ifndef DHTPIN
 #define DHTPIN 0            // what pin we're connected to
-//#define DHTTYPE DHT11     // DHT 11
+#endif
+#ifndef DHTTYPE
 #define DHTTYPE DHT22       // DHT 22 (AM2302), AM2321
+#endif
+//#define DHTTYPE DHT11     // DHT 11
 //#define DHTTYPE DHT21     // DHT 21 (AM2301)
 
 extern bool writeLogFile(String message, int newLine, int output);
