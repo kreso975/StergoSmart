@@ -63,10 +63,10 @@ void setup()
 		writeLogFile(WiFi.localIP().toString(), 1, 1);
 		#endif
 		MDNS.begin( wifiManager.getHostname() );
-
-		// Start ntpUDP
+		delay(200);
+		// Start udpSocket
 		// We need it for M-SEARCH over UDP - SSDP discovery and NTP time sync
-		ntpUDP.begin( LOCAL_UDP_PORT );
+		udpSocket.begin( LOCAL_UDP_PORT );
 
 		timeClient.begin();
 		timeClient.update();
@@ -111,6 +111,7 @@ void loop()
 
 	if ( WiFi.getMode() == WIFI_STA )
 	{
+		
 		// Check and update time
 		unsigned long nowMs = millis();
 
@@ -167,6 +168,9 @@ void loop()
 
 		updateDisplay();
 		#endif											//===============================================
+
+		
+		updateSSDP();
   }
   
 
@@ -174,4 +178,5 @@ void loop()
 	#if ( defined( MODULE_SWITCH ) && ( STERGO_PLUG == 2 || STERGO_PLUG == 3 ) )  //===============================================
 	checkSwitchButton();	// Check Button State - long press
 	#endif                                                                   	   //===============================================
+	
 }

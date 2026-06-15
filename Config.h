@@ -139,6 +139,7 @@ DNSServer dnsServer;
 
 File fsUploadFile;
 
+WiFiUDP udpSocket;
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, NTPSERVER, 0, NTP_UPDATE); // 60 * 60 * 1000 == 1 hour
 unsigned long nextNtpSync = 0;

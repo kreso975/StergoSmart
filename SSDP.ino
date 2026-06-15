@@ -68,13 +68,13 @@ void arduinoHandler(const char *message)
 		writeLogFile(F("Found TICTACTOE_ProxyHUB in Arduino"), 1, 1);
 		#endif 				// -------------------------------------------
 		HUBproxy = 1;
-		HUBproxy_ip = ntpUDP.remoteIP();
-		//HUBproxy_port = ntpUDP.remotePort();
+		HUBproxy_ip = udpSocket.remoteIP();
+		//HUBproxy_port = udpSocket.remotePort();
 		return;
 	}
 		
 	// Get the device's IP address
-	IPAddress ssdpDeviceIP = ntpUDP.remoteIP();
+	IPAddress ssdpDeviceIP = udpSocket.remoteIP();
 	unsigned long currentTime = millis(); // Current time in milliseconds
 
 	// Loop through the list to check for existing records or an empty slot
@@ -133,15 +133,15 @@ void StergoHandler(const char *message)
 		writeLogFile(F("Found TICTACTOE_ProxyHUB in Stergo"), 1, 1);
 		#endif 				// -------------------------------------------
 		HUBproxy = 1;
-		HUBproxy_ip = ntpUDP.remoteIP();
-		//HUBproxy_port = ntpUDP.remotePort();
+		HUBproxy_ip = udpSocket.remoteIP();
+		//HUBproxy_port = udpSocket.remotePort();
 	}
 
 	strncpy(modelName, parseAndExtract(message, "", " ", 2), sizeof(modelName) - 1);
 	modelName[sizeof(modelName) - 1] = '\0'; // Ensure null-termination
 
 	snprintf(message2, sizeof(message2), "SERVER: Stergo Hi there! %s, I'm %s", modelName, _devicename);
-	sendUDP(message2, ntpUDP.remoteIP(), ntpUDP.remotePort());
+	sendUDP(message2, udpSocket.remoteIP(), udpSocket.remotePort());
 }
 
 struct UDPSubscription
@@ -250,11 +250,11 @@ TODO    : Add error handling and optimize buffer size if needed */
 void receiveUDP()
 {
 	char packetBuffer[512];
-	int packetSize = ntpUDP.parsePacket();
+	int packetSize = udpSocket.parsePacket();
 
 	if (packetSize)
 	{
-		int len = ntpUDP.read(packetBuffer, sizeof(packetBuffer) - 1);
+		int len = udpSocket.read(packetBuffer, sizeof(packetBuffer) - 1);
 		if (len > 0)
 			packetBuffer[len] = 0;
 
@@ -291,9 +291,9 @@ void sendUDP( const char* payloadUDP, IPAddress udpDeviceIP, int udpPort )
 	#endif
 
 	// Begin sending the packet
-	ntpUDP.beginPacket(udpDeviceIP, udpPort);
-	ntpUDP.write((uint8_t*)payloadUDP, strlen(payloadUDP));
-	ntpUDP.endPacket();
+	udpSocket.beginPacket(udpDeviceIP, udpPort);
+	udpSocket.write((uint8_t*)payloadUDP, strlen(payloadUDP));
+	udpSocket.endPacket();
 	
 	// Log the result of the packet sending
 	#if (DEBUG == 1)

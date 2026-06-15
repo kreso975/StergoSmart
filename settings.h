@@ -2,41 +2,48 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 /*
+Use StergoSmart_Extension in VSCode to generate settings.h file for your device
+
+RUN ctrl+shift+p -> StergoSmart: Configure
+*/
+
+
+/*
  * For What Device We need to Compile
  * 
  * STERGO_PROGRAM :
  *
  * PowerSwitch                  = 0
- * StergoWeather BME280         = 1 // Must configure in modules BME280/BME280.h set GPIO_SDA and GPIO_SCL
- * TicTacToe                    = 2
+ * StergoWeather BME280         = 1 // WS Must configure in modules BME280/BME280.h set GPIO_SDA and GPIO_SCL
+ * TicTacToe                    = 2 // TT
  * StergoWeather+PowerSwitch    = 3
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 1
+#define STERGO_PROGRAM 0
 
 // BME280 GPIOs 2 (SDA),0 (SCL) are used for BME280
 // 72 (2,0) 74 (4,5)
-#define GPIO_SDA 4
-#define GPIO_SCL 5
+#define GPIO_SDA 2
+#define GPIO_SCL 0
 #define BMEaddr 0x76 //BME280 address not all running on same address 0x76 || 0x77
 
 // DHT MODELS
-#define DHTPIN 0            // what pin we're connected to
-//#define DHTTYPE DHT11     // DHT 11
+#define DHTPIN 0
+//#define DHTTYPE "DHT22"
 //#define DHTTYPE DHT21     // DHT 21 (AM2301
 #define DHTTYPE DHT22       // DHT 22 (AM2302), AM2321
 
 
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
-#define STERGO_SCREEN 1
-#define LED_PIN 0                   // 74 = 0, 78 = 2
+#define STERGO_SCREEN 0
+#define LED_PIN 2
 // Matrix LED orientation
 // 78 bedroom clock = 0, 74 = 1
 // 0 = Normal
 // 1 = Diagonal flip (0 and 256 are on opposite diagonal side)
-#define MATRIX_ORIENTATION 1
+#define MATRIX_ORIENTATION 0
 
 /*
  * STERGO_PROGRAM_BOARD :
@@ -46,7 +53,7 @@
  * ESP32C6             = 3   // v03
  * ESP32C3             = 4   // v04
  */
-#define STERGO_PROGRAM_BOARD 2
+#define STERGO_PROGRAM_BOARD 1
 
 /*
  * STERGO_PLUG :
@@ -56,10 +63,10 @@
  * Sonoff T4EU1C      = 3   // Light Switch       - LS
  * Izymo Transmitter  = 4   // Izymo Transmitter  - IT
  */
-#define STERGO_PLUG 4
+#define STERGO_PLUG 1
 
 // Firmware Version always part of this file
-#define FW_VERSION "000.06.005"                 // Check releaseLog for details
+#define FW_VERSION "000.06.005"
 #define MODEL_FRENDLY_NAME "Stergo Smart"
 #define COMPANY_URL "http://www.stergo.hr"
 

@@ -101,9 +101,6 @@ void updateTicTacToe()
 	// We Have config setting for manualy start/stop Tic Tac Toe
 	if (tictac_start == 1)
 	{
-		// this should be removed out from TicTacToe, it belongs to UDP and SSDP
-		updateSSDP();
-
 		// Time interval to ask net devices to play tic tac toe
 		if ((millis() - ticCallLMInterval > ticTacCallInterval) || ticCallFirstRun)
 		{
@@ -535,7 +532,7 @@ void manageTicTacToeGame(const char* input)
 				#endif
 
 				// This must be fixed because if received over proxy IP is wrong
-				sendPacket("WePlay", 0, ntpUDP.remoteIP(), ntpUDP.remotePort());
+				sendPacket("WePlay", 0, udpSocket.remoteIP(), udpSocket.remotePort());
 
 				#if (DEBUG == 1)
 				snprintf(logMessage, sizeof(logMessage), "Reseting game");
@@ -589,7 +586,7 @@ void manageTicTacToeGame(const char* input)
 				writeLogFile(logMessage, 1, 1);
 				#endif
 
-				sendPacket("WePlay", 0, ntpUDP.remoteIP(), ntpUDP.remotePort());
+				sendPacket("WePlay", 0, udpSocket.remoteIP(), udpSocket.remotePort());
 				break;
 			}
 
@@ -798,8 +795,8 @@ void checkIfHUBProxyPlay(const char *message)
     }
 
     // Default behavior: retrieve remote IP and port if no ProxyHub prefix
-    opponentIP = ntpUDP.remoteIP();        // Fetch and save remote IP
-    opponentUDPport = ntpUDP.remotePort(); // Fetch and save remote port
+    opponentIP = udpSocket.remoteIP();        // Fetch and save remote IP
+    opponentUDPport = udpSocket.remotePort(); // Fetch and save remote port
 }
 
 #if (DEBUG == 1)
