@@ -9,7 +9,10 @@
  <br><br>
  
 ## **CHANGES:**
-**000.06.005** - in development 
+**000.06.006** - in development 
+- 
+
+**000.06.005**
 - functions.ino - fix DST - wrong detection of last sunday in October
 - added fix for NTP freeze
 - added smoother NTP update not using built in update
