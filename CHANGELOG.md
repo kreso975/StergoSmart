@@ -19,6 +19,7 @@
 - Updated settings.h - including default settings value for other components like BME, Led Matrix etc
 - fixed issue with UDP - call to receive moved back to loop
 - added separate UDP sockets for NTP and comunication
+- fixed sendWebhook removed static from HTTPClient
 
 **000.06.004**
  - WiFiManager: Fully decoupled from the rest of the code. All WiFi-related global variables have been moved into the WiFiManager class.  

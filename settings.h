@@ -20,7 +20,7 @@ RUN ctrl+shift+p -> StergoSmart: Configure
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 0
+#define STERGO_PROGRAM 4
 
 // BME280 GPIOs 2 (SDA),0 (SCL) are used for BME280
 // 72 (2,0) 74 (4,5)
@@ -37,7 +37,7 @@ RUN ctrl+shift+p -> StergoSmart: Configure
 
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
-#define STERGO_SCREEN 0
+#define STERGO_SCREEN 1
 #define LED_PIN 2
 // Matrix LED orientation
 // 78 bedroom clock = 0, 74 = 1

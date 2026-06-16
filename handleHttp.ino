@@ -253,7 +253,7 @@ Comments: - Supports both secure (HTTPS) and non-secure (HTTP) requests
 bool sendWebhook(const char *url, const char *data, bool secure)
 {
 	bool success = false;
-	static HTTPClient http; // Shared HTTPClient instance
+	HTTPClient http; // Shared HTTPClient instance
 
 	if (secure)
 	{
