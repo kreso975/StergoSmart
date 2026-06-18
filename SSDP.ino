@@ -1,24 +1,31 @@
 /* ======================================================================
-Function: setupSSDP
-Purpose : Initialize SSDP (Simple Service Discovery Protocol) Service
+Function: setupMDNS
+Purpose : Initialize mDNS (micro Domain Name System) Service
 Input   :
 Output  :
 Comments: - */
-void setupSSDP()
+void setupMDNS()
 {
-	SSDP.setSchemaURL("description.xml");
-	SSDP.setHTTPPort(80);
-	SSDP.setName(String(deviceName));
-	SSDP.setDeviceType("urn:schemas-upnp-org:device:StergoSmart:1"); // In case: put after SSDP.begin
-	SSDP.setSerialNumber(SERIAL_NUMBER);									  // This must be adjusted to chipID
-	SSDP.setURL("index.html");
-	SSDP.setModelName(MODEL_NAME);
-	SSDP.setModelNumber(MODEL_NUMBER);							 // This must be SET in main config
-	SSDP.setModelURL(String(COMPANY_URL) + "/" + PRODUCT); // Product is Model_name + Model_number
-	SSDP.setManufacturer("Stergo");
-	SSDP.setManufacturerURL(COMPANY_URL);
-	SSDP.begin();
-	writeLogFile(F("SSDP Started"), 1, 3);
+    // Start mDNS with device hostname
+    MDNS.begin(wifiManager.getHostname());
+
+    // Publish StergoSmart service on TCP port 80
+    MDNS.addService("stergosmart", "tcp", 80);
+
+    // Publish metadata (replaces SSDP XML fields)
+    MDNS.addServiceTxt("stergosmart", "tcp", "Name", deviceName);
+    MDNS.addServiceTxt("stergosmart", "tcp", "Serial", SERIAL_NUMBER);
+    MDNS.addServiceTxt("stergosmart", "tcp", "Model", MODEL_NAME);
+    MDNS.addServiceTxt("stergosmart", "tcp", "Version", MODEL_NUMBER);
+    MDNS.addServiceTxt("stergosmart", "tcp", "URL", "index.html");
+    MDNS.addServiceTxt("stergosmart", "tcp", "Manufacturer", "StergoSmart");
+    MDNS.addServiceTxt("stergosmart", "tcp", "MfgURL", COMPANY_URL);
+    MDNS.addServiceTxt("stergosmart", "tcp", "ProductURL", String(COMPANY_URL) + "/" + PRODUCT);
+
+    // Optional: device type (UPnP equivalent)
+    MDNS.addServiceTxt("stergosmart", "tcp", "DeviceType", "StergoSmart");
+
+    writeLogFile(F("mDNS StergoSmart service started"), 1, 3);
 
 	// Register the TicTacToe handler for the keyword "TicTac"
 	// These needs to be moved 
@@ -28,23 +35,23 @@ void setupSSDP()
 }
 
 /* ======================================================================
-Function: updateSSDP
-Purpose : Main updateSSDP Constructor ( called from Loop )
+Function: updateUDP
+Purpose : Main updateUDP Constructor ( called from Loop )
 Input   :
 Output  :
 Comments:
 TODO    : */
-void updateSSDP()
+void updateUDP()
 {
 	// Search for Devices in LAN
-	if ((millis() - previousSSDP > intervalSSDP) || measureSSDPFirstRun)
+	if ((millis() - previousDiscovery > intervalDiscovery) || measureDiscoveryFirstRun)
 	{
-		previousSSDP = millis();
-		measureSSDPFirstRun = false;
-		discoverySSDP(); // Init M-SEARCH over UDP, Searching for devices compatible to me :)
+		previousDiscovery = millis();
+		measureDiscoveryFirstRun = false;
+		discoveryDevices(); // Init M-SEARCH over UDP, Searching for devices compatible to me :)
 	}
 
-	// SSDP Discovery, Listen for TicTacToe
+	// UDP Discovery, Listen for TicTacToe
 	receiveUDP(); // WE DON'T NEED SSDP in WiFi AP mode
 }
 
@@ -230,12 +237,12 @@ char *parseAndExtract(const char *input, const char *key, const char *delimiter,
 }
 
 /* ======================================================================
-Function: discoverySSDP
+Function: discoveryDevices
 Purpose : UDP packets send
 Input   : 
 Output  : M-SEARCH &
 Comments: - */
-void discoverySSDP()
+void discoveryDevices()
 {
 	char payloadUDP[] = "M-SEARCH * HTTP/1.1\r\nHost:239.255.255.250:1900\r\nMan:\"ssdp:discover\"\r\nST:ssdp:all\r\nMX:1\r\n\r\n";
    sendUDP( payloadUDP, IPAddress(SSDPADRESS), SSDPPORT );

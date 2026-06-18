@@ -12,7 +12,6 @@ extern IPAddress HUBproxy_ip;
 extern int HUBproxy_port;
 
 // External functions
-extern void updateSSDP();
 extern char* parseAndExtract(const char* input, const char* key, const char* delimiter, int part);
 extern bool sendWebhook(const char* localURL, const char* data, bool secure);
 

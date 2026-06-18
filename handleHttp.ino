@@ -12,11 +12,6 @@ void setupHttpServer()
 	{
 		server.on("/", handleIndex);
 		server.on("/index.html", handleIndex);
-    #if defined(ESP8266)
-    server.on( "/description.xml", HTTP_GET, [&]() { SSDP.schema(server.client()); });
-    #elif defined(ESP32)
-    server.on("/description.xml", HTTP_GET, []() { server.send(200, "text/xml", SSDP.getSchema());});
-    #endif
 	}
 	else
 	{ // IF SERVER AP

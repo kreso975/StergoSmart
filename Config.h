@@ -7,7 +7,6 @@
   #include "ESP8266WebServer.h"
   #include "ESP8266httpUpdate.h"
   #include <ESP8266mDNS.h>
-  #include <ESP8266SSDP.h>            // SSDP (Simple Service Discovery Protocol) service
   extern "C" {
     #include "user_interface.h"
   }
@@ -20,7 +19,6 @@
   #include <WebServer.h>
   #include <HTTPUpdate.h>
   #include <ESPmDNS.h>
-  #include <ESP32SSDP.h>              // 2.0.0 https://github.com/luc-github/ESP32SSDP/releases
   #include "esp_system.h"
   #include <esp_netif.h>
   #include "esp_wifi.h"

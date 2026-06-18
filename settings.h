@@ -24,8 +24,8 @@ RUN ctrl+shift+p -> StergoSmart: Configure
 
 // BME280 GPIOs 2 (SDA),0 (SCL) are used for BME280
 // 72 (2,0) 74 (4,5)
-#define GPIO_SDA 2
-#define GPIO_SCL 0
+#define GPIO_SDA 4
+#define GPIO_SCL 5
 #define BMEaddr 0x76 //BME280 address not all running on same address 0x76 || 0x77
 
 // DHT MODELS
@@ -66,7 +66,7 @@ RUN ctrl+shift+p -> StergoSmart: Configure
 #define STERGO_PLUG 1
 
 // Firmware Version always part of this file
-#define FW_VERSION "000.06.005"
+#define FW_VERSION "000.06.006"
 #define MODEL_FRENDLY_NAME "Stergo Smart"
 #define COMPANY_URL "http://www.stergo.hr"
 

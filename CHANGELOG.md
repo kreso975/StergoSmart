@@ -10,7 +10,7 @@
  
 ## **CHANGES:**
 **000.06.006** - in development 
-- 
+- removed SSDP description.txt added mDNS data for faster dicovery 
 
 **000.06.005**
 - functions.ino - fix DST - wrong detection of last sunday in October

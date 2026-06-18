@@ -62,7 +62,8 @@ void setup()
 		writeLogFile(F("WiFi Connected, IP: "), 0, 1);
 		writeLogFile(WiFi.localIP().toString(), 1, 1);
 		#endif
-		MDNS.begin( wifiManager.getHostname() );
+
+		setupMDNS();
 		delay(200);
 		// Start udpSocket
 		// We need it for M-SEARCH over UDP - SSDP discovery and NTP time sync
@@ -75,8 +76,6 @@ void setup()
 		DST = isDST() ? 1 : 0;					// Check if DST is active	
 
 		setupHttpServer();
-		// If we are connected to WLAN we can start SSDP (Simple Service Discovery Protocol) service
-    	setupSSDP();
 
 		// Seed for generating Random number
 		randomSeed(analogRead(0));
@@ -170,7 +169,8 @@ void loop()
 		#endif											//===============================================
 
 		
-		updateSSDP();
+		updateUDP();
+		MDNS.update();
   }
   
 
