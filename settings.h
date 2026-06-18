@@ -20,12 +20,12 @@ RUN ctrl+shift+p -> StergoSmart: Configure
  * StergoWeather DHT22          = 4
  * StergoWeather DS18B20        = 5
  */
-#define STERGO_PROGRAM 4
+#define STERGO_PROGRAM 0
 
 // BME280 GPIOs 2 (SDA),0 (SCL) are used for BME280
 // 72 (2,0) 74 (4,5)
-#define GPIO_SDA 4
-#define GPIO_SCL 5
+#define GPIO_SDA 2
+#define GPIO_SCL 0
 #define BMEaddr 0x76 //BME280 address not all running on same address 0x76 || 0x77
 
 // DHT MODELS
@@ -37,7 +37,7 @@ RUN ctrl+shift+p -> StergoSmart: Configure
 
 // Screen or Led On device WS001 = Second 0 == device type
 // example: WS014 = WeatherStation 1 = LED 8x32, 4 = DHT22
-#define STERGO_SCREEN 1
+#define STERGO_SCREEN 0
 #define LED_PIN 2
 // Matrix LED orientation
 // 78 bedroom clock = 0, 74 = 1
@@ -53,7 +53,7 @@ RUN ctrl+shift+p -> StergoSmart: Configure
  * ESP32C6             = 3   // v03
  * ESP32C3             = 4   // v04
  */
-#define STERGO_PROGRAM_BOARD 1
+#define STERGO_PROGRAM_BOARD 2
 
 /*
  * STERGO_PLUG :
@@ -63,7 +63,7 @@ RUN ctrl+shift+p -> StergoSmart: Configure
  * Sonoff T4EU1C      = 3   // Light Switch       - LS
  * Izymo Transmitter  = 4   // Izymo Transmitter  - IT
  */
-#define STERGO_PLUG 1
+#define STERGO_PLUG 3
 
 // Firmware Version always part of this file
 #define FW_VERSION "000.06.006"
@@ -72,7 +72,7 @@ RUN ctrl+shift+p -> StergoSmart: Configure
 
 
 // 1 true | 0 false  / Serial.print 
-#define DEBUG 0
+#define DEBUG 1
 
 
 #endif // SETTINGS_H

@@ -19,6 +19,6 @@ char* parseAndExtract(const char* input, const char* key, const char* delimiter,
 
 // Time interval for UDP Discovery M-SEARCH
 bool measureDiscoveryFirstRun = true;
-const long intervalDiscovery = 1000 * 60 * 10;   // 1000 * 60 * 10 - 10min
+const long intervalDiscovery = 1000 * 60;   // 1000 * 60 * 10 - 10min
 unsigned long previousDiscovery = intervalDiscovery;  // time of last point added
 

@@ -51,24 +51,24 @@
     #define MODULE_MQTT
     #define MODULE_SWITCH
     #include "Switch.h"
-    #include "SSDP.h"
+    #include "UDP.h"
     #define MODULE_TICTACTOE
 #elif ( STERGO_PROGRAM == 1 || STERGO_PROGRAM == 4 || STERGO_PROGRAM == 5 )  // Weather Station BME280 | DHT | DS18B20
     #define MODULE_MQTT
     #define MODULE_WEATHER
     #include "Weather.h"
     #define MODULE_TICTACTOE
-    #include "SSDP.h"
+    #include "UDP.h"
 #elif ( STERGO_PROGRAM == 3 )  // Weather Station and Switch BME280
     #define MODULE_MQTT
     #define MODULE_WEATHER
     #include "Weather.h"
     #define MODULE_SWITCH
-    #include "SSDP.h"
+    #include "UDP.h"
     #include "Switch.h"
 #elif ( STERGO_PROGRAM == 2 )  // TicTacToe
     #define MODULE_TICTACTOE
-    #include "SSDP.h"
+    #include "UDP.h"
     #define MODEL_NAME "TT001"
 #endif
 

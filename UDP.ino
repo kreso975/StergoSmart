@@ -30,7 +30,6 @@ void setupMDNS()
 	// Register the TicTacToe handler for the keyword "TicTac"
 	// These needs to be moved 
 	subscribeUDP("TicTac", manageTicTacToeGame); // This should be only if Tic Tac Toe is Part of Core
-	subscribeUDP("Arduino", arduinoHandler);
 	subscribeUDP("Stergo", StergoHandler);
 }
 
@@ -48,7 +47,8 @@ void updateUDP()
 	{
 		previousDiscovery = millis();
 		measureDiscoveryFirstRun = false;
-		discoveryDevices(); // Init M-SEARCH over UDP, Searching for devices compatible to me :)
+		
+		discoveryMDNS();
 	}
 
 	// UDP Discovery, Listen for TicTacToe
@@ -56,77 +56,115 @@ void updateUDP()
 }
 
 /* ==========================================================================================
-Function: arduinoHandler
-Purpose : Manage a list of discovered devices using UDP received message.
-           - Add new devices to the list.
-           - Update timestamps for existing devices.
-           - Remove devices from the list if they are older than 24 hours.
-Input   : const char *message - The UDP message containing device message.
+Function: discoveryMDNS
+Purpose : Discover StergoSmart devices using mDNS query.
+           - Query LAN for devices advertising the "stergosmart" TCP service.
+           - Register new devices into the global device list.
+           - Update timestamps for already known devices.
+           - Remove devices older than 24 hours (same logic as ArduinoHandler).
+Input   : None (mDNS query is internal)
 Output  : Updates the global `foundSSDPdevices[]` array and `actualSSDPdevices` count.
-Comments: Uses `millis()` to track timestamps of devices.
-TODO    : 1. Use a real-time clock (RTC) for precise time handling.
-          2. Improve logging for better debugging. */
-void arduinoHandler(const char *message)
+Comments: Uses `millis()` for timestamping.
+          Called periodically from updateUDP() instead of SSDP M-SEARCH.
+          Logging follows the same format as ArduinoHandler for consistency.
+TODO    : 1. Parse TXT records for model/name if needed.
+          2. Improve hostname/IP correlation for multi-interface networks.
+*/
+void discoveryMDNS()
 {
-	// Check if the message contains "TICTACTOE_ProxyHUB"
-	if (strstr(message, "TICTACTOE_ProxyHUB") != NULL)
-	{
-		#if (DEBUG == 1) 	// -------------------------------------------
-		writeLogFile(F("Found TICTACTOE_ProxyHUB in Arduino"), 1, 1);
-		#endif 				// -------------------------------------------
-		HUBproxy = 1;
-		HUBproxy_ip = udpSocket.remoteIP();
-		//HUBproxy_port = udpSocket.remotePort();
-		return;
-	}
-		
-	// Get the device's IP address
-	IPAddress ssdpDeviceIP = udpSocket.remoteIP();
-	unsigned long currentTime = millis(); // Current time in milliseconds
+    unsigned long currentTime = millis();
 
-	// Loop through the list to check for existing records or an empty slot
-	for (int x = 0; x < NUMBER_OF_FOUND_SSDP; x++)
-	{
-		// If the device already exists, update its timestamp
-		if (foundSSDPdevices[x].ip == ssdpDeviceIP)
-		{
-			#if (DEBUG == 1) 					// -------------------------------------------
-			writeLogFile(F("Found Device udating Timestamp: "), 1, 1);
-			#endif 								// -------------------------------------------
-			foundSSDPdevices[x].timestamp = currentTime; // Update timestamp
-			return;													// Exit, as the device is already in the list
-		}
+    // Query mDNS for StergoSmart devices
+    int n = MDNS.queryService("stergosmart", "tcp");
 
-		// If the slot is empty, add the new device
-		if (foundSSDPdevices[x].ip == IPAddress(0, 0, 0, 0))
-		{
-			actualSSDPdevices = x + 1;
-			foundSSDPdevices[x].ip = ssdpDeviceIP;			// Add device
-			foundSSDPdevices[x].timestamp = currentTime; // Add timestamp
+    #if (DEBUG == 1)
+    writeLogFile(F("mDNS Discovery started"), 1, 1);
+    writeLogFile(F("mDNS Devices found: ") + String(n), 1, 1);
+    #endif
 
-			#if (DEBUG == 1) 					// -------------------------------------------
-			writeLogFile(F("Found Device: ") + foundSSDPdevices[x].ip.toString(), 1, 1);
-			writeLogFile(F("Actual Devices: ") + String(actualSSDPdevices), 1, 1);
-			#endif 								// -------------------------------------------
+    if (n <= 0) return;
 
-			return;
-		}
-	}
+    for (int i = 0; i < n; i++)
+    {
+        IPAddress foundIP = MDNS.IP(i);
+		  String host = MDNS.hostname(i);
 
-	// Remove records older than 24 hours (86400000 ms)
-	for (int x = 0; x < NUMBER_OF_FOUND_SSDP; x++)
-	{
-		if (foundSSDPdevices[x].ip != IPAddress(0, 0, 0, 0) && (currentTime - foundSSDPdevices[x].timestamp) > 86400000)
-		{
-			// Clear the old record
-			foundSSDPdevices[x].ip = IPAddress(0, 0, 0, 0);
-			foundSSDPdevices[x].timestamp = 0;
-			actualSSDPdevices--;
-			#if (DEBUG == 1) 					// -------------------------------------------
-			writeLogFile(F("Found Device for removal: ") + foundSSDPdevices[x].ip.toString(), 1, 3);
-			#endif 								// -------------------------------------------
-		}
-	}
+        #if (DEBUG == 1)
+        writeLogFile(F("mDNS Device IP: ") + foundIP.toString(), 1, 1);
+        writeLogFile(F("mDNS Hostname: ") + host, 1, 1);
+        #endif
+
+		  // --- CHECK FOR TICTACTOE_ProxyHUB DEVICE ---
+        if (host.indexOf("TICTACTOE_ProxyHUB") != -1)
+        {
+            HUBproxy = 1;
+            HUBproxy_ip = foundIP;
+
+            #if (DEBUG == 1)
+            writeLogFile(F("mDNS: Found TICTACTOE_ProxyHUB"), 1, 1);
+            writeLogFile(F("mDNS: HUBproxy IP: ") + foundIP.toString(), 1, 1);
+            #endif
+        }
+
+        // --- DEVICE REGISTRATION LOGIC (from ArduinoHandler) ---
+        bool updated = false;
+
+        for (int x = 0; x < NUMBER_OF_FOUND_SSDP; x++)
+        {
+            // Update timestamp if device already exists
+            if (foundSSDPdevices[x].ip == foundIP)
+            {
+                foundSSDPdevices[x].timestamp = currentTime;
+
+                #if (DEBUG == 1)
+                writeLogFile(F("mDNS: Updating timestamp for ") + foundIP.toString(), 1, 1);
+                #endif
+
+                updated = true;
+                break;
+            }
+
+            // Insert new device into empty slot
+            if (foundSSDPdevices[x].ip == IPAddress(0, 0, 0, 0))
+            {
+                foundSSDPdevices[x].ip = foundIP;
+                foundSSDPdevices[x].timestamp = currentTime;
+                actualSSDPdevices = x + 1;
+
+                #if (DEBUG == 1)
+                writeLogFile(F("mDNS: New Device Registered: ") + foundIP.toString(), 1, 1);
+                writeLogFile(F("Actual Devices: ") + String(actualSSDPdevices), 1, 1);
+                #endif
+
+                updated = true;
+                break;
+            }
+        }
+
+        // If no slot was updated, ignore (list full)
+        if (!updated)
+        {
+            #if (DEBUG == 1)
+            writeLogFile(F("mDNS: Device ignored (list full): ") + foundIP.toString(), 1, 3);
+            #endif
+        }
+    }
+
+    // --- REMOVE OLD DEVICES (same as ArduinoHandler) ---
+    for (int x = 0; x < NUMBER_OF_FOUND_SSDP; x++)
+    {
+        if (foundSSDPdevices[x].ip != IPAddress(0, 0, 0, 0) &&
+            (currentTime - foundSSDPdevices[x].timestamp) > 86400000)
+        {
+            #if (DEBUG == 1)
+            writeLogFile(F("mDNS: Removing stale device: ") + foundSSDPdevices[x].ip.toString(), 1, 3);
+            #endif
+
+            foundSSDPdevices[x].ip = IPAddress(0, 0, 0, 0);
+            foundSSDPdevices[x].timestamp = 0;
+            actualSSDPdevices--;
+        }
+    }
 }
 
 void StergoHandler(const char *message)
@@ -234,18 +272,6 @@ char *parseAndExtract(const char *input, const char *key, const char *delimiter,
 	}
 
 	return output; // Return the parsed part or an empty string
-}
-
-/* ======================================================================
-Function: discoveryDevices
-Purpose : UDP packets send
-Input   : 
-Output  : M-SEARCH &
-Comments: - */
-void discoveryDevices()
-{
-	char payloadUDP[] = "M-SEARCH * HTTP/1.1\r\nHost:239.255.255.250:1900\r\nMan:\"ssdp:discover\"\r\nST:ssdp:all\r\nMX:1\r\n\r\n";
-   sendUDP( payloadUDP, IPAddress(SSDPADRESS), SSDPPORT );
 }
 
 /* ======================================================================

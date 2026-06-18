@@ -5,12 +5,22 @@
   - implement httpupdate LittleFS
   - implement firmware update ESP32
   - start moving *.ino to .h and .cpp and place them to src folder 
+
+  - TICTACTOE_ProxyHUB must be tested - big changes in UDP
+
   
  <br><br>
  
 ## **CHANGES:**
 **000.06.006** - in development 
 - removed SSDP description.txt added mDNS data for faster dicovery 
+- removed arduinoHandler - added discoveryMDNS
+- renamed SSDP.h and SSDP.ino to UDP.h and UDP.ino
+- Optimized TicTacToe.cpp 
+  - win(board) reduced call
+  - reorganized: WePlay and Player
+  - optimized checkIfHUBProxyPlay - early exit
+  - fixed RandomSeed
 
 **000.06.005**
 - functions.ino - fix DST - wrong detection of last sunday in October

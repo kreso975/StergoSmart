@@ -138,7 +138,6 @@ void startGameValues(const char* playerName)
 	// Here we will start a game
    // RND am I playing first or second, and then send proper message
    gameStarted = 1;               				// game is in play
-	randomSeed(millis());							// Added additional random seed because ESP8266 D1 mini v4 always starts with same random number
    difficulty = random(3, BOARD_SIZE);     	// AI difficulty
 
    #if (DEBUG == 1)
@@ -157,7 +156,7 @@ void resetTicTacToe()
 	memset(board, 0, sizeof(board)); // Reset the board in one line
 
 	turn = player = 0;
-	byte difficulty = 8;
+	difficulty = 8;
 	playerName[0] = '\0';
 	memset(opponentName, 0, sizeof(opponentName));
 	
@@ -391,6 +390,7 @@ void letsPlay(TurnPhase what, const char *who)
 			break;
 
 		case PLAY_MOVE:
+		{
 			#if (DEBUG == 1)
 			printLogInPhase("LetsPlay_w2");
 			#endif
@@ -431,7 +431,7 @@ void letsPlay(TurnPhase what, const char *who)
 			// End of game logic = Check after every move
 			checkGameOver();
 			break;
-
+		}
 		default:
 			#if (DEBUG == 1)
 			writeLogFile(F("Invalid game phase"), 1, 1);
@@ -442,9 +442,11 @@ void letsPlay(TurnPhase what, const char *who)
 
 void checkGameOver()
 {
-	if ( ( turn < BOARD_SIZE && win(board) != 0 ) || turn == BOARD_SIZE )
+	int result = win(board);
+
+	if ( ( turn < BOARD_SIZE && result  != 0 ) || turn == BOARD_SIZE )
 	{
-		 switch ( win(board) )
+		 switch ( result  )
 		 {
 			  case DRAW:
 					#if (DEBUG == 1)
@@ -507,10 +509,14 @@ void manageTicTacToeGame(const char* input)
 	switch ( gamePhase )
 	{
 		case WePlay:
+		{
 			wantToPlay = atoi(parseAndExtract(input, "WePlay=", " "));
-			if ( !wantToPlay ) // Do not want to WePlay = 0
+
+			// ---------------------------------------------------------
+			// CASE 1: Opponent refuses (WePlay=0)
+			// ---------------------------------------------------------
+			if (!wantToPlay)
 			{
-				// Remote don't want to play
 				#if (DEBUG == 1)
 				snprintf(logMessage, sizeof(logMessage), PSTR("%s%s do not want to play"), REPLAYER, playerName);
 				writeLogFile(logMessage, 1, 1);
@@ -520,18 +526,19 @@ void manageTicTacToeGame(const char* input)
 				resetTicTacToe();
 				break;
 			}
-			else if ( wantToPlay && gameStarted )
+
+			// ---------------------------------------------------------
+			// CASE 2: Opponent wants to play but we are already in a game
+			// ---------------------------------------------------------
+			if (gameStarted)
 			{
-				// We cannot play because we are already playing
-				// Here we can check if we are playing with the same player already
-				// But i think simultanious games with the same Player are not OK
 				#if (DEBUG == 1)
 				snprintf(logMessage, sizeof(logMessage), PSTR("%s%s ask to play but we are already playing"), REPLAYER, playerName);
 				writeLogFile(logMessage, 1, 1);
 				printLogInPhase("WePlay");
 				#endif
 
-				// This must be fixed because if received over proxy IP is wrong
+				// NOTE: must use remoteIP/remotePort because proxy may rewrite IP
 				sendPacket("WePlay", 0, udpSocket.remoteIP(), udpSocket.remotePort());
 
 				#if (DEBUG == 1)
@@ -542,98 +549,132 @@ void manageTicTacToeGame(const char* input)
 				resetTicTacToe();
 				break;
 			}
-			else if ( wantToPlay && !gameStarted )
+
+			// ---------------------------------------------------------
+			// CASE 3: Opponent wants to play and we are free
+			// ---------------------------------------------------------
+			startGameValues(playerName);
+
+			// If WE asked first → we must decide Player negotiation
+			if (didIaskedToPlay)
 			{
-				// Init Start Game Values
-				startGameValues(playerName);
+				// 0 = ask opponent, 1 = opponent is P1, 2 = opponent is P2
+				randNumber = random(0, 3);
 
-				// Check if I'm the one asking
-				// That Way We know how to respond
-				if ( didIaskedToPlay )
-				{
-					// We will randomly choose To ask Opponent to choose Player 1 || 2 , or we will Choose 1 || 2
-					// 0 = Ask, 1 = Play 1st, 2 = Play 2nd
-					randNumber = random(0, 3);
-
-					#if (DEBUG == 1)
-					writeLogFile("In sending Player decision: " + String(randNumber), 1, 1);
-					#endif
-
-					//If randNumber is 1, player will be set to 2.If randNumber is 2, player will be set to 1.
-					//If randNumber is any other value (like 0), player retains its current value and is not modified.
-					player = (randNumber == 1) ? 2 : (randNumber == 2) ? 1 : player;
-
-					// Here I'm Back with answer and I need to ask oponent is he playin 1st or second
-					sendPacket("Player", randNumber, opponentIP, opponentUDPport);
-					break;
-				}
-				else
-				{
-					// I didnt sent Play Invitation so i just reply Yes I want to play
-					sendPacket("WePlay", 1, opponentIP, opponentUDPport);
-					break;
-				}
-			}
-			break;
-
-		case Player:
-			// First lets check if we can talk
-			if ( !gameStarted )
-			{
-				// I didnt sent Play Invitation so i just reply Yes I want to play
 				#if (DEBUG == 1)
-				snprintf(logMessage, sizeof(logMessage), PSTR("Somebody Skipped directly to Player"));
-				writeLogFile(logMessage, 1, 1);
+				writeLogFile("In sending Player decision: " + String(randNumber), 1, 1);
 				#endif
 
-				sendPacket("WePlay", 0, udpSocket.remoteIP(), udpSocket.remotePort());
+				// If randNumber is 1 → opponent is P1 → we are P2
+				// If randNumber is 2 → opponent is P2 → we are P1
+				if (randNumber == 1) player = 2;
+				if (randNumber == 2) player = 1;
+
+				sendPacket("Player", randNumber, opponentIP, opponentUDPport);
 				break;
 			}
 
-			selectPlayer = atoi(parseAndExtract(input, "Player=", " "));
-			if ( selectPlayer == 0 ) // Not selected
-			{
-				// We need to make a decision Player 1 || 2
-				// We Send What Player are We, and Assign his
-				randNumber = random(1, 3);
-				player = (randNumber == 1) ? 2 : 1;
-
-				sendPacket("Player", randNumber, opponentIP, opponentUDPport);
-			}
-			else if ( (selectPlayer == 1 || selectPlayer == 2) && !gameStarted )
-			{
-				#if (DEBUG == 1)
-				writeLogFile(selectPlayer + " Selected to play as Player: " + String(selectPlayer), 1, 1);
-				printLogInPhase("Player");
-				#endif
-
-				player = selectPlayer;
-				letsPlay(INIT_GAME, playerName);
-			}
-			else if (selectPlayer == 1 && gameStarted && turn == 0)
-			{
-				// Opponent decided to play As player 1, lets register player as 1 and inform him he plays first, send him to play (-1)
-				player = selectPlayer;
-
-				#if (DEBUG == 1)
-				printLogInPhase("Player");
-				#endif
-
-				sendPacket("Move", -1, opponentIP, opponentUDPport);
-			}
-			else if (selectPlayer == 2 && gameStarted && turn == 0)
-			{
-				// Opponent decided to play As player 2, lets register player as 2 and start play
-				player = selectPlayer;
-
-				#if (DEBUG == 1)
-				printLogInPhase("Player");
-				#endif
-
-				letsPlay(PLAY_MOVE, playerName);
-				//sendPacket("Move", -1, opponentIP, 4210);
-			}
+			// THEY asked first → we simply accept
+			sendPacket("WePlay", 1, opponentIP, opponentUDPport);
 			break;
+		}
+
+		case Player:
+		{
+			// ---------------------------------------------------------
+			// Reject if Player arrives before WePlay handshake
+			// ---------------------------------------------------------
+			if (!gameStarted)
+			{
+				#if (DEBUG == 1)
+				snprintf(logMessage, sizeof(logMessage), PSTR("Received Player before WePlay"));
+				writeLogFile(logMessage, 1, 1);
+				printLogInPhase("Player");
+				#endif
+
+				sendPacket("WePlay", 0, opponentIP, opponentUDPport);
+				break;
+			}
+
+			byte selectPlayer = atoi(parseAndExtract(input, "Player=", " "));
+
+			#if (DEBUG == 1)
+			snprintf(logMessage, sizeof(logMessage), PSTR("Received Player=%d"), selectPlayer);
+			writeLogFile(logMessage, 1, 1);
+			printLogInPhase("Player");
+			#endif
+
+			// ---------------------------------------------------------
+			// CASE 1: Opponent says "I don't choose, YOU choose"
+			// ---------------------------------------------------------
+			if (selectPlayer == 0)
+			{
+				// Choose randomly: 1 or 2
+				byte choice = random(1, 3);   // 1 or 2
+				player = (choice == 1) ? 2 : 1;
+
+				#if (DEBUG == 1)
+				snprintf(logMessage, sizeof(logMessage), PSTR("Opponent sent Player=0, choosing %d"), choice);
+				writeLogFile(logMessage, 1, 1);
+				#endif
+
+				sendPacket("Player", choice, opponentIP, opponentUDPport);
+				break;
+			}
+
+			// ---------------------------------------------------------
+			// CASE 2: Opponent explicitly chooses (1 or 2)
+			// ---------------------------------------------------------
+			if (selectPlayer == 1 || selectPlayer == 2)
+			{
+				player = selectPlayer;
+
+				#if (DEBUG == 1)
+				snprintf(logMessage, sizeof(logMessage), PSTR("Opponent selected Player=%d"), selectPlayer);
+				writeLogFile(logMessage, 1, 1);
+				printLogInPhase("Player");
+				#endif
+
+				// Opponent is Player 1 → opponent starts
+				if (player == 1)
+				{
+						#if (DEBUG == 1)
+						snprintf(logMessage, sizeof(logMessage), PSTR("Opponent is Player 1 → sending Move=-1"));
+						writeLogFile(logMessage, 1, 1);
+						#endif
+
+						sendPacket("Move", -1, opponentIP, opponentUDPport);
+				}
+				else
+				{
+						// Opponent is Player 2 → WE start
+						#if (DEBUG == 1)
+						snprintf(logMessage, sizeof(logMessage), PSTR("Opponent is Player 2 → we play first"));
+						writeLogFile(logMessage, 1, 1);
+						#endif
+
+						computerMove(board);
+
+						#if (DEBUG == 1)
+						draw(board);
+						#endif
+
+						sendPacket("Move", sentMove, opponentIP, opponentUDPport);
+				}
+
+				break;
+			}
+
+			// ---------------------------------------------------------
+			// Invalid Player value
+			// ---------------------------------------------------------
+			#if (DEBUG == 1)
+			snprintf(logMessage, sizeof(logMessage), PSTR("Invalid Player value: %d"), selectPlayer);
+			writeLogFile(logMessage, 1, 1);
+			#endif
+
+			break;
+		}
 
 		case Move:
 			// Getting Move response from Remote Player
@@ -771,33 +812,39 @@ void sendTicTacWebhook(byte where)
 // This is used to detect if opponent wants to play not over ProxyHub but directly
 void checkIfHUBProxyPlay(const char *message)
 {
-    // Locate the first semicolon in the message
-    const char* firstSemicolon = strchr(message, ';');
-    const char* secondSemicolon = firstSemicolon ? strchr(firstSemicolon + 1, ';') : NULL;
-
-    // Check if the message contains at least two semicolons
-    // This determines whether it has the ProxyHub prefix
-    HUBproxy_play = (firstSemicolon && secondSemicolon) ? 1 : 0;
-
-    if (HUBproxy_play)
-    {
-        // Extract opponent's IP address from the message
-        char opponentIPStr[16] = {0}; // Initialize a temporary array for the IP string
-        strncpy(opponentIPStr, message, firstSemicolon - message); // Copy IP substring
-        opponentIP.fromString(opponentIPStr); // Convert to IP object
-
-        // Extract opponent's UDP port from the message
-        char opponentUDPportStr[6] = {0}; // Initialize a temporary array for the port string
-        strncpy(opponentUDPportStr, firstSemicolon + 1, secondSemicolon - firstSemicolon - 1); // Copy port substring
-        opponentUDPport = atoi(opponentUDPportStr); // Convert to integer
-
-        return; // Exit the function since ProxyHub data is processed
+    // Find semicolons (proxy format: "IP;PORT;SERVER...")
+    const char* firstSemicolon  = strchr(message, ';');
+    if (!firstSemicolon) {
+        // Normal UDP packet
+        HUBproxy_play = 0;
+        opponentIP = udpSocket.remoteIP();
+        opponentUDPport = udpSocket.remotePort();
+        return;
     }
 
-    // Default behavior: retrieve remote IP and port if no ProxyHub prefix
-    opponentIP = udpSocket.remoteIP();        // Fetch and save remote IP
-    opponentUDPport = udpSocket.remotePort(); // Fetch and save remote port
+    const char* secondSemicolon = strchr(firstSemicolon + 1, ';');
+    if (!secondSemicolon) {
+        // Normal UDP packet
+        HUBproxy_play = 0;
+        opponentIP = udpSocket.remoteIP();
+        opponentUDPport = udpSocket.remotePort();
+        return;
+    }
+
+    // If we reach here → proxy format detected
+    HUBproxy_play = 1;
+
+    // Extract IP
+    char opponentIPStr[16] = {0};
+    strncpy(opponentIPStr, message, firstSemicolon - message);
+    opponentIP.fromString(opponentIPStr);
+
+    // Extract port
+    char opponentUDPportStr[6] = {0};
+    strncpy(opponentUDPportStr, firstSemicolon + 1, secondSemicolon - firstSemicolon - 1);
+    opponentUDPport = atoi(opponentUDPportStr);
 }
+
 
 #if (DEBUG == 1)
 // Just Draw Grid

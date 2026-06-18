@@ -63,8 +63,6 @@ void setup()
 		writeLogFile(WiFi.localIP().toString(), 1, 1);
 		#endif
 
-		setupMDNS();
-		delay(200);
 		// Start udpSocket
 		// We need it for M-SEARCH over UDP - SSDP discovery and NTP time sync
 		udpSocket.begin( LOCAL_UDP_PORT );
@@ -75,10 +73,19 @@ void setup()
 		startTime = now();
 		DST = isDST() ? 1 : 0;					// Check if DST is active	
 
+		delay(200);
+		setupMDNS();
+		delay(200);
+
 		setupHttpServer();
 
-		// Seed for generating Random number
-		randomSeed(analogRead(0));
+		// Universal RNG seed for ESP8266 and ESP32.
+		// ESP8266 D1 mini v4 provides almost no analog noise on A0 (stable value),
+		// while ESP32 does provide real ADC noise. By XORing analogRead(0) with
+		// micros(), we combine hardware noise (when available) with a high‑resolution
+		// timer. This guarantees a unique, high‑entropy seed on both platforms and
+		// prevents the random() sequence from repeating after reboot.
+		randomSeed(analogRead(0) ^ micros());
 
 		#ifdef MQTT_H										//=================== MQTT Manager ==============
 		if ( mqttManager.getMqttStart() )
