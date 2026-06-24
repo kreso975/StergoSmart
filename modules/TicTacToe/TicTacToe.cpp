@@ -736,7 +736,7 @@ void inviteDeviceTicTacToe()
 	{
 		char replyPacket[100];
 		// We are randomly picking 3 times one of available addresses
-		randNumber = random(0, actualSSDPdevices);
+		randNumber = random(0, actualUDPdevices);
 
 		// Marked that we sent invitation | We are locked until we set this to false
 		didIaskedToPlay = true;
@@ -744,7 +744,7 @@ void inviteDeviceTicTacToe()
 		// We also do the hack to auto unlock us using Stale game
 		ticTacLastPlayed = millis();
 
-		IPAddress rndAddr = foundSSDPdevices[randNumber].ip;
+		IPAddress rndAddr = foundUDPdevices[randNumber].ip;
 		if ( rndAddr )
 		{
 			#if (DEBUG == 1)

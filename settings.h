@@ -52,18 +52,20 @@ RUN ctrl+shift+p -> StergoSmart: Configure
  * LOLIN D1 mini       = 2   // v02
  * ESP32C6             = 3   // v03
  * ESP32C3             = 4   // v04
+ * ESP32dev            = 5   // v05
  */
-#define STERGO_PROGRAM_BOARD 2
+#define STERGO_PROGRAM_BOARD 5
 
 /*
  * STERGO_PLUG :
  * 
- * Native Board relay = 1   // Relay Switch       - RS
- * Sonoff S26         = 2   // Plug Switch        - PS
- * Sonoff T4EU1C      = 3   // Light Switch       - LS
- * Izymo Transmitter  = 4   // Izymo Transmitter  - IT
+ * Native Board relay   = 1   // Relay Switch       - RS
+ * Sonoff S26           = 2   // Plug Switch        - PS
+ * Sonoff T4EU1C        = 3   // Light Switch       - LS0 01
+ * Izymo Transmitter    = 4   // Izymo Transmitter  - IT
+ * Sonoff SwitchMan m5  = 5   // Light Switch       - LS0 02
  */
-#define STERGO_PLUG 3
+#define STERGO_PLUG 5
 
 // Firmware Version always part of this file
 #define FW_VERSION "000.06.006"

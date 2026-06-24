@@ -1,20 +1,19 @@
-
-#define SSDPPORT 1900
-#define SSDPADRESS 239, 255, 255, 250
+#pragma once
 
 //set local UDP port - using it for device 2 device communication (WiFi)
 #define LOCAL_UDP_PORT 4210
-#define NUMBER_OF_FOUND_SSDP 10
-//IPAddress foundSSDPdevices[NUMBER_OF_FOUND_SSDP];
-struct SSDPDevice {
+#define NUMBER_OF_FOUND_UDP 10
+
+struct UDPDevice {
    IPAddress ip;
    unsigned long timestamp; // Use millis() or a time function for the timestamp
 };
-SSDPDevice foundSSDPdevices[NUMBER_OF_FOUND_SSDP];
-int actualSSDPdevices = 0;
+UDPDevice foundUDPdevices[NUMBER_OF_FOUND_UDP];
+
+int actualUDPdevices;
 
 // Declare function because of default param provided
-void sendUDP(const char* payloadUDP, IPAddress ssdpDeviceIP = (0,0,0,0), int udpPort = LOCAL_UDP_PORT );
+void sendUDP(const char* payloadUDP, IPAddress udpDeviceIP = (0,0,0,0), int udpPort = LOCAL_UDP_PORT );
 char* parseAndExtract(const char* input, const char* key, const char* delimiter, int part = -1);
 
 // Time interval for UDP Discovery M-SEARCH

@@ -177,7 +177,9 @@ void loop()
 
 		
 		updateUDP();
+		#if defined(ESP8266)
 		MDNS.update();
+		#endif
   }
   
 

@@ -13,14 +13,14 @@ void setupMDNS()
     MDNS.addService("stergosmart", "tcp", 80);
 
     // Publish metadata (replaces SSDP XML fields)
-    MDNS.addServiceTxt("stergosmart", "tcp", "Name", deviceName);
     MDNS.addServiceTxt("stergosmart", "tcp", "Serial", SERIAL_NUMBER);
-    MDNS.addServiceTxt("stergosmart", "tcp", "Model", MODEL_NAME);
-    MDNS.addServiceTxt("stergosmart", "tcp", "Version", MODEL_NUMBER);
-    MDNS.addServiceTxt("stergosmart", "tcp", "URL", "index.html");
-    MDNS.addServiceTxt("stergosmart", "tcp", "Manufacturer", "StergoSmart");
-    MDNS.addServiceTxt("stergosmart", "tcp", "MfgURL", COMPANY_URL);
-    MDNS.addServiceTxt("stergosmart", "tcp", "ProductURL", String(COMPANY_URL) + "/" + PRODUCT);
+	 MDNS.addServiceTxt("stergosmart", "tcp", "Model", (const char*)MODEL_NAME);
+	 MDNS.addServiceTxt("stergosmart", "tcp", "Version", (const char*)MODEL_NUMBER);
+	 MDNS.addServiceTxt("stergosmart", "tcp", "URL", "index.html");
+	 MDNS.addServiceTxt("stergosmart", "tcp", "Manufacturer", "StergoSmart");
+	 MDNS.addServiceTxt("stergosmart", "tcp", "MfgURL", (const char*)COMPANY_URL);
+	 MDNS.addServiceTxt("stergosmart", "tcp", "ProductURL", (String(COMPANY_URL) + "/" + PRODUCT).c_str());
+	 MDNS.addServiceTxt("stergosmart", "tcp", "DeviceType", "StergoSmart");
 
     // Optional: device type (UPnP equivalent)
     MDNS.addServiceTxt("stergosmart", "tcp", "DeviceType", "StergoSmart");
@@ -63,7 +63,7 @@ Purpose : Discover StergoSmart devices using mDNS query.
            - Update timestamps for already known devices.
            - Remove devices older than 24 hours (same logic as ArduinoHandler).
 Input   : None (mDNS query is internal)
-Output  : Updates the global `foundSSDPdevices[]` array and `actualSSDPdevices` count.
+Output  : Updates the global `foundUDPdevices[]` array and `actualUDPdevices` count.
 Comments: Uses `millis()` for timestamping.
           Called periodically from updateUDP() instead of SSDP M-SEARCH.
           Logging follows the same format as ArduinoHandler for consistency.
@@ -86,7 +86,12 @@ void discoveryMDNS()
 
     for (int i = 0; i < n; i++)
     {
-        IPAddress foundIP = MDNS.IP(i);
+		#if defined(ESP8266)										// =================== ESP8266 ==========================
+        	IPAddress foundIP = MDNS.IP(i);
+		#elif defined(ESP32)										// =================== ESP32 ==========================
+	  		IPAddress foundIP = MDNS.address(i);
+		#endif
+
 		  String host = MDNS.hostname(i);
 
         #if (DEBUG == 1)
@@ -109,12 +114,12 @@ void discoveryMDNS()
         // --- DEVICE REGISTRATION LOGIC (from ArduinoHandler) ---
         bool updated = false;
 
-        for (int x = 0; x < NUMBER_OF_FOUND_SSDP; x++)
+        for (int x = 0; x < NUMBER_OF_FOUND_UDP; x++)
         {
             // Update timestamp if device already exists
-            if (foundSSDPdevices[x].ip == foundIP)
+            if (foundUDPdevices[x].ip == foundIP)
             {
-                foundSSDPdevices[x].timestamp = currentTime;
+                foundUDPdevices[x].timestamp = currentTime;
 
                 #if (DEBUG == 1)
                 writeLogFile(F("mDNS: Updating timestamp for ") + foundIP.toString(), 1, 1);
@@ -125,15 +130,15 @@ void discoveryMDNS()
             }
 
             // Insert new device into empty slot
-            if (foundSSDPdevices[x].ip == IPAddress(0, 0, 0, 0))
+            if (foundUDPdevices[x].ip == IPAddress(0, 0, 0, 0))
             {
-                foundSSDPdevices[x].ip = foundIP;
-                foundSSDPdevices[x].timestamp = currentTime;
-                actualSSDPdevices = x + 1;
+                foundUDPdevices[x].ip = foundIP;
+                foundUDPdevices[x].timestamp = currentTime;
+                actualUDPdevices = x + 1;
 
                 #if (DEBUG == 1)
                 writeLogFile(F("mDNS: New Device Registered: ") + foundIP.toString(), 1, 1);
-                writeLogFile(F("Actual Devices: ") + String(actualSSDPdevices), 1, 1);
+                writeLogFile(F("Actual Devices: ") + String(actualUDPdevices), 1, 1);
                 #endif
 
                 updated = true;
@@ -151,18 +156,18 @@ void discoveryMDNS()
     }
 
     // --- REMOVE OLD DEVICES (same as ArduinoHandler) ---
-    for (int x = 0; x < NUMBER_OF_FOUND_SSDP; x++)
+    for (int x = 0; x < NUMBER_OF_FOUND_UDP; x++)
     {
-        if (foundSSDPdevices[x].ip != IPAddress(0, 0, 0, 0) &&
-            (currentTime - foundSSDPdevices[x].timestamp) > 86400000)
+        if (foundUDPdevices[x].ip != IPAddress(0, 0, 0, 0) &&
+            (currentTime - foundUDPdevices[x].timestamp) > 86400000)
         {
             #if (DEBUG == 1)
-            writeLogFile(F("mDNS: Removing stale device: ") + foundSSDPdevices[x].ip.toString(), 1, 3);
+            writeLogFile(F("mDNS: Removing stale device: ") + foundUDPdevices[x].ip.toString(), 1, 3);
             #endif
 
-            foundSSDPdevices[x].ip = IPAddress(0, 0, 0, 0);
-            foundSSDPdevices[x].timestamp = 0;
-            actualSSDPdevices--;
+            foundUDPdevices[x].ip = IPAddress(0, 0, 0, 0);
+            foundUDPdevices[x].timestamp = 0;
+            actualUDPdevices--;
         }
     }
 }

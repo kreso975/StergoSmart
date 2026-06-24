@@ -15,12 +15,14 @@
 **000.06.006** - in development 
 - removed SSDP description.txt added mDNS data for faster dicovery 
 - removed arduinoHandler - added discoveryMDNS
-- renamed SSDP.h and SSDP.ino to UDP.h and UDP.ino
+- renamed SSDP.h and SSDP.ino to myUDP.h and UDP.ino
 - Optimized TicTacToe.cpp 
   - win(board) reduced call
   - reorganized: WePlay and Player
   - optimized checkIfHUBProxyPlay - early exit
   - fixed RandomSeed
+- Updated ESP32 mDNS 
+- Fixed ESP32 compile
 
 **000.06.005**
 - functions.ino - fix DST - wrong detection of last sunday in October

@@ -44,6 +44,7 @@
  * LOLIN D1 mini       = 2   // v02
  * ESP32C6             = 3   // v03
  * ESP32C3             = 4   // v04
+ * ESP32dev            = 5   // v05
  */
 #define STERGO_PROGRAM_BOARD 2
 
